@@ -1,0 +1,508 @@
+<center>
+<H1>
+
+  <!-- ## title -->
+
+  ADCIRC MATLAB TUTORIAL
+
+<!-- ADCIRC and MATLAB Tutorial -->
+
+</H1>
+
+<h2> <a HREF="#MATLAB">MATLAB</a>  Working with ADCIRC in MATLAB </h2>
+          
+</center>
+
+Last update: Date: 22 April 2010
+
+
+<!-- MATLAB -->
+<!-- MATLAB -->
+<!-- MATLAB -->
+<!-- MATLAB -->
+<br><br>
+
+<b>Getting the ADCIRC MATLAB Toolbox</b>
+	<br><br>
+	The ADCIRC MATLAB toolbox is maintained under the Subversion 
+	version control system.  In order to use the SVN repository, 
+	the SVN client must be installed locally.  Check with your 
+	sysadmin or install from source in your personal space. 
+
+	Once SVN in installed, the bleeding edge can be checked out from 
+    the repository by doing the following:
+
+	<ul>
+	<li> Define a location in which to put a local copy of the toolbox;  for example, mkdir ~/SVN 
+      	<li> chdir to this directory (~/SVN)
+	<li> Execute the following command:  <strong> svn checkout svn://workhorse.europa.renci.org/adcirc_util adcirc_util </strong>  This will checkout (download) the contents of the adcirc_util directory, which contains more than just the MATLAB toolbox.  The MATLAB toolbox will be in the directory adcirc_util/matlab. There is also a directory of test files (adcirc_util/matlab/testfiles) that contains files used in the demonstration/tutorial commands below. 
+
+	<li> Add the following to your matlab/startup.m file: 
+	
+	<pre>
+ 	% Add distribution paths
+	global ADCIRC
+	ADCIRC='path_to/SVN/adcirc_util/matlab';
+	addpath(ADCIRC,'-end')    
+	adcircinit
+	clear ADCIRC
+	</pre>
+
+	where "path_to" is the path to the SVN directory that was just created; e.g., "/Users/bblanton".   MATLAB will now see the toolbox directories.   
+
+	<br><br>
+	In order to use some of the MATLAB tools, c-code (cmex) files need to be compiled in the adcirc_util/matlab/mex directory.  In MATLAB, cd to this location and type "makemex".  This should build the binary files needed for element-finding and contouring. 
+
+        </ul>
+
+	<br>	<br>
+
+   <b> Test/example files to accompany the tutorial</b>
+   <br><br>
+   Yes, there are. The toolbox checked out of the SVN repository includes a test directory (testfiles) with ADCIRC files from a coarse-resolution grid.  The files are used in this tutorial to demonstrate the MATLAB commands for handling ADCIRC output in MATLAB.
+
+	<br>
+
+
+
+<H1>
+
+  <!-- ## title -->
+
+  ADCIRC MATLAB TUTORIAL
+
+<!-- ADCIRC and MATLAB Tutorial -->
+
+</H1>
+
+<h2>
+General Notes:
+</h2>
+   
+
+To exercise the tutorial examples, either copy the test files from the testfiles directory to a separate directory, or change directory to the testfiles directory and work there.
+
+<ul>
+	<li> Most plotting commands (plotbnd, lcontour, etc) can take MATLAB's parameter/value pairs of arguments for linewidth, color, etc.  This is denoted below with "pn1,pv1,...".  Arguments prior to "pn1,pv1,..." are REQUIRED. The parameter/value pairs denoted with "pn1,pv1,..." are handled internally with MATLAB's varargin facility.  
+
+	<li> All plotting commands return handles to the graphics objects drawn.  The handles can be used to edit the graphics objects or to delete them from the axes in which they were drawn.
+</ul>
+
+</h2>
+
+<br>
+<h2>
+Go to: 
+</h2>
+<ul>
+<li> <b> <a HREF="#LoadingGrid"> Loading an ADCIRC grid into MATLAB</a> </b>
+<li> <b> <a HREF="#DrawingGrid"> Drawing the ADCIRC grid </a> </b>
+<li> <b> <a HREF="#Read_Adcirc_Fort"> Loading an ADCIRC solution into MATLAB  </a> </b>
+<li> <b> <a HREF="#Colormesh2d"> Drawing a colored surface of an ADCIRC scalar field </a> </b>
+<li> <b> <a HREF="#Lcontour"> Drawing contour lines of an ADCIRC scalar field </a> </b>
+<li> <b> <a HREF="#Vecplot"> Drawing vectors from an ADCIRC solution </a> </b>
+<li> <b> <a HREF="#Findelem">  Finding elements that contain locations </a> </b>
+<li> <b> <a HREF="#InterpScalar"> Interpolating an ADCIRC variable onto a regularly spaced grid </a>  </b>
+ 
+
+
+</ul>
+
+
+<table border=1 width=200>
+<ul>
+<tr>
+<td>
+   <a name="LoadingGrid"></a>
+	<li> <b> Loading an ADCIRC grid into MATLAB </b>
+	<pre> 
+>> fgs=grd_to_opnml(adcirc_grid_name); 
+	</pre>
+	where adcirc_grid_name is a .grd file or fort.14, and fgs is the output variable containing the ADCIRC grid.  The data returned by GRD_TO_OPNML is a MATLAB structure called a fem_grid_struct.  Type "help fem_grid_struct" for more information.  Most ADCIRC-related plotting functions require a fem_grid_struct as input.  
+    
+   <br><br>
+   <strong>Example:</strong> 
+   <br><br>
+<pre>
+cd testfiles
+fgs=grd_to_opnml('ec95d.grd');
+Scanning ec_95d.grd :  nodes =31435 ... elements = 58369 ... open boundary = 1 ... 
+land boundary segments = 59 ... Number of Weir segments = 0 
+</pre>
+<br>
+The returned structure is shown to the right. 
+</td>
+<td>
+<pre>
+fgs = 
+               name: 'eastcoast_95d_ll_select.grd'
+                  x: [31435x1 double]
+                  y: [31435x1 double]
+                  z: [31435x1 double]
+                  e: [58369x3 double]
+                bnd: [4615x2 double]
+                 nn: 31435
+                 ne: 58369
+              nopen: 1
+    nopennodestotal: 103
+         nopennodes: {[103]}
+                 ob: {[103x1 double]}
+              nland: 59
+    nlandnodestotal: 4514
+         nlandnodes: [1x59 double]
+             ibtype: [Boundary codes]
+                 ln: {1x59 cell}
+        weirheights: {[0]}
+           n23nodes: 0
+           n24pairs: 0
+              nweir: 0
+                  A: [58369x3 double]
+                  B: [58369x3 double]
+                 A0: [58369x2 double]
+                  T: [58369x3 double]
+                 dy: [58369x3 double]
+                 dx: [58369x3 double]
+     interiorangles: [58369x3 double]
+              acute: [58369x1 logical]
+                 ar: [58369x1 double]
+               ineg: [0x1 double]
+
+</pre>
+</td>
+
+<tr>
+<td>
+    <a NAME="DrawingGrid"> </a>
+	<li> <b> Drawing the ADCIRC grid </b>
+	<pre> 
+>> he=drawelems(fem_grid_struct,pn1,pv1,...); 
+>> hb=plotbnd(fem_grid_struct,pn1,pv1,...); 
+	</pre>
+	where fgs is the grid structure previously loaded in to MATLAB.
+    
+    <br>
+    <br>
+	 <strong>Example:</strong> 
+    <br>
+<pre>
+he=drawelems(fgs,'Color','b','LineWidth',.1); 
+hb=plotbnd(fgs,'Color','k','LineWidth',2); 
+axis('equal')
+</pre>
+
+The figure can then be zoomed-in, scaled, annotated, etc, as usual.  
+
+<br><br>
+<strong>Example:</strong> 
+<br>
+<pre>
+axis([-78.1  -72.8   33.3   37.1])
+</pre>
+
+</td>
+
+<td>
+<img src=grid1.png width=400>
+<img src=grid2.png width=400>
+</td>
+
+</tr>
+
+
+
+<tr>
+<td>    
+
+   <a NAME="Read_Adcirc_Fort"> </a>
+
+	<li> <b> Loading an ADCIRC solution into MATLAB</b>
+	<br>
+	<br>
+<pre>
+>> F63=read_adcirc_fort('FileName',filename,'Compact',0|1);
+</pre>
+
+	ADCIRC solution files (.{6,7}{1,2,3,4}) can be loaded into MATLAB with the function READ_ADCIRC_FORT.  This actually calls a c-code mex file to do the actual read, and it returns a data structure with the contents of the fort file.  The fields of the data structure depend on the file type. For an elevation file, the structure contents are shown to the right.  In this test file, there are 383 outputs of the global elevation, stored in the "zeta" field of F63.  
+
+<br>
+<br>
+<strong>NOTE:</strong> ADCIRC has several types of output, and for the global files (fort.{6,7}{3,4}, which can be very large), there is a compact format that does not record flag values.  For example, in the global elevation file (fort.63), the flag value for dry nodes is -99999.  So, only wet nodes are written to the file.  In these compact files, the line indicating the time contains 4 values (in stead of the usual 2).  This must be indicated to READ_ADCIRC_FORT by setting the "Compact" parameter to 1.  This is shown in the example below.  The user must know if the global files are compact or not.  This is not automatically detected by READ_ADCIRC_FORT.
+<br><br>
+<strong>Example:</strong> 
+<br>
+<pre>
+F63=read_adcirc_fort('FileName','fort.63','Compact',1);
+</pre>
+
+There are several options that can be passed to READ_ADCIRC_FORT.  Type "help read_adcirc_fort" to see the list. The most important is the 'Compact' flag, which is required if the ADCIRC output is in compact format.  
+
+</td>
+<td>
+<pre>
+F63 = 
+    filename: 'fort.63'
+      header: [1x86 char]
+          dt: 1800
+          nn: 31435
+           t: [1x383 double]
+        zeta: [31435x144 double]
+</pre>
+
+</td>
+
+</tr>
+
+<tr>
+<td>
+     <a name="Colormesh2d"> </a>
+	<li> <b> Drawing a colored surface of an ADCIRC scalar field </b>
+	<br>
+	<br>
+<pre>
+>> hp=colormesh2d(fem_grid_struct,Q,nband,pn1,pv1,...)
+</pre>
+	Once a grid and a scalar field are loaded into MATLAB, the function COLORMESH2D can be used to render a colored surface of the scalar on the FEM grid. 
+
+<br><br>
+<strong>Example:</strong>  Draw a colored mesh of the 110th output time in F63.  Before doing that, however, convert the dry flags to NaNs for rendering.
+<br><br>
+
+<pre>
+F63.zeta(F63.zeta<-99990)=NaN;
+figure
+h=colormesh2d(fgs,F63.zeta(:,110));
+hb=plotbnd(fgs,'Color','k','LineWidth',2); 
+axis('equal')
+colormap(jet(32))
+colorbar
+axis([-78.1  -72.8   33.3   37.1])
+</pre>
+
+</td>
+
+<td>
+<img src=elev1.png width=400>
+</td>
+
+</tr>
+
+
+<tr>
+<td>
+    <a name="Lcontour"> </a>
+
+	<li> <b> Drawing contour lines of an ADCIRC scalar field </b>
+	<br>
+	<br>
+<pre>
+>> h=lcontour(fem_grid_struct,Q,cval,pn1,pv1,...);
+</pre>
+Specific contour lines are drawn with LCONTOUR. Use LABCONT to label the contours by hand.  There is no auto-labeling.
+
+<br>
+<strong>Example:</strong> Draw contour lines for the 0.25, 0.5, 0.75, and 1.0 meter water level elevations.
+<br><br>
+<pre>
+hl=lcontour(fgs,F63.zeta(:,110),[0.25:0.25:1.0],'Color','k','Linewidth',2);
+labcont('FontSize',16)
+</pre>
+
+</td>
+
+<td>
+<img src=elev2.png width=400>
+</td>
+
+</tr>
+
+
+
+<tr>
+<td>    
+    <a name="Vecplot"> </a>
+    <li> <b> Drawing vectors from an ADCIRC solution </b>
+	<br>
+	<br>
+<pre>
+>> hv=vecplot(x,y,u,v,pn1,pv1,...);
+</pre>
+
+VECPLOT plots scaled vectors with components u,v originating at the locations x,y.  The sizes of x,y,u,v must all be equal.  
+
+<br><br>
+<strong>Example:</strong>
+<ul> 
+	<li> Load an ADCIRC vector file, plot the 110th output time.  For vector files, READ_ADCIRC_FORT returns the u,v components in fields named ubar,vbar.
+
+	<li> Zoom in FIRST, as the vector scaling does not change once the axis has been set.  To redraw the vectors at a different scale (either with the 'ScaleFac' argument or by zooming in or out, delete the previously drawn vectors by deleting the graphics handle returned by VECPLOT.  
+
+<li> VECPLOT does not automatically place the scaling arrow.  Use the mouse to place the scaling arrow on the axes.  The VECPLOT option 'ScaleLab' sets the text part of the scaling arrow; by default this is 'm/s'.  Set this to 'no scale' to not draw a scaling arrow, or use ScaleXor,ScaleYor to draw the scaling arrow at a specific location without mouse interaction.  
+
+<li> VECPLOT has several options: 
+<pre>
+     ArrowAngle - angle (in degrees) that the arrow head wings
+                  make with the shaft. Default=25
+     DotColor   - origin symbol color, for VecType=='stick'. Default='k'.
+     DotSize    - origin symbol size, for VecType=='stick'. Default=10.
+     DotStyle   - origin symbol, or VecType=='stick'. Default='.'.
+     MaxThresh  - Maximum vector magnitude to plot. Default=Inf.
+     MinThresh  - Minimum vector magnitude to plot. Default=0.
+     PctAxis    - Percent of axis for scale length. Default=10.
+     ScaleFac   - vector scaling factor. Default=1.
+     ScaleLabel - label for vector scale; 'no scale' prevents scale
+                  from being drawn; Default='m/s'.
+     ScaleType  - how to draw the vector scale, either 'fixed' or
+                  'floating'; Default='fixed'.
+     ScaleXor   - scale x-origin; Default=[].
+     ScaleYor   - scale y-origin; Default=[].
+     Stride     - amount to stride over in drawing vectors. Default=1, 
+                  meaning no stride.
+     VecType    - vector drawing method, either 'arrow' or 'stick';
+                  Default='arrow'.
+</pre>
+
+</ul>
+
+<br>
+
+<pre>
+F64=read_adcirc_fort('FileName','fort.64','Compact',1);
+clf
+plotbnd(fgs,'Color','k','LineWidth',1.5)
+axis('equal')
+axis([-78.1  -72.8   33.3   37.1])
+vecplot(fgs.x,fgs.y,F64.ubar(:,110),F64.vbar(:,110),'ScaleFac',2,'Stride',3)
+grid
+</pre>
+
+	<br>
+	<br>
+
+
+</td>
+
+<td><img src=vectors1.png width=400>
+</td>
+</tr>
+
+
+
+<tr>
+<td>    
+    <a name="Findelem"> </a>
+    <li> <b> Finding elements that contain locations </b>
+	<br>
+	<br>
+<pre>
+>> j=findelem(fem_grid_struct,xylist);
+</pre>
+Locating which ADCIRC elements contain arbitrary locations requires testing elements for the values of the linear basis functions that span the elements.  The element for which all three basis functions are between 0 and 1 contain the location.  The function FINDELEM performs the search over the elements of the grid fem_grid_struct of the xy pairs xylist.  This can be an expensive operation to perform, if either the grid is large and/or the location list is large.  Store j to disk if j is expensive to compute.  
+
+<br><br>
+<strong>Example:</strong> Determine the element containing the point (-77.7256 , 34.2511).  Show this element on the grid.  The asterisk marks the point location.
+
+
+<br><br>
+<pre>
+j=findelem(fgs,[-77.7256   34.2511])
+j =
+       42961
+
+
+showelem(fgs,j)
+
+</pre>
+
+
+
+
+</td>
+
+<td>
+<img src=elem1.png width=400>
+<img src=elem2.png width=300>
+</td>
+</tr>
+
+
+<tr>
+<td>    
+    <a name="InterpScalar"> </a>
+    <li> <b> Interpolating an ADCIRC variable onto a regularly spaced grid</b>
+	<br>
+	<br>
+<pre>
+>> outq=interp_scalar(fem_grid_struct,ScalarToInterpolate,X,Y,ElementsContainingXY);
+</pre>
+
+<strong>Example:</strong>
+
+        First, generate a regularly spaced grid:
+<pre> 
+
+x=-78:.25:-76;
+y= 33:.25: 35;
+[X,Y]=meshgrid(x,y);
+
+</pre>
+
+	Then, find the elements that contain the points. The points outside of the grid will have NaNs for elements and hence NaN's for the interp'ed value; they won't get plotted by MATLAB's plotting/drawing commands.
+<pre>
+j=findelem(fgs,X,Y);
+</pre>
+
+	
+	
+Then, interpolate the scalar q onto x,y contained in elements j:
+<pre>
+outq=interp_scalar(fgs,F63.zeta(:,110),X(:),Y(:),j);
+</pre>
+
+	The results can easily be plotted with <strong> pcolor </strong>, first reshaping the output to the correct size:
+
+<pre>
+outq=reshape(outq,size(X));
+pcolor(X,Y,outq)
+plotbnd(fgs,'Color','k','LineWidth',2)
+shading flat
+colorbar
+title('Interpolated F63.zeta(:,110)','FontSize',20)
+</pre>
+
+<strong>NOTE:</strong>
+
+	To interpolate a vector (u,v), define the complex uv=u+iv and interpolate the complex scalar uv. 
+<pre>
+uv=F64.ubar(:,110)+sqrt(-1)*F64.vbar(:,110); 
+uvi=interp_scalar(fgs,uv,X(:),Y(:),j);
+uvi=reshape(uvi,size(X));
+ui=real(uvi);
+vi=imag(uvi);
+vecplot(X,Y,ui,vi,'ScaleFac',1,'ScaleLabel','no scale','Color','r','LineWidth',2)
+title({'Interpolated F63.zeta(:,110)','and F64.uvbar(:,110)'},'FontSize',20)
+
+</pre>
+
+</td>
+
+<td>
+<img src=interp1.png width=400>
+<img src=interp2.png width=400>
+</td>
+</tr>
+
+
+
+</table>
+
+
+
+	<br>
+	<br>
+
+	<li> <b> How do I interpolate an ADCIRC variable onto an abitrary set of points?  </b>
+	<br>
+	<br>  
+	This is done exactly as above, except that the locations to which to interpolate to are loaded in to matlab (or defined some other way).  
+</ol>
+
