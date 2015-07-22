@@ -67,8 +67,7 @@ if length(Q)>length(x)
 end
 
 % Default propertyname values
-Digits=4;
-
+Digits=6;
 
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
@@ -87,7 +86,6 @@ if length(varargin)<2
    varargin={};
 end
 
-
 % check input arguments length
 if length(x)~=length(y) 
    error(err2);
@@ -99,7 +97,7 @@ end
 % compute offset as 2% of each axis range
 X=get(gca,'Xlim');
 Y=get(gca,'YLim');
-off=(X(2)-X(1))/50;
+%off=(X(2)-X(1))/50;
 off=0;
 
 % get indices of nodes within viewing window defined by X,Y
@@ -115,7 +113,7 @@ xr=rect(3)-rect(1);
 yr=rect(4)-rect(2);
 xden=xr/sqrt(length(filt));
 yden=yr/sqrt(length(filt));
-den=sqrt(xden*xden+yden*yden);
+%den=sqrt(xden*xden+yden*yden);
 %if den < 5*ps
 %   click=questdlg(warn1,'yes','no');
 %   if strcmp(click,'no'),return,end
@@ -134,7 +132,7 @@ fmtstr=sprintf('%%.%dg',Digits);
        'Tag','Node Scalar Value',...
        'FontSize',16,varargin{:});
         
-if nargout>0,h=h1;,end
+if nargout>0,h=h1;end
 
 
 %LabSig  Brian O. Blanton
