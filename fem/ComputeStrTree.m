@@ -4,6 +4,14 @@ function mystr=ComputeStrTree(fgs)
 % import java.io.ObjectOutputStream;
 % import java.io.FileOutputStream;
 
+try
+    mystr=com.vividsolutions.jts.index.strtree.STRtree;
+catch ME
+    msg='Could not find jts.  Terminal.'
+    causeException = MException('MATLAB:myCode:jtsnotfound',msg);
+    throw(ME)
+end
+
 ne=size(fgs.e,1);
 fprintf('Computing STRtree for %d elements ... \n',ne);
 FuzzFac=100;
@@ -12,9 +20,9 @@ xmax=max(fgs.x(fgs.e),[],2);
 ymin=min(fgs.y(fgs.e),[],2);    
 ymax=max(fgs.y(fgs.e),[],2);        
 tic
-mystr=com.vividsolutions.jts.index.strtree.STRtree;
+
 for j=1:ne
-    if mod(j-1,10000)==0,fprintf('%d\n',j),end
+%    if mod(j-1,10000)==0,fprintf('%d\n',j),end
     dx=xmax(j)-xmin(j);    
     dy=ymax(j)-ymin(j);
     % add fuzz to envelope

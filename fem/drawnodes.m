@@ -67,8 +67,7 @@ end
 
 
 % DRAW NODES
-hel=line(x,y,'LineStyle','none','Marker','.','MarkerSize',10,varargin{:},'Tag','nodes');
-
+hel=line(x,y,'LineStyle','none','Marker','o','MarkerSize',6,varargin{:},'Tag','nodes');
 
 % Default fontsize=20;
 ps=20;

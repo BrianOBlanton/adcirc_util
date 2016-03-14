@@ -92,8 +92,6 @@ for kk=1:length(cval)
    end
 end 
 
-
-
 try 
     mm=gcm;
     for kk=1:length(cval)

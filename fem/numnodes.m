@@ -36,6 +36,7 @@ ps=20;
 %elems=fem_grid_struct.e;
 x=fem_grid_struct.x;
 y=fem_grid_struct.y;
+%z=10*ones(size(y));
 
 X=get(gca,'Xlim');
 Y=get(gca,'YLim');
@@ -65,9 +66,10 @@ filt=find(x>=X(1)&x<=X(2)&y>=Y(1)&y<=Y(2));
 strlist=num2str(filt,10);
 
 xx=x(filt);yy=y(filt);
+%zz=z(filt);
 %format long e
 % label only those nodes that lie within viewing window.
-htext=text(xx,yy,strlist,...
+h=text(xx,yy,strlist,...
                  'FontSize',ps,...
                  'HorizontalAlignment','center',...
                  'VerticalAlignment','middle',...
@@ -79,7 +81,7 @@ htext=text(xx,yy,strlist,...
                  'Tag','Node #');
 
 
-if nargout==1,h=htext;end
+%if nargout==1,h=htext;end
 return
 %
 %LabSig  Brian O. Blanton

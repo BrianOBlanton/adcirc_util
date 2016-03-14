@@ -77,7 +77,8 @@ Q=Q(:);
 
 
 % delete previous colorsurf objects
-%delete(findobj(gca,'Type','patch','Tag','colorsurf'))
+delete(findobj(gca,'Type','patch','Tag','colorsurf'))
+
 z=0*ones(size(x));
 
 
@@ -86,7 +87,7 @@ try
 %    disp('map')
     %hp=patchesm('faces',e,'vertices',[y x z],'facevertexcdata',Q,'EdgeColor','none',...
     %         'FaceColor','interp','Tag','colorsurf');
-    hp=patchm('XData',y,'YData',x,'ZData',z,'CData',z,'Tag','colorsurf');
+    hp=patchm('XData',y,'YData',x,'ZData',z,'CData',Q,'Tag','colorsurf');
 
 catch
 %   disp('plain')
