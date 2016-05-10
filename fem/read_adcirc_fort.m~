@@ -265,15 +265,11 @@ D.FortUnit=FortUnit;
 
 % if this is a "max" file, and if ncsets>1, split the data into 2 fields.
 % Max files now (v51.X+) contain the "time of max" as a second timestep.
-if strcmpi(FileName(1:3),'max')
+if strcmp(lower(FileName(1:3)),'max')
     if ndsets >1
         D.NDSETS=1;
         D.t=D.t(1);
-        D.iter=D.iter(1);
-        D.time_of_max=D.zeta(:,2);
-        D.zeta=D.zeta(:,1);
-    end
-end
+        D.iter
 
 % account for AdcCSD (Adcirc ColdStartDate)
 if ~isempty(AdcCSD)
