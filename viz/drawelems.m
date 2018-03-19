@@ -12,12 +12,12 @@ function hel=drawelems(fem_grid_struct,varargin)
 % Summer 1997
 %     
 
-REARTH=6367500;
+%REARTH=6367500;
 TheseElems=[];
-LabelElems='no';
+%LabelElems='no';
 
 % DEFINE ERROR STRINGS
-err1=['Not enough input arguments; need a fem_grid_struct'];
+%err1=['Not enough input arguments; need a fem_grid_struct'];
 
 % check arguments
 if nargin ==0 
@@ -37,18 +37,18 @@ SPH=false;
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
 k=1;
-while k<length(varargin),
-  switch lower(varargin{k}),
-    case 'meshheight',
+while k<length(varargin)
+  switch lower(varargin{k})
+    case 'meshheight'
       MeshHeight=varargin{k+1};
       varargin([k k+1])=[];
-    case 'sph',
+    case 'sph'
       SPH=varargin{k+1};
       varargin([k k+1])=[];
-    case 'labelelems',
-      LabelElems=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'theseelems',
+%     case 'labelelems'
+%       LabelElems=varargin{k+1};
+%       varargin([k k+1])=[];
+    case 'theseelems'
       TheseElems=varargin{k+1};
       varargin([k k+1])=[];      
     otherwise
@@ -84,7 +84,7 @@ end
 
 % COPY FIRST COLUMN TO LAST TO CLOSE ELEMENTS
 edges=[elems(:,[1 2]); elems(:,[2 3]) ; elems(:,[3 1])];
-[m,n]=size(edges);
+[m,~]=size(edges);
 xt=[x(edges) NaN*ones([m 1])];
 yt=[y(edges) NaN*ones([m 1])];
 zt=ones(size([z(edges) NaN*ones([m 1])]));

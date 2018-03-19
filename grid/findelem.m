@@ -92,25 +92,25 @@ elseif nargin==3   %  this is the tricky case
 else  % interactive
    disp('Click on element ...');
    waitforbuttonpress;
-   Pt=gcp;
+   Pt=GetCurrentPoint;
    xp=Pt(2);yp=Pt(4);
-   line(xp,yp,'LineStyle','+')
+   line(xp,yp,'Marker','+')
    jsearch=[];
 end
 
 % default tolerance for basis function evaluation
 DefaultTolerance=1.e-6;
-if ~exist('tolerance')
+if ~exist('tolerance','var')
    tolerance=DefaultTolerance;
 end
 
 
 % at this point, xp,yp,jsearch must all be 1-d vectors
-if ~(size(xp,2)==1 & size(yp,2)==1 & size(xp,1)==size(yp,1)) 
+if ~(size(xp,2)==1 && size(yp,2)==1 && size(xp,1)==size(yp,1)) 
    error('Incorrect dimensions on xp,yp.')
 end
 if ~isempty(jsearch)
-   if ~(size(xp,2)==1 & size(jsearch,2)==1)
+   if ~(size(xp,2)==1 && size(jsearch,2)==1)
       error('Incorrect dimensions on xp,jsearch.')
    end   
 end

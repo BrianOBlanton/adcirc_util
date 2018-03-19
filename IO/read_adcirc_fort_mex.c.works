@@ -1,0 +1,274 @@
+/*
+
+read_adcirc_fort_mex.c
+Binary read function for ADCIRC fort files 
+
+the calling function (read_adcirc_fort.m) handles
+most error checking.  
+
+27 Sep, 2005
+
+*/
+
+#include <math.h>
+#include <stdio.h>
+#include "mex.h"
+#include "opnml_mex5_allocs.c"
+#define BUFFER_SIZE 132
+#define MOD(i,j) (double)i/((double) Stride) - i/Stride
+
+/* PROTOTYPES */
+/* none */
+
+/************************************************************
+
+  ####     ##     #####  ######  #    #    ##     #   #
+ #    #   #  #      #    #       #    #   #  #     # #
+ #       #    #     #    #####   #    #  #    #     #
+ #  ###  ######     #    #       # ## #  ######     #
+ #    #  #    #     #    #       ##  ##  #    #     #
+  ####   #    #     #    ######  #    #  #    #     #
+
+************************************************************/
+
+/* ---- read_adcirc_fort_mex will be called as :
+        D=read_adcirc_fort(fname,unit,debug,stride); 
+	where fname is the char string containing the fort.?? filename
+	and unit is the ?? number.  This selects what gets read.
+	---------------------------- */
+
+void mexFunction(int nlhs,       mxArray *plhs[],
+                 int nrhs, const mxArray *prhs[])
+{
+   const char **fieldnames;
+   int *dims;
+   
+   int i,j,it,k; 
+   double *time;
+
+   char *fortfilename,*header;
+   int strlen,status,*supported_units=NULL,nunits,ifortunit;
+   double *fortunit=NULL;
+   FILE *fortfid=NULL, *fopen();
+   
+   int NDSETS,NSTEP,IFLAG,INN,ndsets;
+   int actual_steps;
+   double *DT,*NN;
+   mxArray *dt, *nn, *ttime;
+
+   nunits=2;
+   supported_units=mxIvector(0,nunits-1);
+   supported_units[0]=63;
+   supported_units[1]=64;
+   
+   /* --- check I/O arguments ------------------------------------------------------------ */
+   if      (nrhs != 4)  mexErrMsgTxt("read_adcirc_fort_mex requires 4 input arguments.");
+   else if (nlhs != 1)  mexErrMsgTxt("read_adcirc_fort_mex requires 1 output argument.");
+      
+   /* --- Firsst input must be a string -------------------------------------------------- */
+   if (mxIsChar(prhs[0]) != 1)mexErrMsgTxt("First input must be a string.");
+
+   /* --- Second input must be from set={63,64,...}  ------------------------------------- */
+   fortunit=mxGetPr(prhs[1]);
+   ifortunit=(int)fortunit[0];
+
+   /* --- get debug flag ----------------------------------------------------------------- */
+   double *temp;
+   int debug;
+   temp=mxGetPr(prhs[2]);
+   debug=(int)temp[0];
+
+   /* --- get stride flag ---------------------------------------------------------------- */
+   int Stride;
+   temp=mxGetPr(prhs[3]);
+   Stride=(int)temp[0];
+
+   if (debug){
+      fprintf(stdout,"\nDebug       = %d\n",debug);
+      fprintf(stdout,"\nUnit number = %d\n",ifortunit);
+      fprintf(stdout,"\nStride      = %d\n",Stride);
+   }
+
+   int ii;
+   for (ii=0;ii<nunits;ii++){if (ifortunit == supported_units[ii])goto l20;}
+   mexErrMsgTxt("Unsupported ADCIRC output unit number.");
+   l20: if (debug) printf("ii=%d\n",ii);
+
+   /* --- open fort.?? file ------------------------------------------ */
+   strlen=mxGetN(prhs[0])+1;
+   fortfilename=mxCalloc(strlen,sizeof(char));
+   status=mxGetString(prhs[0],fortfilename,strlen);
+   if (status!=0)fprintf(stderr,"Input filename string extraction failed in READ_ADCIRC_FORT_MEX.");
+
+   if (debug)printf("\nfortfilename=%s\n",fortfilename);
+ 
+   if (!(fortfid = fopen(fortfilename,"r"))){
+      printf("Open of %s failed.  Check for file. Terminal.\n",fortfilename);
+      plhs[0]=mxCreateDoubleMatrix(0,0,mxREAL); 
+      return;}
+   
+   if (debug)printf("\nnrhs=%d\n",nrhs);
+   
+   /* --- switch on fort number --------------------------------------- */   
+   /* --- Case fort.61,63 --------------------------------------------- */
+   if (ifortunit == 61 | ifortunit == 63){      
+	   mxArray *zz;
+	   double *z;
+	   int nfields;
+	   nfields=6;
+	   fieldnames=mxCalloc(nfields,sizeof(*fieldnames));
+	   fieldnames[0]="filename";
+	   fieldnames[1]="header";
+	   fieldnames[2]="dt";
+	   fieldnames[3]="nn";
+	   fieldnames[4]="time";
+	   fieldnames[5]="zeta";
+
+	   /* --- create return structure ----------------------------- */
+	   plhs[0] = mxCreateStructMatrix(1, 1, nfields , fieldnames);
+	   
+	   header=mxCalloc(BUFFER_SIZE,sizeof(char));
+	   fgets(header,BUFFER_SIZE,fortfid);  
+	   if (debug)printf("\nfort.XX header line=%s\n",header);
+
+	   DT=(double *) mxDvector(0,1);
+	   NN=(double *) mxDvector(0,1);
+
+	   fscanf(fortfid,"%d %lf %lf %d %d",&NDSETS,NN,DT,&NSTEP,&IFLAG);
+	   INN=(int)NN[0];
+	   
+           ndsets=NDSETS/Stride;
+
+	   if (debug){
+		  fprintf(stdout,"Expected Number of Data Sets in file   = %d\n",  NDSETS); 
+                  fprintf(stdout,"Expected Number of Data Sets to return = %d\n",  ndsets);
+                  fprintf(stdout,"Data Set Stride                        = %d\n",  Stride);
+		  fprintf(stdout,"Number of ADCIRC nodes                 = %d\n",  INN); 
+		  fprintf(stdout,"Time Step in fort file                 = %lf\n", DT[0]); 
+		  fprintf(stdout,"Number of Model steps per output       = %d\n",  NSTEP);}
+
+
+	   /* --- (Partly) Fill return structure ---------------------- */
+	   dt=mxCreateDoubleMatrix(1,1,mxREAL);
+	   mxSetPr(dt,DT);
+	   mxSetFieldByNumber(plhs[0], 0, 2, dt);
+
+	   nn=mxCreateDoubleMatrix(1,1,mxREAL);
+	   mxSetPr(nn,NN);
+	   
+	   mxSetFieldByNumber(plhs[0], 0, 0, mxCreateString(fortfilename));
+	   mxSetFieldByNumber(plhs[0], 0, 1, mxCreateString(header));
+	   mxSetFieldByNumber(plhs[0], 0, 2, dt);
+	   mxSetFieldByNumber(plhs[0], 0, 3, nn);   
+
+	   /* --- Scan data part of fort.?? file ---------------------- */
+	   z=   (double *) mxDvector(0,INN*ndsets);
+	   time=(double *) mxDvector(0,ndsets);
+           actual_steps=0;
+           for (i=0;i<NDSETS;i++){
+             double test;
+             test=MOD(i,Stride);
+/*             if(debug)fprintf(stdout,"\nStride test=%lf\n",test);*/
+	     if (test<1.e-6 ){
+                 fscanf(fortfid,"%lf %d",&time[actual_steps],&it);
+	          if (debug)fprintf(stdout,"Reading!! %d %lf %d\n",i,time[actual_steps],it); 
+	          for (j=0;j<INN;j++){fscanf(fortfid,"%d %lf",&k,&z[j+actual_steps*INN]);}
+	          actual_steps++;
+              }
+              else{
+                 double timetemp, ztemp;
+                 fscanf(fortfid,"%lf %d",&timetemp,&it);
+	         if (debug)fprintf(stdout,"Skipped !! %d %lf %d\n",i,timetemp,it); 
+	         for (j=0;j<INN;j++){fscanf(fortfid,"%d %lf",&k,&ztemp);}
+              }
+           }
+	   
+	   ttime=mxCreateDoubleMatrix(1,ndsets,mxREAL);
+	   mxSetPr(ttime,time);
+	   mxSetFieldByNumber(plhs[0], 0, 4, ttime);
+
+	   zz=mxCreateDoubleMatrix(INN,ndsets,mxREAL);
+	   mxSetPr(zz,z);
+	   mxSetFieldByNumber(plhs[0], 0, 5, zz);
+   } 
+   /* --- END CASE FORT.61,63------------------------------------------ */
+
+   /* --- Case fort.62,64 --------------------------------------------- */
+   else if(ifortunit == 62 | ifortunit == 64){
+   
+	   mxArray *uu,*vv;
+	   double *u,*v;
+	   int nfields;
+	   nfields=7;
+	   fieldnames=mxCalloc(nfields,sizeof(*fieldnames));
+	   fieldnames[0]="filename";
+	   fieldnames[1]="header";
+	   fieldnames[2]="dt";
+	   fieldnames[3]="nn";
+	   fieldnames[4]="time";
+	   fieldnames[5]="ubar";
+	   fieldnames[6]="vbar";
+
+	   /* --- create return structure ----------------------------- */
+	   plhs[0] = mxCreateStructMatrix(1, 1, nfields , fieldnames);
+	   
+	   header=mxCalloc(BUFFER_SIZE,sizeof(char));
+	   fgets(header,BUFFER_SIZE,fortfid);  
+	   if (debug)printf("fort.63 header line=%s\n",header);
+
+	   DT=(double *) mxDvector(0,1);
+	   NN=(double *) mxDvector(0,1);
+
+	   fscanf(fortfid,"%d %lf %lf %d %d",&NDSETS,NN,DT,&NSTEP,&IFLAG);
+	   INN=(int)NN[0];
+	   
+	   if (debug){
+		  fprintf(stdout,"Number of expected Data Sets     = %d\n",  NDSETS); 
+		  fprintf(stdout,"Number of ADCIRC nodes           = %d\n", INN); 
+		  fprintf(stdout,"Time Step in fort file           = %lf\n", DT[0]); 
+		  fprintf(stdout,"Number of Model steps per output = %d\n",  NSTEP);}
+
+	   /* --- (Partly) Fill return structure ---------------------- */
+	   dt=mxCreateDoubleMatrix(1,1,mxREAL);
+	   mxSetPr(dt,DT);
+	   mxSetFieldByNumber(plhs[0], 0, 2, dt);
+
+	   nn=mxCreateDoubleMatrix(1,1,mxREAL);
+	   mxSetPr(nn,NN);
+	   
+	   mxSetFieldByNumber(plhs[0], 0, 0, mxCreateString(fortfilename));
+	   mxSetFieldByNumber(plhs[0], 0, 1, mxCreateString(header));
+	   mxSetFieldByNumber(plhs[0], 0, 2, dt);
+	   mxSetFieldByNumber(plhs[0], 0, 3, nn);   
+
+	   /* --- Scan data part of fort.?? file ---------------------- */
+	   u=   (double *) mxDvector(0,INN*NDSETS);
+	   v=   (double *) mxDvector(0,INN*NDSETS);
+	   time=(double *) mxDvector(0,NDSETS);
+	   for (i=0;i<NDSETS;i++){
+		  fscanf(fortfid,"%lf %d",&time[i],&it);
+		  if (debug)fprintf(stdout,"%d %lf %d\n",actual_steps,time[actual_steps],it); 
+		  for (j=0;j<INN;j++){
+			 fscanf(fortfid,"%d %lf %lf",&k,&u[j+i*INN],&v[j+i*INN]);}
+	   actual_steps++;
+	   }
+	   
+	   ttime=mxCreateDoubleMatrix(1,NDSETS,mxREAL);
+	   mxSetPr(ttime,time);
+	   mxSetFieldByNumber(plhs[0], 0, 4, ttime);
+
+	   uu=mxCreateDoubleMatrix(INN,NDSETS,mxREAL);
+	   mxSetPr(uu,u);
+	   mxSetFieldByNumber(plhs[0], 0, 5, uu);
+	   vv=mxCreateDoubleMatrix(INN,NDSETS,mxREAL);
+	   mxSetPr(vv,v);
+	   mxSetFieldByNumber(plhs[0], 0, 6, vv);
+   
+   } 
+   /* --- END CASE FORT.62,64 ----------------------------------------- */
+
+
+   fclose(fortfid);
+   return;
+}
+  

@@ -20,7 +20,11 @@ function rv1=colormesh2d(fem_grid_struct,Q,nband)
 % added map catch/linem, 21 Aug 14, BOB
 %
 
+<<<<<<< Updated upstream
 %nargchk(1,3,nargin);
+=======
+narginchk(1,3);
+>>>>>>> Stashed changes
 
 % VERIFY INCOMING STRUCTURE
 %
@@ -37,11 +41,11 @@ y=fem_grid_struct.y;
 
 % DETERMINE SCALAR TO CONTOUR
 %
-if ~exist('Q')
+if ~exist('Q','var')
   Q=fem_grid_struct.z;
   nband=16;
 elseif ischar(Q)
-  if strcmp(lower(Q),'z')
+  if strcmpi(Q,'z')
     Q=fem_grid_struct.z;            % Default to bathymetry
   else
      error('Second arg to COLORMESH2D must be ''z'' for depth')
@@ -54,7 +58,7 @@ elseif length(Q)==1
 else
    % columnate Q
    Q=Q(:);
-   [nrowQ,ncolQ]=size(Q);
+   [nrowQ,~]=size(Q);
    if nrowQ ~= length(x)
       error('Length of scalar must equal number of nodes in grid.');
    end 
@@ -75,15 +79,13 @@ if nrowQ ~= length(x)
 end
 Q=Q(:);
 
-
 % delete previous colorsurf objects
 delete(findobj(gca,'Type','patch','Tag','colorsurf'))
 
 z=0*ones(size(x));
 
-
 try 
-    mm=gcm;
+    mm=gcm; %#ok<NASGU>
 %    disp('map')
     %hp=patchesm('faces',e,'vertices',[y x z],'facevertexcdata',Q,'EdgeColor','none',...
     %         'FaceColor','interp','Tag','colorsurf');
@@ -95,8 +97,6 @@ catch
              'FaceColor','interp','Tag','colorsurf');
      
 end
-
-
 
 
 %colormap(jet(nband))

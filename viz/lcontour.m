@@ -95,20 +95,17 @@ end
 try 
     mm=gcm;
     for kk=1:length(cval)
-    if ~isnan(h(kk))
-      h(kk)=linem(YY{kk},XX{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour');
+        if ~isnan(h(kk))
+            h(kk)=linem(YY{kk},XX{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
+        end
     end
-    end
-
 catch
     for kk=1:length(cval)
-    if ~isnan(h(kk))
-      h(kk)=line(XX{kk},YY{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour');
-    end
-    end
-
+        if ~isnan(h(kk))
+            h(kk)=line(XX{kk},YY{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
+        end
+    end    
 end
-
 
 
 h(isnan(h))=0;

@@ -36,7 +36,7 @@ Y=get(gca,'YLim');
 % Since the boundary list is not guaranteed to be "ordered" 
 % we need to know the unique node numbers in the boundary
 %
-[nlist,ncount] = count(bnd(:));
+[nlist,~] = count(bnd(:));
 nlist=nlist(:);
 
 xb=x(nlist);
@@ -47,7 +47,7 @@ filt=find(xb>=X(1)&xb<=X(2)&yb>=Y(1)&yb<=Y(2));
 
 % Build string matrix
 temp=nlist(filt);
-strlist=num2str(temp,6);
+strlist=num2str(temp,12);
 
 xx=xb(filt);yy=yb(filt);
 format long e
@@ -55,9 +55,14 @@ format long e
 htext=text(xx,yy,strlist,...
                  'HorizontalAlignment','center',...
                  'VerticalAlignment','middle',...
-                 'Tag','Bnd Node #',varargin{:});
+                 'EdgeColor','k',...
+                 'BackgroundColor','w',...
+                 'Clipping','on',...
+                 'Color','k',...
+                 'Tag','Bnd Node #',...
+                 varargin{:});
 
-if nargout==1,h=htext;,end
+if nargout==1,h=htext;end
 return
 %
 %LabSig  Brian O. Blanton

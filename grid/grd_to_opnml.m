@@ -26,7 +26,7 @@ if ~exist('fort14name')
    % assume fort.14 filename in the current wd.
    fort14name='fort.14';
 end
-if verbose, fprintf('Scanning %s : ',fort14name), end
+if verbose, fprintf('Scanning %s ... ',fort14name), end
 
 % Open fort.14 file
 [f14,message]=fopen(fort14name,'r');
@@ -51,7 +51,7 @@ z=temp(:,4);
 if verbose, fprintf('%d ... ',nn),end
 
 % Get elements
-if verbose, fprintf('   elements = '),end 
+if verbose, fprintf('\nelements = '),end 
 temp=fscanf(f14,'%d %d %d %d %d',[5 ne])';
 e=temp(:,3:5);
 if verbose, fprintf('%d ... ',ne),end
@@ -66,7 +66,7 @@ fem_grid_struct.nn=length(x);
 fem_grid_struct.ne=length(e);
 
 % scan open boundary
-if verbose, fprintf('   open boundary = '), end
+if verbose, fprintf('\nopen boundary = '), end
 fem_grid_struct.nopenboundaries=fscanf(f14,'%d',1);fgets(f14);
 fem_grid_struct.elevation=fscanf(f14,'%d',1);fgets(f14);
 if (fem_grid_struct.nopenboundaries==0)   
@@ -96,8 +96,8 @@ n23nodes=0;
 n24pairs=0;
 
 %fem_grid_struct.nfluxnodes=[0];
-fem_grid_struct.nlandnodes=[0];
-fem_grid_struct.ibtype=[0];
+fem_grid_struct.nlandnodes=0;
+fem_grid_struct.ibtype=0;
 fem_grid_struct.ln={0};
 fem_grid_struct.weirheights={0};
 
@@ -108,6 +108,7 @@ for i=1:fem_grid_struct.nland
 
    fem_grid_struct.nlandnodes(i)=temp(1);
    fem_grid_struct.ibtype(i)    =temp(2);
+    if verbose, fprintf('\n      %d %d %d ... ',i,temp(1),temp(2)),end
 
    switch fem_grid_struct.ibtype(i)    % On ibtype
    
@@ -144,10 +145,14 @@ fem_grid_struct.n23nodes=n23nodes;
 fem_grid_struct.n24pairs=n24pairs;
 fem_grid_struct.nweir=n24;
 
-fem_grid_struct=belint(fem_grid_struct);
-fem_grid_struct=el_areas(fem_grid_struct);
+try 
+    fem_grid_struct=belint(fem_grid_struct);
+    fem_grid_struct=el_areas(fem_grid_struct);
+catch ME
+    disp('Returning incomplete fem_grid_struct.')
+    throw(ME)
+end
 
-
-if verbose, fprintf('Number of Weir segments = %d \n',n24), end
+if verbose, fprintf('\nNumber of Weir segments = %d \n',n24), end
 
 return

@@ -77,48 +77,48 @@ else
     % Strip off propertyname/value pairs in varargin not related to
     % "line" object properties.
     k=1;
-    while k<length(varargin),
-      switch lower(varargin{k}),
-        case 'compact',
+    while k<length(varargin)
+      switch lower(varargin{k})
+        case 'compact'
           Compact=varargin{k+1};
           varargin([k k+1])=[];
           if ~(Compact == 0 || Compact==1)
              error('Compact parameter must be integer 0 or 1')
           end
-        case 'level',
+        case 'level'
           Level=varargin{k+1};
           varargin([k k+1])=[];
-        case 'stride',
+        case 'stride'
           Stride=varargin{k+1};
           varargin([k k+1])=[];
-        case 'headeronly',
+        case 'headeronly'
           HeaderOnly=varargin{k+1};
           varargin([k k+1])=[];
-        case 'iterstart',
+        case 'iterstart'
           IterStart=varargin{k+1};
           varargin([k k+1])=[];
-        case 'iterend',
+        case 'iterend'
           IterEnd=varargin{k+1};
           varargin([k k+1])=[];
-        case 'strip',
+        case 'strip'
           Strip=varargin{k+1};
           varargin([k k+1])=[];
-        case 'verbose',
+        case 'verbose'
           Verbose=varargin{k+1};
           varargin([k k+1])=[];
-        case 'filename',
+        case 'filename'
           FileName=varargin{k+1};
           if ~ischar(FileName)
              error('FileName to READ_ADCIRC_FORT must be a string. Terminal.')
           end
           varargin([k k+1])=[];
-        case 'fortunit',
+        case 'fortunit'
           FortUnit=varargin{k+1};
           if ~ischar(FortUnit)
              error('FortUnit to READ_ADCIRC_FORT must be a string. Terminal.')
           end
           varargin([k k+1])=[];
-        case 'adccsd',
+        case 'adccsd'
           AdcCSD=varargin{k+1};
           if ~isnumeric(AdcCSD)
              error('AdcCSD to READ_ADCIRC_FORT must be numeric. Terminal.')
@@ -265,7 +265,8 @@ D.FortUnit=FortUnit;
 
 % if this is a "max" file, and if ncsets>1, split the data into 2 fields.
 % Max files now (v51.X+) contain the "time of max" as a second timestep.
-if strcmpi(FileName(1:3),'max')
+[PATHSTR,NAME,EXT] = fileparts(FileName);
+if strcmpi(NAME(1:3),'max')
     if ndsets >1
         D.NDSETS=1;
         D.t=D.t(1);

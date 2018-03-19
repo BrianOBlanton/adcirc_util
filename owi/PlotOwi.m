@@ -3,7 +3,6 @@ function h=PlotOwi(OwiStruct,i,varargin)
 
 % Default propertyname values
 
-
 ColorMin=910;  
 ColorMax=1030;  
 ColorMap=jet(32);  
@@ -27,48 +26,45 @@ AxisLims=[];
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
 k=1;
-while k<length(varargin),
-  switch lower(varargin{k}),
-    case 'basinpressuredraw',
+while k<length(varargin)
+  switch lower(varargin{k})
+    case 'basinpressuredraw'
       BasinPressureDraw=varargin{k+1};
       varargin([k k+1])=[];
-    case 'basinvectorscalefac',
+    case 'basinvectorscalefac'
       BasinVectorScaleFac=varargin{k+1};
       varargin([k k+1])=[];
-    case 'basinvectordraw',
+    case 'basinvectordraw'
       BasinVectorDraw=varargin{k+1};
       varargin([k k+1])=[];
-    case 'basinvectorstride',
+    case 'basinvectorstride'
       BasinVectorStride=varargin{k+1};
       varargin([k k+1])=[];
-    case 'basinvectorcolor',
+    case 'basinvectorcolor'
       BasinVectorColor=varargin{k+1};
       varargin([k k+1])=[];
-    case 'regionpressuredraw',
+    case 'regionpressuredraw'
       RegionPressureDraw=varargin{k+1};
       varargin([k k+1])=[];
-    case 'regionvectordraw',
+    case 'regionvectordraw'
       RegionVectorDraw=varargin{k+1};
       varargin([k k+1])=[];
-    case 'regionvectorstride',
+    case 'regionvectorstride'
       RegionVectorStride=varargin{k+1};
       varargin([k k+1])=[];
-    case 'regionvectorscalefac',
+    case 'regionvectorscalefac'
       RegionVectorScaleFac=varargin{k+1};
       varargin([k k+1])=[];
-    case 'regionvectorstride',
-      RegionVectorStride=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'regionvectorcolor',
+    case 'regionvectorcolor'
       RegionVectorColor=varargin{k+1};
       varargin([k k+1])=[];
-    case 'axislims',
+    case 'axislims'
       AxisLims=varargin{k+1};
       varargin([k k+1])=[];
-    case 'colormin',
+    case 'colormin'
       ColorMin=varargin{k+1};
       varargin([k k+1])=[];
-    case 'colormax',
+    case 'colormax'
       ColorMax=varargin{k+1};
       varargin([k k+1])=[];
     otherwise
@@ -80,8 +76,6 @@ if length(varargin)<2
    varargin={};
 end
 
-
-k=1;
 h=[];
 
 if ~isfield(OwiStruct.Basin,'Pre')
@@ -98,7 +92,6 @@ if ~isfield(OwiStruct.Region,'WinU')
 end
 
 % [BasinPressureDraw BasinVectorDraw  RegionPressureDraw RegionVectorDraw]
-
 
 if isempty(AxisLims)
     if (BasinPressureDraw || BasinVectorDraw)
@@ -195,7 +188,6 @@ if (RegionPressureDraw || RegionVectorDraw)
         hlr(3)=line(Xr(:,1),Yr(:,1));
         hlr(4)=line(Xr(:,end),Yr(:,end));
         
-
         hpr=[];hvr=[];
         
         if RegionPressureDraw

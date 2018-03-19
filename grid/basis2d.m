@@ -40,7 +40,7 @@ function [phi,j]=basis2d(fem_grid_struct,xylist,j)
 % Summer 1998
 
 
-if nargin==0 & nargout==0
+if nargin==0 && nargout==0
    disp('[phi,j]=basis2d(fem_grid_struct,xylist)')
    return
 end
@@ -48,7 +48,7 @@ end
 % Input arguemnt number check
 nargchk(1,3,nargin);
 
-if nargin==3 & nargout==2
+if nargin==3 && nargout==2
    error('cannot input AND output element list to BASIS2D')
 end
 
@@ -66,10 +66,10 @@ if nargin==1
    end
    xylist=[];
    j=[];
-elseif nargin==2 | nargin==3
+elseif nargin==2 || nargin==3
    % second argument must be Nx2
    [m,n]=size(xylist);
-   if n~=2 & m~=2
+   if n~=2 && m~=2
       error('xylist to BASIS2D must be Nx2')
    end
    
@@ -84,7 +84,7 @@ elseif nargin==2 | nargin==3
    yp=xylist(:,2);
    if nargin==3
       [mj,nj]=size(j);
-      if mj~=1 & nj~=1
+      if mj~=1 && nj~=1
          error(' element list to BASIS2D is not a 1-D vector.')
       end
       nj=max(mj,nj);
@@ -126,10 +126,10 @@ phi=NaN*ones(length(j),3);
 % Extract local information
 n3=fem_grid_struct.e(j(inan),:);
 x=fem_grid_struct.x(n3);
-if length(xp)==1,x=x';,end
+if length(xp)==1,x=x';end
 x1=x(:,1);x2=x(:,2);x3=x(:,3);
 y=fem_grid_struct.y(n3);
-if length(xp)==1,y=y';,end
+if length(xp)==1,y=y';end
 y1=y(:,1);y2=y(:,2);y3=y(:,3);
 area=fem_grid_struct.ar(j(inan));
 

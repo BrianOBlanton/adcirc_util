@@ -86,8 +86,7 @@ while ~feof(fid)
                 ncwriteatt(f_out,'pressure','units','meters of water');
                 ncwriteatt(f_out,'pressure','positive','east');
         end
-
-            
+           
         x=A(6)+(0:iLong-1)*A(3);
         y=A(5)+(0:iLat-1)*A(4);
         ncwrite(f_out,'x', x); 

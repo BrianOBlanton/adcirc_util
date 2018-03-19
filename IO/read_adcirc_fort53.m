@@ -41,7 +41,7 @@ flag=0;
 gname='';
 
 
-if nargin==0 & nargout==0
+if nargin==0 && nargout==0
    disp('[AMP,PHA,FREQ,PERNAMES]=read_adcirc_fort53(fname,flag,gname);')
    return
 end
@@ -58,21 +58,21 @@ end
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
 k=1;
-while k<length(varargin),
-  switch lower(varargin{k}),
-    case 'filename',
+while k<length(varargin)
+  switch lower(varargin{k})
+    case 'filename'
       fname=varargin{k+1};
       varargin([k k+1])=[];
-    case 'constits',
+    case 'constits'
       constits=varargin{k+1};
       varargin([k k+1])=[];
-    case 'flag',
+    case 'flag'
       flag=varargin{k+1};
       varargin([k k+1])=[];
-    case 'gname',
+    case 'gname'
       gname=varargin{k+1};
       varargin([k k+1])=[];
-    case 'skipdataread',
+    case 'skipdataread'
       skipdataread=varargin{k+1};
       varargin([k k+1])=[];
     otherwise

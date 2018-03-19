@@ -20,11 +20,11 @@ function h=numscal(varargin)
 %
 
 % DEFINE ERROR STRINGS
-err1=['Not enough input arguments; need atleast x,y,q or fgs,q'];
-err2=['Lengths of x,y must be the same'];
-err3=['Size of Q must be the same as x,y'];
-warn1=str2mat('The current axes is too dense for the  ',...
-       'scalar values to be readable.  CONTINUE?'); 
+err1='Not enough input arguments; need atleast x,y,q or fgs,q';
+err2='Lengths of x,y must be the same';
+err3='Size of Q must be the same as x,y';
+% warn1=char('The current axes is too dense for the  ',...
+%        'scalar values to be readable.  CONTINUE?'); 
    
 % check arguments
 if nargin==0
@@ -60,7 +60,7 @@ end
 if length(Q)>length(x)
     % must be element-based
     if ~isfield(fgs,'xecen')
-        error({'If length Q == length(e(:,1), then xecen, yecen must be fields in fem_grid_struct.'})
+        error('If length Q == length(e(:,1), then xecen, yecen must be fields in fem_grid_struct.')
     end
     x=fgs.xecen;
     y=fgs.yecen;
@@ -72,15 +72,15 @@ Digits=6;
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
 k=1;
-while k<length(varargin),
-  switch lower(varargin{k}),
-    case 'digits',
+while k<length(varargin)
+  switch lower(varargin{k})
+    case 'digits'
       Digits=varargin{k+1};
       varargin([k k+1])=[];
     otherwise
       k=k+2;
-  end;
-end;
+  end
+end
 
 if length(varargin)<2
    varargin={};
@@ -100,19 +100,21 @@ Y=get(gca,'YLim');
 %off=(X(2)-X(1))/50;
 off=0;
 
+Q=Q(:);
+
 % get indices of nodes within viewing window defined by X,Y
 filt=find(x>=X(1)&x<=X(2)&y>=Y(1)&y<=Y(2));
 
 % determine if viewing window is zoomed-in
 % enough for node numbers to be meaningful
-oldunits=get(gca,'Units'); 
-set(gca,'Units','Points'); 
-rect=get(gca,'Position');        % get viewing window width in 
-set(gca,'Units',oldunits);       % point units (1/72 inches)
-xr=rect(3)-rect(1);
-yr=rect(4)-rect(2);
-xden=xr/sqrt(length(filt));
-yden=yr/sqrt(length(filt));
+% oldunits=get(gca,'Units'); 
+% set(gca,'Units','Points'); 
+% rect=get(gca,'Position');        % get viewing window width in 
+% set(gca,'Units',oldunits);       % point units (1/72 inches)
+% xr=rect(3)-rect(1);
+% yr=rect(4)-rect(2);
+% xden=xr/sqrt(length(filt));
+% yden=yr/sqrt(length(filt));
 %den=sqrt(xden*xden+yden*yden);
 %if den < 5*ps
 %   click=questdlg(warn1,'yes','no');
@@ -129,8 +131,9 @@ fmtstr=sprintf('%%.%dg',Digits);
        'Color','k',...
        'EdgeColor','k',...
        'BackgroundColor','w',...
+       'Margin',.5,...
        'Tag','Node Scalar Value',...
-       'FontSize',16,varargin{:});
+       'FontSize',12,varargin{:});
         
 if nargout>0,h=h1;end
 
