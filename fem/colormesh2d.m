@@ -20,7 +20,7 @@ function rv1=colormesh2d(fem_grid_struct,Q,nband)
 % added map catch/linem, 21 Aug 14, BOB
 %
 
-nargchk(1,3,nargin);
+%nargchk(1,3,nargin);
 
 % VERIFY INCOMING STRUCTURE
 %

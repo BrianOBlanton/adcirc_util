@@ -1,7 +1,8 @@
 function AddAdcircPaths
 
 global ADCIRC 
-addpath([ADCIRC '/basics'])
-addpath([ADCIRC '/fem'])
-addpath([ADCIRC '/mex'])
+AddDirs([ADCIRC '/basics'])
+AddDirs([ADCIRC '/fem'])
+AddDirs([ADCIRC '/mex'])
+AddDirs([ADCIRC '/nc'])
 %addpath([ADCIRC '/tpxo'])   

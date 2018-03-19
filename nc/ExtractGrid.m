@@ -1,5 +1,6 @@
 function TheGrid=ExtractGrid(NcTBHandle)
-% TheGrid=ExtractGrid(NcTBHandle)
+% Extract a grid from a CF-UGRID netCDF file
+% TheGrid=ExtractGrid(NcTBHandle) 
 
 if ~isa(NcTBHandle,'ncgeodataset')
     error('Arg to ExtractGrid must be an ncgeodataset object from nctoolbox.')
@@ -10,25 +11,60 @@ if isempty(TheGrid.name)
     TheGrid.name='unknown';
 end
 
-TheGrid.e=double(NcTBHandle.data('element'));
+if any(strcmp(NcTBHandle.variables,'element'))
+    TheGrid.e=double(NcTBHandle.data('element'));
+elseif any(strcmp(NcTBHandle.variables,'ele'))
+    TheGrid.e=double(NcTBHandle.data('ele'));
+else
+    error('Could not find an element list in variables.')
+end
 
+if size(TheGrid.e,1)<size(TheGrid.e,2)  % then element array is 3x, not x3
+    TheGrid.e=TheGrid.e';
+end
+
+NeedsConvertToCart=true;
 temp=NcTBHandle.standard_name('longitude');
 if ~isempty(temp)
     TheGrid.x=NcTBHandle.data(temp);
 else
-    error('**** No x-coord variable with standard_name=longitude found.')
+    fprintf('**** No zonal variable with standard_name=longitude found. Looking for x_coordinate...')
+    temp=NcTBHandle.standard_name('x_coordinate');
+    if ~isempty(temp)
+        fprintf(' Got it.\n')
+        TheGrid.x=NcTBHandle.data(temp);
+    else
+        error('\nNo zonal variable found with standard_name = {longitude,x_coordinate}')
+    end
+    NeedsConvertToCart=false;
+
 end
 
 temp=NcTBHandle.standard_name('latitude');
 if ~isempty(temp)
-    TheGrid.y=NcTBHandle.data(temp);     
+    TheGrid.y=NcTBHandle.data(temp);
 else
-    error('**** No y-coord variable with standard_name=latitude found.')
+    fprintf('**** No meridional variable with standard_name=latitude found. Looking for y_coordinate...')
+    temp=NcTBHandle.standard_name('y_coordinate');
+    if ~isempty(temp)
+        fprintf(' Got it.\n')
+        TheGrid.y=NcTBHandle.data(temp);
+    else
+        error('\nNo meridional variable found with standard_name = {latitude,y_coordinate}')
+    end
+    NeedsConvertToCart=false;
+
 end
 
+if NeedsConvertToCart
+    [TheGrid.x,TheGrid.y]=AdcircCppForward(TheGrid.x,TheGrid.y,-80,36);
+    fprintf('**** Lon/Lat grid converted to CPP. ...')
+
+end
+    
 temp1=NcTBHandle.standard_name('depth_below_geoid');
 temp2=NcTBHandle.standard_name('depth below geoid');
-if ~isempty(temp1 || temp2)
+if ~(isempty(temp1) && isempty(temp2))
     temp=[temp1 temp2];
     temp=NcTBHandle.data(temp);
     TheGrid.z=cast(temp(:),'double');

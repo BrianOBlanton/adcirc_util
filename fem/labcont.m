@@ -53,7 +53,7 @@ if nargin > 0 && strcmpi(varargin{1},'auto')
             return;
         end
         varargin(1)=[];
-        if stride<50, % warn user
+        if stride<50 % warn user
             disp('A stride of < 50 may cause way too many text objects to be drawn.  Consider a larger number.')
         end
         
@@ -86,7 +86,7 @@ else
           npts=npts+1;
           val=get(target,'UserData');
           cval=get(target,'Color');
-          pt=gcp;
+          pt=GetCurrentPoint;
           ht(npts)=text(pt(2),pt(4),num2str(val),...
                        'HorizontalAlignment','Center','Color',cval,'EdgeColor',cval,'BackgroundColor','w',varargin{:});
        end

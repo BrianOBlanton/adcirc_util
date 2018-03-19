@@ -59,7 +59,7 @@ if isfield(fem_grid_struct,'nopenboundaries')
 end
 
 cols={
-      'g' 'none' '.'   % type 0
+      'r' 'none' '.'   % type 0
       'm' 'none' '.'   % type 1      
       '-' 'none' '-'   % type 2
       '-' 'none' '-'   % type 3
