@@ -230,7 +230,7 @@ while tnow<t2d
    xgood=xnow(igood);
    ygood=ynow(igood);
    
-   [xnext,ynext,jnext]=track4(TheGrid,jgood,xgood,ygood,V,time,tnow,dt);
+   [xnext,ynext,jnext]=track2(TheGrid,jgood,xgood,ygood,V,time,tnow,dt);
    j(igood)=jnext;
    xnew(igood)=xnext;
    ynew(igood)=ynext;
@@ -303,16 +303,16 @@ end
 % PRIVATE FUNCTIONS
 
 function jnew=locate_drog(TheGrid,x,y,j)
-    jnew=j;
-    % See if drogs are still in Previously known element
-    idx=belel(TheGrid,j,[x y]);
-    inotfound=find(idx==0);
-    % Get new elements, if not in previously known element
-    if ~isempty(inotfound)
-        idx=inotfound;
-        jnew(idx)=findelem(TheGrid,[x(idx) y(idx)]);
-        %   jnew(idx)=FindElementsInStrTree(TheGrid,x(idx), y(idx));
-    end
+        jnew=j;
+        % See if drogs are still in Previously known element
+        idx=belel(TheGrid,j,[x y]);
+        inotfound=find(idx==0);
+        % Get new elements, if not in previously known element
+        if ~isempty(inotfound)
+            idx=inotfound;
+            jnew(idx)=findelem(TheGrid,[x(idx) y(idx)]);
+            %   jnew(idx)=FindElementsInStrTree(TheGrid,x(idx), y(idx));
+        end
 end
 
 function [xnew,ynew,jnew]=track2(TheGrid,j,x,y,V,timevec,t,dt)
@@ -338,7 +338,21 @@ function [xnew,ynew,jnew]=track2(TheGrid,j,x,y,V,timevec,t,dt)
        xnew(inan)=x(inan);
        ynew(inan)=y(inan);
     end
-     
+    
+%     % k1
+%     [uk1,vk1]=vel_interp(TheGrid,x,y,j,V,timevec,t);  % eval field at current location
+% 
+%     % k2
+%     xtemp=x+.5*dts*uk1;
+%     ytemp=y+.5*dts*vk1;
+%     jinter=locate_drog(TheGrid,xinter,yinter,j);  % relocate in elements
+%     [uinter,vinter]=vel_interp(TheGrid,xinter,yinter,jinter,V,timevec,t+.5*dt);
+% 
+%     uk2=dts*uinter;
+%     vk2=dts*vinter;
+%     xnew=x+uk2;
+%     ynew=y+vk2;
+%     jnew=locate_drog(TheGrid,xnew,ynew,j); 
 end
 
 function [xnew,ynew,jnew]=track4(TheGrid,j,x,y,V,timevec,t,dt)
@@ -389,58 +403,62 @@ end
 
 function [u,v]=vel_interp(TheGrid,x,y,j,V,time,t)
 
-    % Get the velocities at this time
-    % Temporal interpolation of velocity slices to this time.
-    it1=find(t<=time);
-    it1=it1(1);
-    it2=find(t>=time);
-    it2=it2(length(it2));
-    if it1==it2
-        tfac1=1;tfac2=0;
-    else
-        tfac1=(time(it1)-t)/(time(it1)-time(it2));
-        tfac2=1-tfac1;
-    end
-    u1=V{'u-vel'}(it1,:)';
-    u2=V{'u-vel'}(it2,:)';
-    v1=V{'v-vel'}(it1,:)';
-    v2=V{'v-vel'}(it2,:)';
+omega=2*pi/43200;
+a=.1;
+tt=seconds(t-time(1));
+u=-a.*cos(omega*tt)*ones(size(x));
+v= a.*sin(omega*tt)*ones(size(x));
 
-    % diagnostic flows for debugging integrator
-    % global fdiag
-    % switch fdiag
-    %     case 'linear'
-    %         u=1.*ones(size(x));
-    %         v=0.*ones(size(x));
-    %     case 'circular'
-    %         omega=2*pi/43200;
-    %         a=.01;
-    %         tt=seconds(t-time(1));
-    %         u=-a.*cos(omega*tt)*ones(size(x));
-    %         v= a.*sin(omega*tt)*ones(size(x));
-    %     otherwise  %  the real flow
-    % Depending on the number of particles to track, the
-    % interpolation to (x,y,t) is done one of two ways.
-    % It is not ovvious, but the flop savings can be huge.
-    if length(j)>150
-        % Interpolate in time first,...
-        uu=tfac1*u2 + tfac2*u1;
-        vv=tfac1*v2 + tfac2*v1;
-        % ... then, space
-        u=interp_scalar(TheGrid,uu,x,y,j);
-        v=interp_scalar(TheGrid,vv,x,y,j);
-    else
-        % Interpolate in space first, at the 2 time levels
-        uu1=interp_scalar(TheGrid,u1,x,y,j);
-        vv1=interp_scalar(TheGrid,v1,x,y,j);
-        uu2=interp_scalar(TheGrid,u2,x,y,j);
-        vv2=interp_scalar(TheGrid,v2,x,y,j);
-        % Then, interpolate BETWEEN time levels
-        u=tfac1*uu2 + tfac2*uu1;
-        v=tfac1*vv2 + tfac2*vv1;
-    end
-    % end
- end
+return
+
+
+% Get the velocities at this time
+% Temporal interpolation of velocity slices to this time.
+it1=find(t<=time);
+it1=it1(1);
+it2=find(t>=time);
+it2=it2(length(it2));
+if it1==it2
+    tfac1=1;tfac2=0;
+else
+    tfac1=(time(it1)-t)/(time(it1)-time(it2));
+    tfac2=1-tfac1;
+end
+u1=V{'u-vel'}(it1,:)';
+u2=V{'u-vel'}(it2,:)';
+v1=V{'v-vel'}(it1,:)';
+v2=V{'v-vel'}(it2,:)';
+
+% diagnostic flows for debugging integrator
+% global fdiag
+% switch fdiag
+%     case 'linear'
+%         u=1.*ones(size(x));
+%         v=0.*ones(size(x));
+%     case 'circular'
+%     otherwise  %  the real flow
+% Depending on the number of particles to track, the
+% interpolation to (x,y,t) is done one of two ways.
+% It is not ovvious, but the flop savings can be huge.
+if length(j)>150
+    % Interpolate in time first,...
+    uu=tfac1*u2 + tfac2*u1;
+    vv=tfac1*v2 + tfac2*v1;
+    % ... then, space
+    u=interp_scalar(TheGrid,uu,x,y,j);
+    v=interp_scalar(TheGrid,vv,x,y,j);
+else
+    % Interpolate in space first, at the 2 time levels
+    uu1=interp_scalar(TheGrid,u1,x,y,j);
+    vv1=interp_scalar(TheGrid,v1,x,y,j);
+    uu2=interp_scalar(TheGrid,u2,x,y,j);
+    vv2=interp_scalar(TheGrid,v2,x,y,j);
+    % Then, interpolate BETWEEN time levels
+    u=tfac1*uu2 + tfac2*uu1;
+    v=tfac1*vv2 + tfac2*vv1;
+end
+% end
+end
 
 %
 %        Brian O. Blanton
