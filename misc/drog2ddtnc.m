@@ -31,6 +31,7 @@ function D=drog2ddtnc(t1d,t2d,dt,idt,xi,yi,V,options)
 %                           "draw"=true - plot updated locations on figure
 %                           "verbose"=true - for runtime diags
 %                           "lag"=number - plotting tail length in steps
+%                           'integrator"='rk4' - numerical integrator to use
 %
 % Outputs: A struct containing: 
 %              xx,yy - arrays of drogue trajectories.  The size of the
