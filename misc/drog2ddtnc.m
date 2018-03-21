@@ -47,10 +47,19 @@ function D=drog2ddtnc(t1d,t2d,dt,idt,xi,yi,V,options)
 % Call as: D=drog2ddtnc(t1,t2,dt,idt,xi,yi,V,options);
 % 
 
-% Written by: Brian Blanton, Fall 99
-%             added output of along-track u,v 31 Jan 03
-%             mod'd for ncgeodataset input of velocity Mar 2018
+%        Brian O. Blanton
+%        RENCI
+%        University of North Carolina
+%        Chapel Hill, NC
 %
+%        brian_blanton@renci.org
+%
+%        March 2018
+%
+%        added rk4 integrator
+%        mod'd for ncgeodataset input of velocity Mar 2018
+%
+
 if nargin==0
    disp('Call as:  D=drog2ddtnc(t1,t2,dt,idt,xi,yi,V,options)')
    return
