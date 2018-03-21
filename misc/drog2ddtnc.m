@@ -180,13 +180,13 @@ vv(:,1)=vt;
 
 %Draw initial positions on screen
 if isfield(options,'draw') && options.draw
-    axx=[ 3.7319e+05   3.7635e+05   4.5794e+06   4.5819e+06];
+    %axx=[ 3.7319e+05   3.7635e+05   4.5794e+06   4.5819e+06];
     plotbnd(TheGrid,'LineWidth',2)
     lcontour(TheGrid,'z',0,'Color','k');
     hdrog_initpos=line(xi,yi,'LineStyle','none','Marker','.', ...
                      'MarkerSize',14,'Color','r');
     axis('equal')
-    axis(axx)
+    %axis(axx)
     grid on
     grid minor
     drawnow
@@ -230,7 +230,7 @@ while tnow<t2d
    xgood=xnow(igood);
    ygood=ynow(igood);
    
-   [xnext,ynext,jnext]=track4(TheGrid,jgood,xgood,ygood,V,time,tnow,dt);
+   [xnext,ynext,jnext]=track2(TheGrid,jgood,xgood,ygood,V,time,tnow,dt);
    j(igood)=jnext;
    xnew(igood)=xnext;
    ynew(igood)=ynext;
@@ -252,10 +252,10 @@ while tnow<t2d
 %      delete([hdrog1(:); hdrog2(:); hdrog3(:); hdrog4(:); hdrog_initpos(:); hdrogdead(:); hdrogstuck(:)])
       delete([hdrog1(:); hdrog2(:); hdrog3(:); hdrog4(:); hdrogdead(:); hdrogstuck(:)])
       i0=max(1,iter-options.lag);
-%      hdrog1=line(xx(:,i0:iter)',yy(:,i0:iter)','LineStyle','-', ...
-%                'LineWidth',.25,'Color','b');
-      hdrog1=line(xx',yy','LineStyle','-','Marker','.', ...
+      hdrog1=line(xx(:,i0:iter)',yy(:,i0:iter)','LineStyle','-', 'Marker','.',...
                 'LineWidth',.25,'Color','b');
+%      hdrog1=line(xx',yy','LineStyle','-','Marker','.', ...
+%                'LineWidth',.25,'Color','b');
             
 %       if iter>options.lag
 %           hdrog4=line(xx(:,iter-20:iter)',yy(:,iter-20:iter)','LineStyle','-', ...
