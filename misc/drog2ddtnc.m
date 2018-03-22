@@ -1,9 +1,9 @@
 function D=drog2ddtnc(t1d,t2d,dt,idt,xi,yi,V,options)
 %function D=drog2ddtnc(TheGrid,t1d,t2d,dt,idt,xi,yi,V,options)
-%DROG2DDT track drogues in a 2-D FEM domain, time-stepping version
-% DROG2DDT tracks particles through a discrete squence of
+%DROG2DDTNC track drogues in a 2-D FEM domain, time-stepping version
+% DROG2DDTNC tracks particles through a discrete squence of
 % 2-D velocity fields, vertically averaged for example.  The
-% integrator is a 2nd order Runge-Kutta (mid-point) method.  Pass empty ([]) for
+% integrator is a 4th order Runge-Kutta method.  Pass empty ([]) for
 % default parameter values
 %
 % Inputs: t1,t2           - integration end-points; both t1 & t2
@@ -190,6 +190,7 @@ vv(:,1)=vt;
 
 %Draw initial positions on screen
 if isfield(options,'draw') && options.draw
+    figure
     %axx=[ 3.7319e+05   3.7635e+05   4.5794e+06   4.5819e+06];
     plotbnd(TheGrid,'LineWidth',2)
     lcontour(TheGrid,'z',0,'Color','k');
@@ -240,7 +241,7 @@ while tnow<t2d
    xgood=xnow(igood);
    ygood=ynow(igood);
    
-   [xnext,ynext,jnext]=track2(TheGrid,jgood,xgood,ygood,V,time,tnow,dt);
+   [xnext,ynext,jnext]=track4(TheGrid,jgood,xgood,ygood,V,time,tnow,dt);
    j(igood)=jnext;
    xnew(igood)=xnext;
    ynew(igood)=ynext;
