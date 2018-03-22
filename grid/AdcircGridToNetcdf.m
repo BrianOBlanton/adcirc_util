@@ -69,102 +69,119 @@ end
 
 
 f = netcdf.create(f_filename, 'WRITE');
-f.title                   = f_title;
-f.institution             = f_institution;
-f.institution_code        = f_institution_code;
-f.institution_OPeNDAP_url = f_institution_OPeNDAP_url;
-f.contact                 = f_contact;
-f.project                 = f_project;
-f.project_url             = f_project_url;
-f.model_domain            = fem_grid_struct.name;
-f.Conventions             = 'CF-x.x' ;
-f.format_category         = 'finite element triangular grid' ;
-f.grid_type               = 'Triangular' ;
+GlobalId=netcdf.getConstant('GLOBAL');
+netcdf.putAtt(f,GlobalId,'creation_date',datestr(now));
+netcdf.putAtt(f,GlobalId,'title',f_title);
+netcdf.putAtt(f,GlobalId,'model_domain',strrep(fem_grid_struct.name,'.grd',''));
+
+% f.title                   = f_title;
+% f.institution             = f_institution;
+% f.institution_code        = f_institution_code;
+% f.institution_OPeNDAP_url = f_institution_OPeNDAP_url;
+% f.contact                 = f_contact;
+% f.project                 = f_project;
+% f.project_url             = f_project_url;
+% f.model_domain            = fem_grid_struct.name;
+% f.Conventions             = 'CF-x.x' ;
+% f.format_category         = 'finite element triangular grid' ;
+% f.grid_type               = 'Triangular' ;
 
 
 % dimensions
-
-f('node') = length(fem_grid_struct.x);
-f('nele') = size(fem_grid_struct.e,1);
-f('nface')=size(fem_grid_struct.e,2);
-f('nbd')=length(fem_grid_struct.bnd);
-f('nbi')=4;
-f('charlen')=132;
+nn=size(fem_grid_struct.x,1);
+ne=size(fem_grid_struct.e,1);
+nf=size(fem_grid_struct.e,2);
+nb=size(fem_grid_struct.bnd,1);
+nbi=4;
+DimNod=netcdf.defDim(f,'node',nn);
+DimEle=netcdf.defDim(f,'nele',ne);
+DimFac=netcdf.defDim(f,'nface',nf);
+DimNbd=netcdf.defDim(f,'nbd',nb);
+DimNbi=netcdf.defDim(f,'nbi',nbi);
+DimChr=netcdf.defDim(f,'charlen',132);
 
 % variables
-f{'lon'}=ncdouble('node');
-  f{'lon'}.long_name='Longitude';
-  f{'lon'}.units='degrees_east';
-  f{'lon'}.standard_name='longitude';
-  f{'lon'}.axis='X';
-f{'lat'}=ncdouble('node');
-  f{'lat'}.long_name='Latitude';
-  f{'lat'}.units='degrees_north';
-  f{'lat'}.standard_name='latitude';
-  f{'lat'}.axis='Y';
-f{'depth'}=ncdouble('node');
-  f{'depth'}.long_name='Bathymetry';
-  f{'depth'}.units='meters';
-  f{'depth'}.standard_name='depth';
-  f{'depth'}.grid='tri_grid';
-%   f{'depth'}.axis='Z';
+VarLon = netcdf.defVar(f,'lon','double',DimNod);
+    netcdf.putAtt(f,VarLon,'long_name','Longitude');
+    netcdf.putAtt(f,VarLon,'units','degrees_east');
+    netcdf.putAtt(f,VarLon,'standard_name','Longitude');
+    netcdf.putAtt(f,VarLon,'axis','X');
 
-f{'tri_grid'}=ncchar('charlen');
-  f{'tri_grid'}.domain_name=fem_grid_struct.name;
-  f{'tri_grid'}.grid_name='triangular_mesh';
-  f{'tri_grid'}.Horizontal_Triangular_Element_Incidence_List='ele';
-  f{'tri_grid'}.Boundary_Segment_Node_List = 'bnd' ;
-  f{'tri_grid'}.Index_start='1';
-  f{'tri_grid'}.grid_type='Triangular';
+VarLat = netcdf.defVar(f,'lat','double',DimNod);
+    netcdf.putAtt(f,VarLat,'long_name','Latitude');
+    netcdf.putAtt(f,VarLat,'units','degrees_north');
+    netcdf.putAtt(f,VarLat,'standard_name','Latitude');
+    netcdf.putAtt(f,VarLat,'axis','Y'); 
+   
+VarDep = netcdf.defVar(f,'depth','double',DimNod);
+    netcdf.putAtt(f,VarDep,'long_name','Bathymetry');
+    netcdf.putAtt(f,VarDep,'units','meters');
+    netcdf.putAtt(f,VarDep,'standard_name','depth');
+    netcdf.putAtt(f,VarDep,'axis','Y'); 
+    netcdf.putAtt(f,VarDep,'grid','tri_grid'); 
 
-f{'ele'}=ncint('nele','nface');
-  f{'ele'}.long_name='Horizontal_Triangular_Element_Incidence_List';
-  f{'ele'}.standard_name='XXX';
+% f{'tri_grid'}=ncchar('charlen');
+%   f{'tri_grid'}.domain_name=fem_grid_struct.name;
+%   f{'tri_grid'}.grid_name='triangular_mesh';
+%   f{'tri_grid'}.Horizontal_Triangular_Element_Incidence_List='ele';
+%   f{'tri_grid'}.Boundary_Segment_Node_List = 'bnd' ;
+%   f{'tri_grid'}.Index_start='1';
+%   f{'tri_grid'}.grid_type='Triangular';
+% 
 
-f{'bnd'}=ncint('nbd','nbi');
-  f{'bnd'}.long_name='Boundary_Segment_Node_List';
-  f{'bnd'}.standard_name='XXX';
+VarEle = netcdf.defVar(f,'ele','double',[DimEle DimFac]);
+netcdf.putAtt(f,VarEle,'long_name','Horizontal_Triangular_Element_Incidence_List');
 
-f{'land_binary_mask'}=ncdouble('node');
-  f{'land_binary_mask'}.long_name='land_binary_mask';
-  f{'land_binary_mask'}.standard_name='land_binary_mask';
+% f{'ele'}=ncint('nele','nface');
+%   f{'ele'}.long_name='Horizontal_Triangular_Element_Incidence_List';
+%   f{'ele'}.standard_name='XXX';
+% 
+VarBnd = netcdf.defVar(f,'bnd','double',[DimNbd DimNbi]);
+netcdf.putAtt(f,VarBnd,'long_name','Boundary_Segment_Node_List');
 
-f{'water_binary_mask'}=ncdouble('node');
-  f{'water_binary_mask'}.long_name='water_binary_mask';
-  f{'water_binary_mask'}.standard_name='water_binary_mask';
+% f{'bnd'}=ncint('nbd','nbi');
+%   f{'bnd'}.long_name='Boundary_Segment_Node_List';
+%   f{'bnd'}.standard_name='XXX';
 
-f{'lon'}(:)    =fem_grid_struct.x;
-f{'lat'}(:)    =fem_grid_struct.y;
-f{'depth'}(:)  =fem_grid_struct.z;
-f{'ele'}(:)    =fem_grid_struct.e;
-f{'bnd'}(:,1:2)=fem_grid_struct.bnd;
+% f{'land_binary_mask'}=ncdouble('node');
+%   f{'land_binary_mask'}.long_name='land_binary_mask';
+%   f{'land_binary_mask'}.standard_name='land_binary_mask';
+% 
+% f{'water_binary_mask'}=ncdouble('node');
+%   f{'water_binary_mask'}.long_name='water_binary_mask';
+%   f{'water_binary_mask'}.standard_name='water_binary_mask';
 
-fillvals=ncfillvalues;
-delete ncfillvalues.nc
+netcdf.endDef(f);
 
-idx=1*(fem_grid_struct.z>0);
-idx(idx==0)=fillvals.ncdouble;
-f{'water_binary_mask'}(:)=idx;   
-idx=1*(fem_grid_struct.z<=0);
-idx(idx==0)=fillvals.ncdouble;
-f{'land_binary_mask'}(:)=idx;   
+netcdf.putVar(f,VarLon,0,nn,fem_grid_struct.x);
+netcdf.putVar(f,VarLat,0,nn,fem_grid_struct.y);
+netcdf.putVar(f,VarDep,0,nn,fem_grid_struct.z);
+netcdf.putVar(f,VarEle,[0 0],[ne nf],fem_grid_struct.e);
+netcdf.putVar(f,VarBnd,[0 0],[nb 2],fem_grid_struct.bnd);
+ 
+
+% fillvals=ncfillvalues;
+% delete ncfillvalues.nc
+
+% idx=1*(fem_grid_struct.z>0);
+% idx(idx==0)=fillvals.ncdouble;
+% f{'water_binary_mask'}(:)=idx;   
+% idx=1*(fem_grid_struct.z<=0);
+% idx(idx==0)=fillvals.ncdouble;
+% f{'land_binary_mask'}(:)=idx;   
 
 % close object
-f = close(f);
+netcdf.close(f);
 
 return
 
 %
-%LabSig  Brian O. Blanton
-%        Department of Marine Sciences
-%        12-7 Venable Hall
-%        CB# 3300
+%        Brian O. Blanton
+%        RENCI
 %        University of North Carolina
 %        Chapel Hill, NC
-%                 27599-3300
 %
-%        brian_blanton@unc.edu
+%        brian_blanton@renci.org
 %
-%        WINTER 2005
-%
+%        March 2018
 

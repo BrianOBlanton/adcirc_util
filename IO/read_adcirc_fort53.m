@@ -5,7 +5,7 @@ function [A,G,FREQ,PERNAMES]=read_adcirc_fort53(varargin)
 % file.  fort.53 is the default output file for the global harmonic
 % analysis of the elevation field.  
 %
-%  Input : fname - filename to read elevation from.  If empty,
+%  Input : filename-filename to read elevation from.  If empty,
 %                  routine reads from fort.53.  Analysis from
 %                  specified stations (fort.51) can be read in
 %                  by providing fname='fort.51'.
@@ -35,7 +35,7 @@ skipdataread=0;
 
 
 % Default propertyname values
-fname='fort.53';
+fname='./fort.53';
 constits=-1;  % default is all
 flag=0;
 gname='';
@@ -87,7 +87,7 @@ end
 
 % See if fname is string
 if ~isstr(fname)
-    fname='fort.53';
+    fname='./fort.53';
     if flag~=0 || flag~=1
         error('FLAG to READ_ADCIRC_FORT53 must be 0|1')
     end
