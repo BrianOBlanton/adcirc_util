@@ -30,11 +30,11 @@ function [UA,UG,VA,VG,FREQ,PERNAMES]=read_adcirc_fort54(fname,flag,gname)
 % Written by: Brian Blanton, Spring '99
 
 
-if nargin==0 & nargout==0
+if nargin==0 && nargout==0
   disp('[UA,UP,VA,VP,FREQ,PERNAMES]=read_adcirc_fort54(fname,flag,gname);')
   disp('D=read_adcirc_fort54(fname,flag,gname);')
   return
-elseif nargout~=6 & nargout~=1
+elseif nargout~=6 && nargout~=1
    error('READ_ADCIRC_FORT54 must have 1|6 output arguments');
 elseif nargin==0
     fname='fort.54';
@@ -43,7 +43,7 @@ elseif nargin==1
    % See if fname is string
    if ~isstr(fname)
       fname='fort.54';
-      if flag~=0 | flag~=1
+      if flag~=0 || flag~=1
          error('FLAG to READ_ADCIRC_FORT54 must be 0|1')
       end
    else
@@ -64,8 +64,8 @@ elseif nargin==3
    elseif ~isstr(gname)
       error('Third argument to READ_ADCIRC_FORT54 must be a string')
    else
-      if isempty(fname),fname='fort.54';,end
-      if flag~=0 & flag~=1
+      if isempty(fname),fname='fort.54';end
+      if flag~=0 && flag~=1
          error('FLAG to READ_ADCIRC_FORT54 must be 0|1')
       end
    end
