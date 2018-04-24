@@ -23,7 +23,7 @@ if size(TheGrid.e,1)<size(TheGrid.e,2)  % then element array is 3x, not x3
     TheGrid.e=TheGrid.e';
 end
 
-NeedsConvertToCart=true;
+%NeedsConvertToCart=true;
 temp=NcTBHandle.standard_name('longitude');
 if ~isempty(temp)
     TheGrid.x=NcTBHandle.data(temp);
@@ -36,8 +36,7 @@ else
     else
         error('\nNo zonal variable found with standard_name = {longitude,x_coordinate}')
     end
-    NeedsConvertToCart=false;
-
+%    NeedsConvertToCart=false;
 end
 
 temp=NcTBHandle.standard_name('latitude');
@@ -52,16 +51,9 @@ else
     else
         error('\nNo meridional variable found with standard_name = {latitude,y_coordinate}')
     end
-    NeedsConvertToCart=false;
-
+%    NeedsConvertToCart=false;
 end
 
-if NeedsConvertToCart
-    [TheGrid.x,TheGrid.y]=AdcircCppForward(TheGrid.x,TheGrid.y,-80,36);
-    fprintf('**** Lon/Lat grid converted to CPP. ...')
-
-end
-    
 temp1=NcTBHandle.standard_name('depth_below_geoid');
 temp2=NcTBHandle.standard_name('depth below geoid');
 if ~(isempty(temp1) && isempty(temp2))
@@ -69,7 +61,7 @@ if ~(isempty(temp1) && isempty(temp2))
     temp=NcTBHandle.data(temp);
     TheGrid.z=cast(temp(:),'double');
 else
-    sprintf('**** No depth variable with standard_name=depth_below_geoid found.  Setting depths to NaN...')
+    fprintf('**** No depth variable with standard_name=depth_below_geoid found.  Setting depths to NaN...\n')
     TheGrid.z=NaN(size(TheGrid.x));
 end
        
@@ -81,9 +73,16 @@ end
 
 TheGrid.bnd=detbndy(TheGrid.e);
 
+% if NeedsConvertToCart
+%     TheGrid.lo=TheGrid.x;
+%     TheGrid.la=TheGrid.y;
+%     [TheGrid.x,TheGrid.y]=AdcircCppForward(TheGrid.x,TheGrid.y,-80,36);
+%     fprintf('**** Lon/Lat grid converted to CPP. \n')
+% end
+    
 TheGrid=el_areas(TheGrid);
 if all(TheGrid.ar<0)  % assume elements are ordered CW and switch to CCW
-    SetUIStatusMessage('**** Permuting element list to CCW. ')
+    fprintf('**** Permuting element list to CCW.\n ')
     TheGrid.e=TheGrid.e(:,[1 3 2]);
     TheGrid=el_areas(TheGrid);
     TheGrid.bnd=detbndy(TheGrid.e);
