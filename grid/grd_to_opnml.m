@@ -21,7 +21,6 @@ if ~islogical(verbose)
    error('Verbose arg to grd_to_opnml must be logical')
 end
 
-
 if ~exist('fort14name')
    % assume fort.14 filename in the current wd.
    fort14name='fort.14';
@@ -108,7 +107,7 @@ for i=1:fem_grid_struct.nland
 
    fem_grid_struct.nlandnodes(i)=temp(1);
    fem_grid_struct.ibtype(i)    =temp(2);
-    if verbose, fprintf('\n      %d %d %d ... ',i,temp(1),temp(2)),end
+   %if verbose, fprintf('\n      %d %d %d ... ',i,temp(1),temp(2)),end
 
    switch fem_grid_struct.ibtype(i)    % On ibtype
    
