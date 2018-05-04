@@ -9,7 +9,7 @@ matlab   - MATLAB functions to contour, plot, etc triangular finite element mode
            Add <INSTALL_DIR>/adcirc_util/matlab to the MATLAB function path  
 
 %%% MATLAB %%%
-Compile the mex files in adcirc_util/matlab/mex.  From within MATLAB, cd to the mex directory and type 
+Compile the mex files in adcirc_util/mex.  From within MATLAB, cd to the mex directory and type 
 >> makemex 
 
 To add ADCIRC paths to the MATLAB MATLABPATH variable in the user's matlab/startup.m file, add:
