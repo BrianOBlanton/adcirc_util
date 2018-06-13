@@ -46,7 +46,7 @@ if nargin==0 && nargout==0
 end
 
 % Input arguemnt number check
-nargchk(1,3,nargin);
+narginchk(1,3);
 
 if nargin==3 && nargout==2
    error('cannot input AND output element list to BASIS2D')

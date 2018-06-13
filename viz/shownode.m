@@ -48,62 +48,62 @@ if ~exist('in')
    line(x(in),y(in),'LineStyle','+','Tag','Node Marker');
 end
 
-if in==0,return,end
-
-% Find the elements that contain node in as vertices;
-ifind1=find(e(:,1)==in);
-ifind2=find(e(:,2)==in);
-ifind3=find(e(:,3)==in);
-%ifind=sort([ifind1;ifind2;ifind3]);
-ifind=[ifind1;ifind2;ifind3];
-
-elems=e(ifind,:);
-
-% Make matrix of line segments
-elems=elems(:,[1 2 2 3 3 1]);
-
-[m,n]=size(elems);
-segs=reshape(elems,m*n/2,2);
-
-xt=x(segs);
-yt=y(segs);
-
-xt=[xt NaN*ones(size(xt(:,1)))]';
-yt=[yt NaN*ones(size(yt(:,1)))]';
-
-%if n~=1 
-%   if m>n
-%      xt=reshape(xt,n,m);
-%      yt=reshape(yt,n,m);
-%   else
-%      xt=reshape(xt,m,n);
-%      yt=reshape(yt,m,n);
-%   end
-%   xt=[xt
-%       NaN*ones(size(1:length(xt)))];
-%   yt=[yt
-%       NaN*ones(size(1:length(yt)))];
-%end
-
-xt=xt(:);
-yt=yt(:);
-
-% Get the unique node numbers
-nn=e(ifind,:);
-nn=unique(nn(:));
-xtn=x(nn);
-ytn=y(nn);
-
-minxt=min(xt);maxxt=max(xt);
-minyt=min(yt);maxyt=max(yt);
-
-xtn=xtn-min(xt);xtn=xtn/max(xtn);
-ytn=ytn-min(yt);ytn=ytn/max(ytn);
-
-xt=xt-min(xt);
-xt=xt/max(xt);
-yt=yt-min(yt);
-yt=yt/max(yt);
+% if in==0,return,end
+% 
+% % Find the elements that contain node in as vertices;
+% ifind1=find(e(:,1)==in);
+% ifind2=find(e(:,2)==in);
+% ifind3=find(e(:,3)==in);
+% %ifind=sort([ifind1;ifind2;ifind3]);
+% ifind=[ifind1;ifind2;ifind3];
+% 
+% elems=e(ifind,:);
+% 
+% % Make matrix of line segments
+% elems=elems(:,[1 2 2 3 3 1]);
+% 
+% [m,n]=size(elems);
+% segs=reshape(elems,m*n/2,2);
+% 
+% xt=x(segs);
+% yt=y(segs);
+% 
+% xt=[xt NaN*ones(size(xt(:,1)))]';
+% yt=[yt NaN*ones(size(yt(:,1)))]';
+% 
+% %if n~=1 
+% %   if m>n
+% %      xt=reshape(xt,n,m);
+% %      yt=reshape(yt,n,m);
+% %   else
+% %      xt=reshape(xt,m,n);
+% %      yt=reshape(yt,m,n);
+% %   end
+% %   xt=[xt
+% %       NaN*ones(size(1:length(xt)))];
+% %   yt=[yt
+% %       NaN*ones(size(1:length(yt)))];
+% %end
+% 
+% xt=xt(:);
+% yt=yt(:);
+% 
+% % Get the unique node numbers
+% nn=e(ifind,:);
+% nn=unique(nn(:));
+% xtn=x(nn);
+% ytn=y(nn);
+% 
+% minxt=min(xt);maxxt=max(xt);
+% minyt=min(yt);maxyt=max(yt);
+% 
+% xtn=xtn-min(xt);xtn=xtn/max(xtn);
+% ytn=ytn-min(yt);ytn=ytn/max(ytn);
+% 
+% xt=xt-min(xt);
+% xt=xt/max(xt);
+% yt=yt-min(yt);
+% yt=yt/max(yt);
 
 
 % currfig=gcf;
@@ -134,6 +134,14 @@ yt=yt/max(yt);
 %figure(currfig);
 % Place a red asterisk on the node
 line(x(in),y(in),'Color',[1 0 0]*1,'Marker','*','LineStyle','none','MarkerSize',20,varargin{:})
+text(x(in),y(in),int2str(in),'HorizontalAlignment','center',...
+             'VerticalAlignment','middle',...
+             'EdgeColor','k',...
+             'BackgroundColor','w',...
+             'Clipping','on',...
+             'Color','k',...
+             'Tag','Node #');
+
 
 return
 %

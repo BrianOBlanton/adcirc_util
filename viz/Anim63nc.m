@@ -18,15 +18,11 @@ function Anim63nc(g,nc,varargin)
 %     FrameBaseName - base of image output file name (def='frame')
 %     StartingTime - datenum of starttime
 
-
-
-
 if nargin==0
    disp('Anim63nc(g,nc) OR:')
    disp('Anim63nc(fgs,nc,p1,v1,p2,v2,...)')
    return
 end
-
 
 FrameBaseName='frame';
 ScriptToAdd='none';
@@ -44,39 +40,39 @@ StartingTime=0;
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
 k=1;
-while k<length(varargin),
-  switch lower(varargin{k}),
-    case 'startingtime',
+while k<length(varargin)
+  switch lower(varargin{k})
+    case 'startingtime'
       StartingTime=varargin{k+1};
       varargin([k k+1])=[];
-    case 'framebasename',
+    case 'framebasename'
       FrameBaseName=varargin{k+1};
       varargin([k k+1])=[];
-    case 'scripttoadd',
+    case 'scripttoadd'
       ScriptToAdd=varargin{k+1};
       varargin([k k+1])=[];
-    case 'axislims',
+    case 'axislims'
       AxisLims=varargin{k+1};
       varargin([k k+1])=[];
-    case 'title',
+    case 'title'
       Title=varargin{k+1};
       varargin([k k+1])=[];
-    case 'iterstart',
+    case 'iterstart'
       IterStart=varargin{k+1};
       varargin([k k+1])=[];
-    case 'iterstride',
+    case 'iterstride'
       IterStride=varargin{k+1};
       varargin([k k+1])=[];
-    case 'iterstop',
+    case 'iterstop'
       IterStop=varargin{k+1};
       varargin([k k+1])=[];
-    case 'colormin',
+    case 'colormin'
       ColorMin=varargin{k+1};
       varargin([k k+1])=[];
-    case 'colormax',
+    case 'colormax'
       ColorMax=varargin{k+1};
       varargin([k k+1])=[];
-    case 'colormap',
+    case 'colormap'
       ColorMap=varargin{k+1};
       varargin([k k+1])=[];
     otherwise
@@ -88,11 +84,11 @@ if length(varargin)<2
    varargin={};
 end
 
-nTimes=ncsize(nc{'time'});
+nTimes=nc.size('time');
 t=StartingTime+nc{'time'}(:)/24;
 %t=D.t/86400;
 
-if IterStop==-1,IterStop=nTimes;,end
+if IterStop==-1,IterStop=nTimes;end
 
 if (IterStart<1 || IterStart>nTimes)
    error('IterStart must be between %d and %d',1,nTimes)
@@ -107,15 +103,14 @@ if IterStride<1
     error('Stride must be greater than 1.')
 end
 
-disp(sprintf('Starting iteration =  %d',IterStart))
-disp(sprintf('Stride =  %d',IterStride))
-disp(sprintf('Stopping iteration =  %d',IterStop))
+fprintf('Starting iteration =  %d\n',IterStart)
+fprintf('Stride =  %d\n',IterStride)
+fprintf('Stopping iteration =  %d\n',IterStop)
 
 h=[];
 hz0=[];
 hst=[];
 axx=[];
-
 
 if ~iscell(Title)
    error('Title to Anim63 must be a cell array')
@@ -128,12 +123,10 @@ if (1)
    figure
    %drawelems(g,'Color',[1 1 1]*.7,'Linewidth',.25);
    plotbnd(g,'LineWidth',.2);
-   hc=lcontour(g,'z',[0],'Color','k','LineWidth',.2);
+   hc=lcontour(g,'z',0,'Color','k','LineWidth',.2);
    set_height(hc,1);
    plotcoast('states')
    grid
-   hc=lcontour(g,'z',[0],'Color','k','LineWidth',.2);
-   set_height(hc,1);
    %hc=lcontour(g,'z',[2:8],'Color','r','LineWidth',.2);
    %set_height(hc,1);
    %hc=lcontour(g,'z',-[2:10],'Color','b','LineWidth',.2);
@@ -154,12 +147,11 @@ axis([minX maxX minY maxY])
 % get grid indices in box;
 InViewingBox=find(g.x>minX & g.x<maxX & g.y>minY & g.y<maxY);
 
-
 if exist(ScriptToAdd,'file')
    eval(ScriptToAdd)
 end
 
-if ~(isnan(ColorMin) & isnan(ColorMax))    
+if ~(isnan(ColorMin) && isnan(ColorMax))    
     set(gca,'CLim',[ColorMin ColorMax])
 end
 colormap(ColorMap)
@@ -177,7 +169,7 @@ for i=IterStart:IterStride:IterStop
    %if ~isempty(hst),delete(hst);delete(axx),end
    h=colormesh2d(g,zz);
    %hz0=lcontour(g,zz,0,'Color','b');
-   if ~(isnan(ColorMin) & isnan(ColorMax))    
+   if ~(isnan(ColorMin) && isnan(ColorMax))    
        set(gca,'CLim',[ColorMin ColorMax])
    else
        cmin=min(zz(InViewingBox));
@@ -193,7 +185,7 @@ for i=IterStart:IterStride:IterStop
    drawnow
 
    fnamebase=sprintf('%s_%03d',FrameBaseName,i);
-   disp(sprintf('Printing %s',fnamebase))
+   fprintf('Printing %s\n',fnamebase)
    print('-dpng',ImageResolution,sprintf('%s.png',fnamebase));
    %eval(sprintf('!/usr/local/bin/convert %s.png %s.gif',fnamebase,fnamebase));
 end

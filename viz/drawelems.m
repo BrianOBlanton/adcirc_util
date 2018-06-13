@@ -31,7 +31,7 @@ end
 
 
 % Default propertyname values
-MeshHeight=0.;
+MeshHeight=1.;
 SPH=false;
 
 % Strip off propertyname/value pairs in varargin not related to

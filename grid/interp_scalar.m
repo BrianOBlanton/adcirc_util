@@ -46,7 +46,6 @@ if ~is_valid_struct2(fem_grid_struct)
    fem_grid_struct=belint(fem_grid_struct);
 end
 
-
 if nargin==2
    x=[];y=[];j=[];
 elseif nargin==3
@@ -65,7 +64,6 @@ end
 if size(q,1)~=size(fem_grid_struct.x,1)
    error('Shape of scalar input must match length of grid.x')
 end
-
 
 e=fem_grid_struct.e;
 AR=fem_grid_struct.ar;
