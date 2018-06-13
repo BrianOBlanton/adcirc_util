@@ -59,11 +59,11 @@ end
 
 
 [nrowQ,ncolQ]=size(Q);
-if nrowQ~=1 & ncolQ~=1 ,error(err4),end
+if nrowQ~=1 && ncolQ~=1 ,error(err4),end
 
 % columnate Q
 Q=Q(:);
-[nrowQ,ncolQ]=size(Q);
+[nrowQ,~]=size(Q);
 
 if nrowQ ~= length(x)
    error(err3);
@@ -71,7 +71,7 @@ end
 
 % determine number of pv pairs input
 npv = N-5;
-if rem(npv,2)==1,error(err5);,end
+if rem(npv,2)==1,error(err5);end
  
  
 % range of scalar quantity to be contoured; columnate cval

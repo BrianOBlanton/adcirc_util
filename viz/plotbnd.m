@@ -51,7 +51,7 @@ catch
     hboun=line(X,Y,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
 end
 
-
+set(hboun,'ZData',2*ones(size(get(hboun,'XData'))))
 
 if nargout==1,retval=hboun;end
 %

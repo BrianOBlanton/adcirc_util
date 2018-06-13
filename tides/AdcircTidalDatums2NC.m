@@ -1,5 +1,5 @@
 function AdcircTidalDatums2NC(fgs,D)
-
+% AdcircTidalDatums2NC(fgs,D)
 
 % output a netcdf file
 mode = netcdf.getConstant('NETCDF4');
@@ -16,7 +16,6 @@ nn=fgs.nn;
 
 DimNod=netcdf.defDim(f,'node',nn);
 DimDTS=netcdf.defDim(f,'ndats',4); 
-
 
 % variables
 VarMhhw = netcdf.defVar(f,'MHHW','double',DimNod);

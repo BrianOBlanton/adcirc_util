@@ -36,6 +36,8 @@ e=fem_grid_struct.e;
 x=fem_grid_struct.x;
 y=fem_grid_struct.y;
 
+set(gcf,'DeleteFcn','doc datacursormode')
+
 % DETERMINE SCALAR TO CONTOUR
 %
 if ~exist('Q','var')
@@ -95,6 +97,8 @@ catch
      
 end
 
+dcm_obj = datacursormode(gcf);
+set(dcm_obj,'UpdateFcn',{@myupdatefcn,Q,fem_grid_struct})
 
 %colormap(jet(nband))
 
@@ -105,6 +109,16 @@ if nargout==1,rv1=hp;end
 %    plotfx;
 %end
 
+
+function txt = myupdatefcn(~,event_obj,Q,g)
+% Customizes text of data tips
+pos = get(event_obj,'Position');
+%I = get(event_obj, 'DataIndex');
+[~,I]= min(abs((g.x-pos(1)).^2+(g.y-pos(2)).^2));
+txt = {['lon: ',num2str(pos(1))],...
+       ['lat: ',num2str(pos(2))],...
+       ['node: ',int2str(I)],...
+       ['val: ',num2str(Q(I))]};
 
 %
 %LabSig  Brian O. Blanton

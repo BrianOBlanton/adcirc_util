@@ -60,7 +60,6 @@ q=data(:,2);
    nn=mxGetM(prhs[0]);
    ne=mxGetM(prhs[2]);  
    
-   
 /* ---- allocate space for int representation of dele &
         convert double element representation to int  &
         shift node numbers toward 0 by 1 for proper indexing -------- */
