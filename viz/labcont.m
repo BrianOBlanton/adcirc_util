@@ -66,7 +66,7 @@ if nargin > 0 && strcmpi(varargin{1},'auto')
             xc=xc(1:stride:end);
             yc=yc(1:stride:end);
             t=repmat(int2str(t),[length(xc) 1]);
-            ht{i}=text(xc,yc,t,'HorizontalAlignment','Center','Color',cval,varargin{:});
+            ht{i}=text(xc,yc,1,t,'HorizontalAlignment','Center','Color',cval,varargin{:});
         end
         ht=cell2mat(ht(:));
 else
@@ -87,7 +87,7 @@ else
           val=get(target,'UserData');
           cval=get(target,'Color');
           pt=GetCurrentPoint;
-          ht(npts)=text(pt(2),pt(4),num2str(val),...
+          ht(npts)=text(pt(2),pt(4),1,num2str(val),...
                        'HorizontalAlignment','Center','Color',cval,'EdgeColor',cval,'BackgroundColor','w',varargin{:});
        end
     end

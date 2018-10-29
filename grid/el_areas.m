@@ -121,6 +121,7 @@ FgsOut.ineg=ineg;
 
 % edge lengths
 FgsOut.EL=[a b c];
+FgsOut.dl=mean(FgsOut.EL,2);
 
 % triangle quality; ratio of inner to outer circles
 FgsOut.triQual=(b+c-a).*(c+a-b).*(a+b-c)./(a.*b.*c);
