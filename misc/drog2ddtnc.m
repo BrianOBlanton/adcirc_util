@@ -2,9 +2,8 @@ function D=drog2ddtnc(t1d,t2d,dt,idt,xi,yi,Z,V,options)
 %function D=drog2ddtnc(TheGrid,t1d,t2d,dt,idt,xi,yi,V,options)
 %DROG2DDT track drogues in a 2-D FEM domain, time-stepping version
 % DROG2DDT tracks particles through a discrete squence of 2-D velocity
-% fields, vertically averaged for example.  The integrator is a 2nd order
-% Runge-Kutta (mid-point) method.  Pass empty ([]) for default parameter
-% values.
+% fields, vertically averaged for example.  The integrator is a 4th order
+% Runge-Kutta method.  Pass empty ([]) for default parameter values.
 %
 % Inputs: t1,t2    - integration end-points; both t1 & t2 must lie within
 %                    the min and max time in the velocity sequence
@@ -30,7 +29,8 @@ function D=drog2ddtnc(t1d,t2d,dt,idt,xi,yi,Z,V,options)
 %                       'draw'=true - plot updated locations on figure
 %                       'verbose'=true - for runtime diags
 %                       'lag'=number - plotting tail length in steps
-%                       'integrator'='rk4' - ('rk4'|'rk2') - numerical integrator to use
+%                       'integrator'='rk4' - ('rk4'|'rk2') - numerical 
+%                        integrator to use
 %                       'conv'=do NOT convert grid to CPP.
 %                       'iv'=vertical level to integrate (default=surface)
 %
@@ -102,7 +102,7 @@ dim3d=0;
 if any(ismember({'u-vel3D','v-vel3D'},V.variables))
     fprintf('Input ncgeodataset appears to be a 3-d ADCIRC file.\n');
     if ~all(ismember({'u-vel3D','v-vel3D','time'},V.variables))
-        error('Needed variables {''u-vel3D'',''v-vel3D'',''time''} are missing in the ncgeodataset object')
+        error('Needed variables {''u-vel3D'',''v-vel3D'',''time''} are missing in the ncgeodataset object.')
     end
     s=size(V{'u-vel3D'});
     if options.iv==0
@@ -113,7 +113,7 @@ if any(ismember({'u-vel3D','v-vel3D'},V.variables))
 else % 2-d file
     fprintf('Input ncgeodataset appears to be a 2-d ADCIRC file.\n');
     if ~all(ismember({'u-vel','v-vel','time'},V.variables))
-        error('Needed variables {''u-vel'',''v-vel'',''time''} are missing in the ncgeodataset object')
+        error('Needed variables {''u-vel'',''v-vel'',''time''} are missing in the ncgeodataset object.')
     end
 end
 
@@ -146,7 +146,7 @@ if isempty(idt)
     idt=1;
 else
     if idt<1 || idt > length(time)
-        error('idt not between 1 and length of velocity field');
+        error('idt not between 1 and length of velocity field.');
     end
 end
 % check timestep
@@ -188,10 +188,10 @@ if ~isfield(TheGrid,'A')  || ...
    ~isfield(TheGrid,'A0') || ...
    ~isfield(TheGrid,'T')
     TheGrid=belint(TheGrid);
-    disp('   BELINT info added to fem_grid_struct')
+    fprintf('   BELINT info added to fem_grid_struct.\n')
 end
 if ~isfield(TheGrid,'ar')
-    disp('   EL_AREAS info added to fem_grid_struct')
+    fprintf('   EL_AREAS info added to fem_grid_struct.\n')
     TheGrid=el_areas(TheGrid);
 end
 
@@ -220,7 +220,7 @@ Nt=length(tt);
 % get initial conditions, forcing
 xx(:,1)=xi;
 yy(:,1)=yi;
-[ut,vt,tidx]=vel_interp(TheGrid,xi,yi,j,V,time,t1d);
+[ut,vt,~]=vel_interp(TheGrid,xi,yi,j,V,time,t1d);
 uu(:,1)=ut;
 vv(:,1)=vt;
 
@@ -384,7 +384,7 @@ function [xnew,ynew,jnew]=track2(TheGrid,j,x,y,V,timevec,t,dt)
     xtemp=x+.5*dts*uk1;
     ytemp=y+.5*dts*vk1;
     jtemp=locate_drog(TheGrid,xtemp,ytemp,j);  % relocate in elements
-    [uk2,vk2,tidx]=vel_interp(TheGrid,xtemp,ytemp,jtemp,V,timevec,t+.5*dt);
+    [uk2,vk2,~]=vel_interp(TheGrid,xtemp,ytemp,jtemp,V,timevec,t+.5*dt);
 
     xnew=x+dts*(uk1 + uk2)/2;
     ynew=y+dts*(vk1 + vk2)/2;
@@ -404,25 +404,25 @@ function [xnew,ynew,jnew]=track4(TheGrid,j,x,y,V,timevec,t,dt)
     dts=seconds(dt);
 
     % k1
-    [uk1,vk1,tidx]=vel_interp(TheGrid,x,y,j,V,timevec,t);
+    [uk1,vk1,~]=vel_interp(TheGrid,x,y,j,V,timevec,t);
 
     % k2
     xtemp=x+.5*uk1*dts;
     ytemp=y+.5*vk1*dts;
     jtemp=locate_drog(TheGrid,xtemp,ytemp,j);
-    [uk2,vk2,tidx]=vel_interp(TheGrid,xtemp,ytemp,jtemp,V,timevec,t+.5*dt);
+    [uk2,vk2,~]=vel_interp(TheGrid,xtemp,ytemp,jtemp,V,timevec,t+.5*dt);
 
     % k3
     xtemp=x+.5*uk2*dts;
     ytemp=y+.5*vk2*dts;
     jtemp=locate_drog(TheGrid,xtemp,ytemp,jtemp);
-    [uk3,vk3,tidx]=vel_interp(TheGrid,xtemp,ytemp,jtemp,V,timevec,t+.5*dt);
+    [uk3,vk3,~]=vel_interp(TheGrid,xtemp,ytemp,jtemp,V,timevec,t+.5*dt);
 
     % k4
     xtemp=x+uk3*dts;
     ytemp=y+vk3*dts;
     jtemp=locate_drog(TheGrid,xtemp,ytemp,jtemp);
-    [uk4,vk4,tidx]=vel_interp(TheGrid,xtemp,ytemp,jtemp,V,timevec,t+dt);
+    [uk4,vk4,~]=vel_interp(TheGrid,xtemp,ytemp,jtemp,V,timevec,t+dt);
 
     xnew=x+(uk1 + 2*uk2 + 2*uk3 + uk4)*dts/6;
     ynew=y+(vk1 + 2*vk2 + 2*vk3 + vk4)*dts/6;

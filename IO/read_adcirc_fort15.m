@@ -81,7 +81,7 @@ if f15.nbfr>0
    for i=1:f15.nbfr
       l=fgetl(fid);
       for j=1:nopen
-         l=fgets(fid)
+         l=fgets(fid);
          c=textscan(l,'%f%f');
          a=c{1};
          b=c{2};

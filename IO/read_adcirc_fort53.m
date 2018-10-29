@@ -33,7 +33,6 @@ FREQ=[];
 PERNAMES=[];
 skipdataread=0;
 
-
 % Default propertyname values
 fname='./fort.53';
 constits=-1;  % default is all
@@ -77,8 +76,8 @@ while k<length(varargin)
       varargin([k k+1])=[];
     otherwise
       k=k+2;
-  end;
-end;
+  end
+end
 
 if length(varargin)<2
    varargin={};

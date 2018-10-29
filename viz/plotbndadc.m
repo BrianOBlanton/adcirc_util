@@ -46,17 +46,7 @@ hboun=line(X,Y,'Tag','boundary','Color','k',varargin{:});
 legstr={};
 hleg=[];
 
-% color bnd types
-if isfield(fem_grid_struct,'nopenboundaries')
-    if fem_grid_struct.nopenboundaries>0
-        for i=1:fem_grid_struct.nopenboundaries
-            iob=fem_grid_struct.ob{i};
-            hob(i)=line(fem_grid_struct.x(iob), fem_grid_struct.y(iob),'Color','b','LineStyle','-','Marker','*');
-        end
-        legstr={'Elevation (0)'};
-        hleg=[hleg;hob(1)];
-    end
-end
+
 
 cols={
     'g' 'none' '*'   % type 0
@@ -217,6 +207,18 @@ if isfield(fem_grid_struct,'ibtype')
                 
         end
         
+    end
+end
+
+% color bnd types
+if isfield(fem_grid_struct,'nopenboundaries')
+    if fem_grid_struct.nopenboundaries>0
+        for i=1:fem_grid_struct.nopenboundaries
+            iob=fem_grid_struct.ob{i};
+            hob(i)=line(fem_grid_struct.x(iob), fem_grid_struct.y(iob),'Color','b','LineStyle','-','Marker','*');
+        end
+        legstr={legstr{:},'Elevation (0)'};
+        hleg=[hleg;hob(1)];
     end
 end
 

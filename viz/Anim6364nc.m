@@ -1,8 +1,9 @@
-function Anim63nc(g,nc,varargin)
-% Anim63nc generate an animatiom of an ADCIRC 63 file in netCDF format
+function Anim6364nc(g,nc,nc64,varargin)
+% Anim6364nc generate an animatiom of an ADCIRC 63 file in netCDF format
 % Required inputs: 
 %     fgs - grid structure on which the 63 file was computed 
-%     nc  - netcdf object from "netcdf" pointing to a fort.63.nc file
+%     nc  - ncgeodataset object pointing to a fort.63.nc file
+%     nc64  - ncgeodataset object  pointing to a fort.64.nc file
 % 
 % P/V pairs:
 %     AxisLims   - plot axis limits, as in the axis command (def=grid lims)
@@ -19,14 +20,14 @@ function Anim63nc(g,nc,varargin)
 %     StartingTime - datenum of starttime
 
 if nargin==0
-   disp('Anim63nc(g,nc) OR:')
-   disp('Anim63nc(fgs,nc,p1,v1,p2,v2,...)')
+   disp('Anim63nc(fgs,nc,nc64) OR:')
+   disp('Anim63nc(fgs,nc,nc64,p1,v1,p2,v2,...)')
    return
 end
 
 FrameBaseName='frame';
 ScriptToAdd='none';
-ImageResolution='-r200';
+ImageResolution='-r100';
 AxisLims=[];  
 Title={''};     
 IterStart=1; 
@@ -35,16 +36,21 @@ IterStop=-1;
 ColorMin=NaN;  
 ColorMax=NaN;  
 ColorMap=jet(32);  
-StartingTime=0;
+%StartingTime=0;
+
+VectorStride=1;
+VectorScaleFac=1;
+VectorColor='k';
+
 
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
 k=1;
 while k<length(varargin)
   switch lower(varargin{k})
-    case 'startingtime'
-      StartingTime=varargin{k+1};
-      varargin([k k+1])=[];
+%    case 'startingtime'
+%      StartingTime=varargin{k+1};
+%      varargin([k k+1])=[];
     case 'framebasename'
       FrameBaseName=varargin{k+1};
       varargin([k k+1])=[];
@@ -75,6 +81,15 @@ while k<length(varargin)
     case 'colormap'
       ColorMap=varargin{k+1};
       varargin([k k+1])=[];
+    case 'vectorscalefac'
+      VectorScaleFac=varargin{k+1};
+      varargin([k k+1])=[];
+    case 'vectorstride'
+      VectorStride=varargin{k+1};
+      varargin([k k+1])=[];
+    case 'vectorcolor'
+      VectorColor=varargin{k+1};
+      varargin([k k+1])=[];
     otherwise
       k=k+2;
   end
@@ -85,7 +100,8 @@ if length(varargin)<2
 end
 
 nTimes=nc.size('time');
-t=StartingTime+nc{'time'}(:)/24;
+%t=StartingTime+nc{'time'}(:)/24;
+t=nc.time{'time'};
 %t=D.t/86400;
 
 if IterStop==-1,IterStop=nTimes;end
@@ -104,13 +120,14 @@ if IterStride<1
 end
 
 fprintf('Starting iteration =  %d\n',IterStart)
-fprintf('Stride =  %d\n',IterStride)
+fprintf('Iteration Stride   =  %d\n',IterStride)
 fprintf('Stopping iteration =  %d\n',IterStop)
 
 h=[];
-hz0=[];
-hst=[];
-axx=[];
+hu0=[];
+%hz0=[];
+%hst=[];
+%axx=[];
 
 if ~iscell(Title)
    error('Title to Anim63 must be a cell array')
@@ -126,7 +143,8 @@ if (1)
    hc=lcontour(g,'z',0,'Color','k','LineWidth',.2);
    set_height(hc,1);
    plotcoast('states')
-   grid
+   grid on
+   grid minor
    %hc=lcontour(g,'z',[2:8],'Color','r','LineWidth',.2);
    %set_height(hc,1);
    %hc=lcontour(g,'z',-[2:10],'Color','b','LineWidth',.2);
@@ -162,13 +180,21 @@ for i=IterStart:IterStride:IterStop
    
    if isnan(t(i)),break,end
    %zz=D.zeta(:,i);
+   uu=nc64{'u-vel'}(i,:)';
+   vv=nc64{'v-vel'}(i,:)';
    zz=nc{'zeta'}(i,:)';
    zz(zz<-1000)=NaN;
    if ~isempty(h),delete(h),end   
-   if ~isempty(hz0),delete(hz0),end
+   if ~isempty(hu0),delete(hu0),end
+   %if ~isempty(hz0),delete(hz0),end
    %if ~isempty(hst),delete(hst);delete(axx),end
    h=colormesh2d(g,zz);
    %hz0=lcontour(g,zz,0,'Color','b');
+   hu0=vecplot(g.x,g.y,uu,vv,'ScaleLabel','no scale',...
+       'ScaleFac',VectorScaleFac,...
+       'Stride',VectorStride,...
+       'Color',VectorColor);
+   
    if ~(isnan(ColorMin) && isnan(ColorMax))    
        set(gca,'CLim',[ColorMin ColorMax])
    else
@@ -186,6 +212,7 @@ for i=IterStart:IterStride:IterStop
 
    fnamebase=sprintf('%s_%03d',FrameBaseName,i);
    fprintf('Printing %s\n',fnamebase)
-   print('-dpng',ImageResolution,sprintf('%s.png',fnamebase));
+   export_fig('-png',ImageResolution,sprintf('%s.png',fnamebase));
+%   print('-dpng',ImageResolution,sprintf('%s.png',fnamebase));
    %eval(sprintf('!/usr/local/bin/convert %s.png %s.gif',fnamebase,fnamebase));
 end
