@@ -1,4 +1,5 @@
 function AdcircHarmonics53_2NC(fgs,F53)
+% AdcircHarmonics53_2NC(fgs,F53)
 
 % output a netcdf file
 mode = netcdf.getConstant('NETCDF4');
@@ -6,16 +7,16 @@ mode = bitor(mode,netcdf.getConstant('CLOBBER'));
 f = netcdf.create('f53.nc', mode);
 GlobalId=netcdf.getConstant('GLOBAL');
 netcdf.putAtt(f,GlobalId,'creation_date',datestr(now));
-netcdf.putAtt(f,GlobalId,'title','ADCIRC ec2015 East Coast Tidal Database');
+netcdf.putAtt(f,GlobalId,'title','ADCIRC tides on HSOFS grid');
 netcdf.putAtt(f,GlobalId,'model_domain',strrep(fgs.name,'.grd',''));
 netcdf.putAtt(f,GlobalId,'cdm_data_type','ugrid');
 netcdf.putAtt(f,GlobalId,'naming_authority','org.renci');
-netcdf.putAtt(f,GlobalId,'id','ec2015');
+netcdf.putAtt(f,GlobalId,'id','hsofs');
 netcdf.putAtt(f,GlobalId,'creator_name','Brian Blanton');
 netcdf.putAtt(f,GlobalId,'creator_email','bblanton@renci.org');
 netcdf.putAtt(f,GlobalId,'publisher_name','Brian Blanton');
 netcdf.putAtt(f,GlobalId,'publisher_email','bblanton@renci.org');
-netcdf.putAtt(f,GlobalId,'summary','Western North Atlantic, Caribbean and Gulf of Mexico Tidal Database, 2015.');
+netcdf.putAtt(f,GlobalId,'summary','Tides on HSOFS grid');
 
 nn=fgs.nn;
 ne=fgs.ne;
@@ -82,13 +83,10 @@ VarLat = netcdf.defVar(f,'lat','double',DimNod);
     netcdf.putAtt(f,VarDep,'coordinates','lon lat');
     netcdf.putAtt(f,VarDep,'mesh','adcirc_mesh');
     
-       
 VarEle = netcdf.defVar(f,'ele','double',[DimEle DimFac]);
     netcdf.putAtt(f,VarEle,'long_name','element');
     netcdf.putAtt(f,VarEle,'start_index','1');
     netcdf.putAtt(f,VarEle,'cf_role','face_node_connectivity');
-    
-  
     
 % VarRe = netcdf.defVar(f,'Re','double',[DimNod DimFqs]);
 %     netcdf.putAtt(f,VarRe,'long_name','Real part of complex tide');
@@ -122,7 +120,6 @@ netcdf.putVar(f,VarFqs,0,nf,F53.FREQ);
 netcdf.putVar(f,VarAmp,[0 0],[nn nf],F53.AMP);
 netcdf.putVar(f,VarPha,[0 0],[nn nf],F53.PHA);
 
-
 netcdf.putVar(f,VarLon,0,nn,fgs.x);
 netcdf.putVar(f,VarLat,0,nn,fgs.y);
 netcdf.putVar(f,VarDep,0,nn,fgs.z);
@@ -131,7 +128,4 @@ netcdf.putVar(f,VarEle,[0 0],[ne nface],fgs.e);
 % netcdf.putVar(f,VarRe,[0 0],[nn nf],Re);
 % netcdf.putVar(f,VarIm,[0 0],[nn nf],Im);
 
-
 netcdf.close(f);
-
-    

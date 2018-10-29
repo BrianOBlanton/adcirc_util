@@ -17,8 +17,8 @@ NStations=size(AdcircHaStruct.AMP,1);
 %NFreqs=length(AdcircHaStruct.FREQ);
 % freq in cph, period in hrs
 Freqs=AdcircHaStruct.FREQ*3600; 
-%Periods=2*pi./Freqs;
-edges=-2:.01:2;  % for PDFs,CDFs
+%Periods=2*pi./Freqs;D=ans;
+edges=-5:.01:5;  % for PDFs,CDFs
 
 idxz0=find(strcmp(AdcircHaStruct.PERNAMES,'STEADY'));
 AdcircHaStruct.PERNAMES(idxz0)=[];
@@ -31,6 +31,7 @@ AdcircHaStruct.FREQ(idxz0)=[];
 UseTheseConstits={'M2' 'S2' 'N2' 'K2' 'O1' 'K1' 'P1' 'Q1'};
 [~,TheseFreqs]=ismember(UseTheseConstits,AdcircHaStruct.PERNAMES);
 %TheseFreqs=[2:23];
+%TheseFreqs
 
 NEdges=length(edges);
 CDF=NaN*ones(NStations,NEdges);

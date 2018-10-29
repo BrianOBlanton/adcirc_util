@@ -35,7 +35,7 @@ function h=lcontour(fem_grid_struct,Q,cval,varargin)
 % VERIFY INCOMING STRUCTURE
 %
 if ~isstruct(fem_grid_struct)
-   msg=str2mat(' ',...
+   msg=char(' ',...
                'First argument to LCONTOUR not a structure.  Perhaps its',...
                'the element list.  If so you should use LCONTOUR4, which',...
                'takes the standard grid arrays (e,x,...).  The first ',...
@@ -58,7 +58,7 @@ if ischar(Q)
 else
    % columnate Q
    Q=Q(:);
-   [nrowQ,ncolQ]=size(Q);
+   [nrowQ,~]=size(Q);
    if nrowQ ~= length(x)
       error('Length of scalar must be same length as grid coordinates.');
    end   
@@ -68,7 +68,8 @@ end
 Qmax=max(Q);
 Qmin=min(Q);
 cval=cval(:);
-h=zeros(size(cval));
+%h=zeros(size(cval));
+h = gobjects(size(cval));
 
 for kk=1:length(cval)
 %parfor (kk=1:length(cval))
@@ -80,11 +81,13 @@ for kk=1:length(cval)
 % Call cmex function contmex5
       C=contmex5(x,y,e,Q,cval(kk));
       if(size(C,1)*size(C,2)~=1)
-              X = [ C(:,1) C(:,3) NaN*ones(size(C(:,1)))]';
-              Y = [ C(:,2) C(:,4) NaN*ones(size(C(:,1)))]';
-              XX{kk} = X(:);
-              YY{kk} = Y(:);
-              len(kk)=length(X(:));
+         X = [ C(:,1) C(:,3) NaN*ones(size(C(:,1)))]';
+         Y = [ C(:,2) C(:,4) NaN*ones(size(C(:,1)))]';
+         XX{kk} = X(:);
+         YY{kk} = Y(:);
+         %len(kk)=length(X(:));
+         h(kk)=line(XX{kk},YY{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
+         set(h(kk),'ZData',1*ones(size(get(h(kk),'XData'))))
       else
          disp(['CVal ' num2str(cval(kk)) ' within range but still invalid.']);
          h(kk)=NaN;
@@ -92,25 +95,30 @@ for kk=1:length(cval)
    end
 end 
 
-try 
-    mm=gcm;
-    for kk=1:length(cval)
-        if ~isnan(h(kk))
-            h(kk)=linem(YY{kk},XX{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
-        end
-    end
-catch
-    for kk=1:length(cval)
-        if ~isnan(h(kk))
-            h(kk)=line(XX{kk},YY{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
-        end
-    end    
-end
+% try 
+%     mm=gcm;
+%     for kk=1:length(cval)
+%         if ~isnan(h(kk))
+%             h(kk)=linem(YY{kk},XX{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
+%         end
+%     end
+% catch
+%     for kk=1:length(cval)
+%         if ~isnan(h(kk))
+%             h(kk)=line(XX{kk},YY{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
+%         end
+%     end    
+% end
+% 
+% for kk=1:length(cval)
+%     if ishandle(h(kk))
+%         set(h(kk),'ZData',ones(size(get(h(kk),'XData'))))
+%     end
+% end
+% 
+% h(isnan(h))=0;
 
-
-h(isnan(h))=0;
-
-
+% 
 % if exist('plotfx')
 %    plotfx;
 % end
