@@ -121,9 +121,30 @@ FgsOut.ineg=ineg;
 
 % edge lengths
 FgsOut.EL=[a b c];
+FgsOut.dl=mean(FgsOut.EL,2);
 
 % triangle quality; ratio of inner to outer circles
 FgsOut.triQual=(b+c-a).*(c+a-b).*(a+b-c)./(a.*b.*c);
+
+% if range of coords is < 360, assume grid is in lon/lat, and convert to
+% cart and add _cart fields
+if (range(FgsOut.x)<360 && range(FgsOut.y)<360)
+    temp=FgsOut;
+    [temp.x,temp.y]=AdcircCppForward(FgsOut.x,FgsOut.y,mean(FgsOut.x),mean(FgsOut.y));
+    %fprintf('**** Lon/Lat grid converted to CPP. \n')
+    temp=el_areas(temp);
+    temp=belint(temp);
+    temp=attach_elem_centroids(temp);
+    FgsOut.ar_cart=temp.ar;
+    FgsOut.A_cart=temp.A;
+    FgsOut.A0_cart=temp.A0;
+    FgsOut.B_cart=temp.B;
+    FgsOut.T_cart=temp.T;
+    FgsOut.dx_cart=temp.dx;
+    FgsOut.dy_cart=temp.dy;
+    FgsOut.dl_cart=sqrt(4*FgsOut.ar_cart/sqrt(3));
+end
+    
 
 %
 %LabSig  Brian O. Blanton

@@ -73,12 +73,26 @@ end
 
 TheGrid.bnd=detbndy(TheGrid.e);
 
-% if NeedsConvertToCart
+NeedsConvertToCart=true;
+if NeedsConvertToCart
 %     TheGrid.lo=TheGrid.x;
 %     TheGrid.la=TheGrid.y;
-%     [TheGrid.x,TheGrid.y]=AdcircCppForward(TheGrid.x,TheGrid.y,-80,36);
-%     fprintf('**** Lon/Lat grid converted to CPP. \n')
-% end
+    temp=TheGrid;
+    [temp.x,temp.y]=AdcircCppForward(TheGrid.x,TheGrid.y,mean(TheGrid.x),mean(TheGrid.y));
+    %fprintf('**** Lon/Lat grid converted to CPP. \n')
+    temp=el_areas(temp);
+    temp=belint(temp);
+    temp=attach_elem_centroids(temp);
+    TheGrid.ar_cart=temp.ar;
+    TheGrid.A_cart=temp.A;
+    TheGrid.A0_cart=temp.A0;
+    TheGrid.B_cart=temp.B;
+    TheGrid.T_cart=temp.T;
+    TheGrid.dx_cart=temp.dx;
+    TheGrid.dy_cart=temp.dy;
+    TheGrid.dl_cart=sqrt(4*TheGrid.ar_cart/sqrt(3));
+    
+end
     
 TheGrid=el_areas(TheGrid);
 if all(TheGrid.ar<0)  % assume elements are ordered CW and switch to CCW

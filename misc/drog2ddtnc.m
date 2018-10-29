@@ -363,7 +363,7 @@ end
 
 function jnew=locate_drog(TheGrid,x,y,j)
     jnew=j;
-    % See if drogs are still in Previously known element
+    % See if drogs are still in previously known element
     idx=belel(TheGrid,j,[x y]);
     inotfound=find(idx==0);
     % Get new elements, if not in previously known element

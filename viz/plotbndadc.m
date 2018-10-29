@@ -49,6 +49,34 @@ hleg=[];
 
 
 cols={
+<<<<<<< HEAD
+      'r' 'none' '.'   % type 0
+      'm' 'none' '.'   % type 1      
+      '-' 'none' '-'   % type 2
+      '-' 'none' '-'   % type 3
+      '-' 'none' '-'   % type 4
+      '-' 'none' '-'   % type 5
+      '-' 'none' '-'   % type 6 (n/a)
+      '-' 'none' '-'   % type 7 (n/a)
+      '-' 'none' '-'   % type 8 (n/a)
+      '-' 'none' '-'   % type 9 (n/a)
+      'b' 'none' '.'   % type 10 
+      'c' 'none' '.'   % type 11
+      'c' 'none' '.'   % type 12
+      'c' 'none' '.'   % type 13
+      '-' 'none' '-'   % type 14 (n/a)
+      '-' 'none' '-'   % type 15 (n/a)
+      '-' 'none' '-'   % type 16 (n/a)
+      '-' 'none' '-'   % type 17 (n/a)
+      '-' 'none' '-'   % type 18 (n/a)
+      '-' 'none' '-'   % type 19 (n/a)
+      'c' 'none' '.'   % type 20
+      'c' 'none' '.'   % type 21
+      'c' 'none' '.'   % type 22
+      'c' 'none' '.'   % type 23
+      };
+
+=======
     'g' 'none' '*'   % type 0
     'm' 'none' '.'   % type 1
     '-' 'none' '-'   % type 2
@@ -74,6 +102,7 @@ cols={
     'r' 'none' '.'   % type 22
     'c' 'none' '.'   % type 23
     };
+>>>>>>> 834e2a07689f9080632f7598739aeaac55576498
 
 legs={'Land (0, strong no normal, free tangential)'            % ibtype==0
       'Island (1, strong no normal, free tangential)'
