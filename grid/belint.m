@@ -71,7 +71,6 @@ FgsOut.T=T;
 FgsOut.dy=dy;
 FgsOut.dx=dx;
 
-
 %
 %LabSig  Brian O. Blanton
 %        Department of Marine Sciences

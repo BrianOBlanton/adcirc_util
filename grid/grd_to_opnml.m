@@ -13,7 +13,7 @@ function fem_grid_struct=grd_to_opnml(fort14name,verbose)
 %         fem_grid_struct=grd_to_opnml;
 
 
-if ~exist('verbose')
+if ~exist('verbose','var')
    verbose=false;
 end
 
@@ -21,7 +21,7 @@ if ~islogical(verbose)
    error('Verbose arg to grd_to_opnml must be logical')
 end
 
-if ~exist('fort14name')
+if ~exist('fort14name','var')
    % assume fort.14 filename in the current wd.
    fort14name='fort.14';
 end
@@ -38,8 +38,8 @@ gridname=fgetl(f14);
 
 l=fgetl(f14);
 [ne,the_rest]=strtok(l,' ');
-ne=str2num(ne);
-nn=str2num(strtok(the_rest));
+ne=str2double(ne);
+nn=str2double(strtok(the_rest));
 
 % Get node locations
 if verbose, fprintf('\nnodes = '),end
@@ -68,16 +68,16 @@ fem_grid_struct.ne=length(e);
 if verbose, fprintf('\nopen boundary = '), end
 fem_grid_struct.nopenboundaries=fscanf(f14,'%d',1);fgets(f14);
 fem_grid_struct.elevation=fscanf(f14,'%d',1);fgets(f14);
-if (fem_grid_struct.nopenboundaries==0)   
-   fem_grid_struct.nopenboundarynodes=0;
-   fem_grid_struct.ob={0};  
+if (fem_grid_struct.nopenboundaries==0)
+    fem_grid_struct.nopenboundarynodes=0;
+    fem_grid_struct.ob={0};
 else
-
-for i=1:fem_grid_struct.nopenboundaries
-       fem_grid_struct.nopennodes{i}=fscanf(f14,'%d',1);
-       fgets(f14);
-       temp=fscanf(f14,'%d',fem_grid_struct.nopennodes{i});
-       fem_grid_struct.ob{i}=temp;
+    
+    for i=1:fem_grid_struct.nopenboundaries
+        fem_grid_struct.nopennodes{i}=fscanf(f14,'%d',1);
+        fgets(f14);
+        temp=fscanf(f14,'%d',fem_grid_struct.nopennodes{i});
+        fem_grid_struct.ob{i}=temp;
     end
 end
 if verbose, fprintf('%d ... ',fem_grid_struct.nopenboundaries),end
@@ -87,10 +87,11 @@ if verbose, fprintf('\nland boundary segments = '),end
 fem_grid_struct.nland=fscanf(f14,'%d',1);fgets(f14);
 fem_grid_struct.nlandnodestotal=fscanf(f14,'%d',1);fgets(f14);
 if verbose, fprintf('%d ... ',fem_grid_struct.nland),end
+if verbose, fprintf('\n'),end 
 
 n24=0;
 n23=0;
-n0=0;
+%n0=0;
 n23nodes=0;
 n24pairs=0;
 
@@ -134,7 +135,7 @@ for i=1:fem_grid_struct.nland
       fem_grid_struct.weirheights{i}=temp(:,3);
       
    otherwise
-      disp(['Boundary type not coded: ' int2str(temp(2))])
+      fprint('Boundary type not coded: %s\n ',int2str(temp(2)))
    end
 end
 
@@ -148,9 +149,10 @@ try
     fem_grid_struct=belint(fem_grid_struct);
     fem_grid_struct=el_areas(fem_grid_struct);
 catch ME
-    disp('Returning incomplete fem_grid_struct.')
+    fprintf('Returning incomplete fem_grid_struct.\n')
     throw(ME)
 end
+
 
 if verbose, fprintf('\nNumber of Weir segments = %d \n',n24), end
 

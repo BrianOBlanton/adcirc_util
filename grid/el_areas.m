@@ -58,17 +58,6 @@ e=FgsIn.e;
 x=FgsIn.x;
 y=FgsIn.y;
 
-% convert to cart for areas and edge length arrays
-%if range(x) < 90 && range(y) < 90   % assume in lon/lat
-%    FgsOut.lo0=mean(x);
-%    FgsOut.la0=mean(y);
-%    [x,y]=convll2m(x,y,FgsOut.lo0,FgsOut.la0);
-%    FgsOut.trx0=mean(x);
-%    FgsOut.try0=mean(y);
-%    FgsOut.xcart=x-FgsOut.trx0;
-%    FgsOut.ycart=y-FgsOut.try0;
-%end
-
 % COMPUTE GLOBAL DX,DY, Len, angles
 %
 i1=e(:,1);
@@ -144,7 +133,6 @@ if (range(FgsOut.x)<360 && range(FgsOut.y)<360)
     FgsOut.dy_cart=temp.dy;
     FgsOut.dl_cart=sqrt(4*FgsOut.ar_cart/sqrt(3));
 end
-    
 
 %
 %LabSig  Brian O. Blanton
