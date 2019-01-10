@@ -53,8 +53,8 @@ while k<length(varargin)
       varargin([k k+1])=[];      
     otherwise
       k=k+2;
-  end;
-end;
+  end
+end
 
 if length(varargin)<2
    varargin={};
@@ -72,8 +72,10 @@ z=fem_grid_struct.z;
 if isempty(TheseElems)
     if isfield(fem_grid_struct,'xecen')
         axx=axis;
-        ikeep=fem_grid_struct.xecen>axx(1) & fem_grid_struct.xecen<axx(2) & ...
-              fem_grid_struct.yecen>axx(3) & fem_grid_struct.yecen<axx(4);
+        dx=axx(2)-axx(1);
+        dy=axx(4)-axx(3);
+        ikeep=fem_grid_struct.xecen>axx(1)-dx & fem_grid_struct.xecen<axx(2)+dx & ...
+              fem_grid_struct.yecen>axx(3)-dy & fem_grid_struct.yecen<axx(4)+dy;
         if ~all(ikeep==0)
             elems=elems(ikeep,:);
         end

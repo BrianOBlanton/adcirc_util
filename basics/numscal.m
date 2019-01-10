@@ -97,13 +97,15 @@ end
 % compute offset as 2% of each axis range
 X=get(gca,'Xlim');
 Y=get(gca,'YLim');
+dx=X(2)-X(1);
+dy=Y(2)-Y(1);
 %off=(X(2)-X(1))/50;
 off=0;
 
 Q=Q(:);
 
 % get indices of nodes within viewing window defined by X,Y
-filt=find(x>=X(1)&x<=X(2)&y>=Y(1)&y<=Y(2));
+filt=find(x>=X(1)-dx&x<=X(2)+dx&y>=Y(1)-dy&y<=Y(2)+dy);
 
 % determine if viewing window is zoomed-in
 % enough for node numbers to be meaningful
@@ -125,7 +127,7 @@ filt=find(x>=X(1)&x<=X(2)&y>=Y(1)&y<=Y(2));
 % label only those nodes that lie within viewing window.
 %   h1=text(x(filt)+off,y(filt)+off,int2str(Q(filt)),...
 fmtstr=sprintf('%%.%dg',Digits);
-   h1=text(x(filt)+off,y(filt)+off,num2str(Q(filt),fmtstr),...
+   h1=text(x(filt)+off,y(filt)+off,10*ones(size(filt)),num2str(Q(filt),fmtstr),...
        'HorizontalAlignment','center',...
        'VerticalAlignment','middle',...
        'Color','k',...
@@ -133,6 +135,7 @@ fmtstr=sprintf('%%.%dg',Digits);
        'BackgroundColor','w',...
        'Margin',.5,...
        'Tag','Node Scalar Value',...
+       'Clipping','off',...
        'FontSize',12,varargin{:});
         
 if nargout>0,h=h1;end
