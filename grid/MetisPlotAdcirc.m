@@ -1,7 +1,9 @@
 function [g,h]=MetisPlotAdcirc(PeStart,PeEnd)
-%METIS_PLOT_ADCIRC
+%MetisPlotAdcirc
 %Call as: [g,h]=MetisPlotAdcirc(PeStart,PeEnd)
 %OR:      MetisPlotAdcirc(MetisStruct)
+%
+%See also: MetisLoadPeStruct, MetisShowPe
 
 verbose=false;
 
@@ -46,6 +48,7 @@ if ~DrawOnly
    MetisStruct=MetisLoadPeStruct(PeStart,PeEnd);
    
 else
+    
    for i=1:length(MetisStruct) 
       ii=rem(i,length(cols))+1;
       g=MetisStruct{i};
@@ -54,6 +57,7 @@ else
       text(mean([min(g.x) max(g.x)]),mean([min(g.y) max(g.y)]),2,sprintf('%04d',g.Pe),...
          'HorizontalAlignment','center','VerticalAlignment','middle');
    end
+   
 end
 
 %h(1)=plotbnd(gm,'Color','k','LineWidth',1);

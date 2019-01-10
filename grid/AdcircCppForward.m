@@ -14,9 +14,9 @@ function [x,y]=AdcircCppForward(lambda,phi,lambda0,phi0)
 
 % Call as: [x,y]=AdcircCppForward(lambda,phi,lambda0,phi0);
 
-if range(lambda)<1
-    fprintf('Input coordinates might be in r.\nIf you get bizarre results, this might be why.\n')
-end
+% if range(lambda)<1
+%     fprintf('Input coordinates might be in radians.\nIf you get bizarre results, this might be why.\n')
+% end
 
 r=6378206.4d0;
 x=r*(lambda-lambda0)*pi/180.*cos(phi0*pi/180);

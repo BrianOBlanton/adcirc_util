@@ -104,3 +104,6 @@ end
 TheGrid=belint(TheGrid);
 
 TheGrid=attach_elem_centroids(TheGrid);
+
+TheGrid.nn=size(TheGrid.x,1);
+TheGrid.ne=size(TheGrid.e,1);
