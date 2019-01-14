@@ -21,9 +21,9 @@ fprintf(fid,'%10d %2d %10d %10d %10d\n',out');
 % total number of open boundary nodes
 if isfield(fgs,'nopenboundaries')
    fprintf(fid,'%-20d ! Number of open boundaries\n',fgs.nopenboundaries);  % nope   
-   fprintf(fid,'%-20d ! Total number of open boundary nodes\n',fgs.nopenboundarynodes);  % neta, total number of elevation nodes
+   fprintf(fid,'%-20d ! Total number of open boundary nodes\n',fgs.nopenboundarynodes{1});  % neta, total number of elevation nodes
    %fprintf(fid,'%-20d Total number of open boundary nodes\n',fgs.elevation);  % neta, total number of elevation nodes
-   fprintf(fid,'%-20d\n',fgs.nopenboundarynodes); 
+   fprintf(fid,'%-20d\n',fgs.nopenboundarynodes{1}); 
    fprintf(fid,'%-20d \n',fgs.ob{1});
 else
    fprintf(fid,'%-20d ! Number of open boundaries\n',0);  % nope   

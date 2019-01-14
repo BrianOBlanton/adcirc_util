@@ -12,7 +12,6 @@ end
 for i=1:m
 
     %parfor (i=1:m)
-    
     for ii=1:n
         px=points_x(i,ii);
         py=points_y(i,ii);

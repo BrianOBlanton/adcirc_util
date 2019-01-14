@@ -118,6 +118,7 @@ for i=1:size(q,2)
     
     %outq=NaN*ones(size(x));
     
+%    outq(idx,i) = nansum([e1.*x(idx) e2.*y(idx) e3],2);
     outq(idx,i) = e1.*x(idx) + e2.*y(idx) + e3;
 
 end

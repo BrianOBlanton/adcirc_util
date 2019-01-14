@@ -40,8 +40,6 @@ function j=findelem(fem_grid_struct,xorig,yorig,jorig)
 %   Fall 2009 : added x,y 
 %
 
-
-j=[];
 Debug=false;
 
 % VERIFY INCOMING STRUCTURE
