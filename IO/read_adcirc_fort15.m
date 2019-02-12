@@ -94,17 +94,31 @@ end
 l=fgetl(fid);temp=strtok(l,'!');
 f15.anginn=str2num(strtrim(temp));
 
-% NOUTE
+% scan for possible NFFR
 l=fgetl(fid);
+if strfind(l,'NFFR')
+    temp=strtok(l,'!');
+    f15.NFFR=str2num(strtrim(temp));
+    % read until NOUTE
+    while 1
+        l=fgetl(fid);
+        if strfind(l,'NOUTE'),break,end
+    end
+    %fseek(fid,-1,0);  % back up one line
+end
+
+% NOUTE
+%l=fgetl(fid);
 temp=strtok(l,'!');
 [f15.NOUTE f15.TOUTSE f15.TOUTFE f15.NSPOOLE]=strread(strtrim(temp));
 l=fgetl(fid);
-temp=strtok(l,'!');
-f15.NSTAE=str2num(strtrim(temp));
+%temp=strtok(l,'!');
+temp=strsplit(l);
+f15.NSTAE=str2num(temp{1});
 for i=1:f15.NSTAE
    l=fgetl(fid);
    [a,b]=strtok(l,'!');
-   f15.STAE_COMMENT{i}=blank(b(2:end));
+   f15.STAE_COMMENT{i}=strip(b(2:end));
    [f15.STAE(i,1) f15.STAE(i,2)]=strread(strtrim(a));
 end
 
@@ -274,7 +288,7 @@ f15.NHARF=str2num(words{1});
 for i=1:f15.NHARF
    l=fgetl(fid);
    temp=strtok(l,'!');
-   f15.HA_FREQ_NAME{i}=blank(temp);
+   f15.HA_FREQ_NAME{i}=strip(temp);
    l=fgetl(fid);
    temp=strtok(l,'!');
    words=strsep2(temp);

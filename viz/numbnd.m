@@ -36,7 +36,7 @@ Y=get(gca,'YLim');
 % Since the boundary list is not guaranteed to be "ordered" 
 % we need to know the unique node numbers in the boundary
 %
-[nlist,~] = count(bnd(:));
+[nlist,~] = ccount(bnd(:));
 nlist=nlist(:);
 
 xb=x(nlist);

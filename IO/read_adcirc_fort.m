@@ -286,5 +286,5 @@ if ~isempty(AdcCSD)
       D.kd=D.time/86400+AdcCSD;
    end
 end
-D.header=blank(D.header);
+D.header=strip(D.header);
 

@@ -199,31 +199,32 @@ PERNAMES=PERNAMES(idx);
 FREQ=FREQ(idx);
 
 clear temp
-if nargout==1 && strcmp(strrep(ext,'.',''),'51')
-    % convert to table
-    
-    for i=1:length(PERNAMES)
-        temp=PERNAMES{i};
-        if temp(1)=='2'
-            temp=['x' temp];
-        end
-        ca{i}=sprintf('%sa',temp);
-        %ua{i}='m';
-        cp{i}=sprintf('%sp',temp);
-        %up{i}='deg GMT';
-    end   
-    
-    A=array2table(A,'VariableNames',ca);
-    G=array2table(G,'VariableNames',cp);
-    A=([A G]);
-    
-else
+% if nargout==1 && strcmp(strrep(ext,'.',''),'51')
+%     % convert to table
+%     
+%     for i=1:length(PERNAMES)
+%         temp=PERNAMES{i};
+%         if temp(1)=='2'
+%             temp=['x' temp];
+%         end
+%         ca{i}=sprintf('%sa',temp);
+%         %ua{i}='m';
+%         cp{i}=sprintf('%sp',temp);
+%         %up{i}='deg GMT';
+%     end   
+%     
+%     A=array2table(A,'VariableNames',ca);
+%     G=array2table(G,'VariableNames',cp);
+%     A=([A G]);
+%     
+% else
+% here
    temp.AMP=A;
    temp.PHA=G;
    temp.FREQ=FREQ;
    temp.PERNAMES=PERNAMES;
    clear PERNAMES G FREQ A
    A=temp;
-end
+% end
 
 
