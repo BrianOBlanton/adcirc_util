@@ -102,7 +102,6 @@ if ~exist('tolerance','var')
    tolerance=DefaultTolerance;
 end
 
-
 % at this point, xp,yp,jsearch must all be 1-d vectors
 if ~(size(xp,2)==1 && size(yp,2)==1 && size(xp,1)==size(yp,1)) 
    error('Incorrect dimensions on xp,yp.')
