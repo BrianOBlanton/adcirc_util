@@ -1,11 +1,14 @@
-function Anim6364nc(g,nc,nc64,varargin)
+function Anim6364nc(varargin)
 % Anim6364nc generate an animatiom of an ADCIRC 63 file in netCDF format
-% Required inputs: 
-%     fgs - grid structure on which the 63 file was computed 
-%     nc  - ncgeodataset object pointing to a fort.63.nc file
-%     nc64  - ncgeodataset object  pointing to a fort.64.nc file
-% 
+% Defaults: 
+%     nc63 - will open fort.63.nc as an ncgeodataset
+%     nc64 - will open fort.64.nc as an ncgeodataset
+%     fgs  - will be extracted from nc63
+%
 % P/V pairs:
+%     Grid
+%     nc63
+%     nc64
 %     AxisLims   - plot axis limits, as in the axis command (def=grid lims)
 %     Title      - title string as a cell array (def={''})
 %     IterStart  - starting iteration number (def=1)
@@ -20,108 +23,65 @@ function Anim6364nc(g,nc,nc64,varargin)
 %     StartingTime - datenum of starttime
 
 if nargin==0
-   disp('Anim63nc(fgs,nc,nc64) OR:')
-   disp('Anim63nc(fgs,nc,nc64,p1,v1,p2,v2,...)')
-   return
+   disp('setting defaults:')
+   nc=ncgeodataset('fort.63.nc');
+   nc64=ncgeodataset('fort.64.nc');
+   g=ExtractGrid(nc);
 end
 
-FrameBaseName='frame';
-ScriptToAdd='none';
-ImageResolution='-r100';
-AxisLims=[];  
-Title={''};     
-IterStart=1; 
-IterStride=1;
-IterStop=-1;  
-ColorMin=NaN;  
-ColorMax=NaN;  
-ColorMap=jet(32);  
+p.FrameBaseName='frame';
+p.ScriptToAdd='none';
+p.ImageResolution='-r100';
+p.AxisLims=[];  
+p.Title={};     
+p.IterStart=1; 
+p.IterStride=1;
+p.IterStop=-1;  
+p.ColorMin=NaN;  
+p.ColorMax=NaN;  
+p.ColorMap=jet(32);  
 %StartingTime=0;
+p.VectorStride=1;
+p.VectorScaleFac=1;
+p.VectorColor='k';
+p.Grid='';
+p.nc63='';
+p.nc64='';
 
-VectorStride=1;
-VectorScaleFac=1;
-VectorColor='k';
+p=parse_pv_pairs(p,varargin);
 
-
-% Strip off propertyname/value pairs in varargin not related to
-% "line" object properties.
-k=1;
-while k<length(varargin)
-  switch lower(varargin{k})
-%    case 'startingtime'
-%      StartingTime=varargin{k+1};
-%      varargin([k k+1])=[];
-    case 'framebasename'
-      FrameBaseName=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'scripttoadd'
-      ScriptToAdd=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'axislims'
-      AxisLims=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'title'
-      Title=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'iterstart'
-      IterStart=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'iterstride'
-      IterStride=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'iterstop'
-      IterStop=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'colormin'
-      ColorMin=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'colormax'
-      ColorMax=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'colormap'
-      ColorMap=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'vectorscalefac'
-      VectorScaleFac=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'vectorstride'
-      VectorStride=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'vectorcolor'
-      VectorColor=varargin{k+1};
-      varargin([k k+1])=[];
-    otherwise
-      k=k+2;
-  end
+if isempty(p.nc63)
+    p.nc63=ncgeodataset('fort.63.nc');
+end
+if isempty(p.nc64)
+    p.nc64=ncgeodataset('fort.64.nc');
+end
+if isempty(p.Grid)
+    p.Grid=ExtractGrid(p.nc63);
 end
 
-if length(varargin)<2
-   varargin={};
-end
+time=p.nc63.time('time');
+time=datetime(datevec(time));
+nTimes=size(time,1); 
+t=time;
 
-nTimes=nc.size('time');
-%t=StartingTime+nc{'time'}(:)/24;
-t=nc.time{'time'};
-%t=D.t/86400;
+if p.IterStop==-1,p.IterStop=nTimes;end
 
-if IterStop==-1,IterStop=nTimes;end
-
-if (IterStart<1 || IterStart>nTimes)
+if (p.IterStart<1 || p.IterStart>nTimes)
    error('IterStart must be between %d and %d',1,nTimes)
-   IterStart=1;
-elseif (IterStop<1 || IterStop>nTimes)
+elseif (p.IterStop<1 || p.IterStop>nTimes)
    error('IterStop must be between %d and %d',1,nTimes)
-elseif (IterStop<IterStart)
-       error('IterStop must be greater than or equal to IterStart')
+elseif (p.IterStop<p.IterStart)
+   error('IterStop must be greater than or equal to IterStart')
 end
 
-if IterStride<1
+if p.IterStride<1
     error('Stride must be greater than 1.')
 end
 
-fprintf('Starting iteration =  %d\n',IterStart)
-fprintf('Iteration Stride   =  %d\n',IterStride)
-fprintf('Stopping iteration =  %d\n',IterStop)
+fprintf('Starting iteration =  %d\n',p.IterStart)
+fprintf('Iteration Stride   =  %d\n',p.IterStride)
+fprintf('Stopping iteration =  %d\n',p.IterStop)
 
 h=[];
 hu0=[];
@@ -129,18 +89,18 @@ hu0=[];
 %hst=[];
 %axx=[];
 
-if ~iscell(Title)
+if ~iscell(p.Title)
    error('Title to Anim63 must be a cell array')
 end
 
-tlen=length(Title);
+tlen=length(p.Title);
 
 % set up figure
 if (1)
    figure
    %drawelems(g,'Color',[1 1 1]*.7,'Linewidth',.25);
-   plotbnd(g,'LineWidth',.2);
-   hc=lcontour(g,'z',0,'Color','k','LineWidth',.2);
+   plotbnd(p.Grid,'LineWidth',.2);
+   hc=lcontour(p.Grid,'z',0,'Color','k','LineWidth',.2);
    set_height(hc,1);
    plotcoast('states')
    grid on
@@ -152,51 +112,53 @@ if (1)
 end
 axis('equal')
 
-if isempty(AxisLims)
-    minX=min(g.x);maxX=max(g.x);
-    minY=min(g.y);maxY=max(g.y);
+if isempty(p.AxisLims)
+    minX=min(p.Grid.x);maxX=max(p.Grid.x);
+    minY=min(p.Grid.y);maxY=max(p.Grid.y);
 else
-    minX=AxisLims(1);
-    maxX=AxisLims(2);
-    minY=AxisLims(3);
-    maxY=AxisLims(4);
+    minX=p.AxisLims(1);
+    maxX=p.AxisLims(2);
+    minY=p.AxisLims(3);
+    maxY=p.AxisLims(4);
 end
 axis([minX maxX minY maxY])
+
 % get grid indices in box;
-InViewingBox=find(g.x>minX & g.x<maxX & g.y>minY & g.y<maxY);
+InViewingBox=find(p.Grid.x>minX & p.Grid.x<maxX & ...
+                  p.Grid.y>minY & p.Grid.y<maxY);
 
-if exist(ScriptToAdd,'file')
-   eval(ScriptToAdd)
+if exist(p.ScriptToAdd,'file')
+   eval(p.ScriptToAdd)
 end
 
-if ~(isnan(ColorMin) && isnan(ColorMax))    
-    set(gca,'CLim',[ColorMin ColorMax])
+if ~(isnan(p.ColorMin) && isnan(p.ColorMax))    
+    set(gca,'CLim',[p.ColorMin p.ColorMax])
 end
-colormap(ColorMap)
+colormap(p.ColorMap)
 colorbar
 
 % generate frames
-for i=IterStart:IterStride:IterStop
+for i=p.IterStart:p.IterStride:p.IterStop
    
-   if isnan(t(i)),break,end
+   if isnat(t(i)),break,end
    %zz=D.zeta(:,i);
-   uu=nc64{'u-vel'}(i,:)';
-   vv=nc64{'v-vel'}(i,:)';
-   zz=nc{'zeta'}(i,:)';
+   uu=p.nc64{'u-vel'}(i,:)';
+   vv=p.nc64{'v-vel'}(i,:)';
+   zz=p.nc63{'zeta'}(i,:)';
    zz(zz<-1000)=NaN;
    if ~isempty(h),delete(h),end   
    if ~isempty(hu0),delete(hu0),end
    %if ~isempty(hz0),delete(hz0),end
    %if ~isempty(hst),delete(hst);delete(axx),end
-   h=colormesh2d(g,zz);
+   h=colormesh2d(p.Grid,zz);
    %hz0=lcontour(g,zz,0,'Color','b');
-   hu0=vecplot(g.x,g.y,uu,vv,'ScaleLabel','no scale',...
-       'ScaleFac',VectorScaleFac,...
-       'Stride',VectorStride,...
-       'Color',VectorColor);
+   hu0=vecplot(p.Grid.x,p.Grid.y,uu,vv,'ScaleLabel','no scale',...
+       'ScaleFac',p.VectorScaleFac,...
+       'Stride',p.VectorStride,...
+       'Color',p.VectorColor);
    
-   if ~(isnan(ColorMin) && isnan(ColorMax))    
-       set(gca,'CLim',[ColorMin ColorMax])
+   if ~(isnan(p.ColorMin) && isnan(p.ColorMax))    
+       set(gca,'CLim',[p.ColorMin p.ColorMax])
    else
        cmin=min(zz(InViewingBox));
        cmax=max(zz(InViewingBox));
@@ -205,14 +167,15 @@ for i=IterStart:IterStride:IterStop
    %set(gca,'CLim',[-1 1]*max(zz))
    %shading flat
    %set_height(h,1)
-   Title{tlen+1}=datestr(t(i),0);
-   title(Title,'FontSize',14);
+   p.Title{tlen+1}=sprintf('%s  //  %04d',datestr(t(i),0),i);
+   title(p.Title,'FontSize',14);
    %[hst,axx]=stamp_right(datestr(t(i)));
    drawnow
 
-   fnamebase=sprintf('%s_%03d',FrameBaseName,i);
+   fnamebase=sprintf('%s_%03d',p.FrameBaseName,i);
    fprintf('Printing %s\n',fnamebase)
-   export_fig('-png',ImageResolution,sprintf('%s.png',fnamebase));
+   export_fig('-png',p.ImageResolution,sprintf('%s.png',fnamebase));
 %   print('-dpng',ImageResolution,sprintf('%s.png',fnamebase));
    %eval(sprintf('!/usr/local/bin/convert %s.png %s.gif',fnamebase,fnamebase));
 end
+

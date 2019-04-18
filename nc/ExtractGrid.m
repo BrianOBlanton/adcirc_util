@@ -91,7 +91,8 @@ if NeedsConvertToCart
     TheGrid.dx_cart=temp.dx;
     TheGrid.dy_cart=temp.dy;
     TheGrid.dl_cart=sqrt(4*TheGrid.ar_cart/sqrt(3));
-    
+    TheGrid.x_cart=temp.x;
+    TheGrid.y_cart=temp.y;
 end
     
 TheGrid=el_areas(TheGrid);

@@ -13,3 +13,8 @@ fgsout=fgsin;
 fgsout.xecen=mean(fgsin.x(fgsin.e'))';
 fgsout.yecen=mean(fgsin.y(fgsin.e'))';
 fgsout.zecen=mean(fgsin.z(fgsin.e'))';
+
+if isfield(fgsin,'x_cart')
+    fgsout.xecen_cart=mean(fgsin.x_cart(fgsin.e'))';
+    fgsout.yecen_cart=mean(fgsin.y_cart(fgsin.e'))';
+end
