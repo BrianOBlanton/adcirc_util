@@ -54,6 +54,11 @@ for i=1:length(f13In.att_names)
         f13Out.atts{i}=round(f13Out.atts{i}); 
     end
     
+    % initial_river_elevation
+    if strcmp(f13Out.att_names{i},'initial_river_elevation')
+        idx=f13Out.atts{i}<-1000;
+        f13Out.atts{i}(idx)=-99999; 
+    end    
     % surface_directional_effective_roughness_length
     if strcmp(f13Out.att_names{i},'surface_directional_effective_roughness_length')
         i0=find(~all(f13Out.atts{i}'<1e-10));
