@@ -10,9 +10,11 @@ end
 
 % locate elements in FgsIn that contain nodes in FgsOut 
 if ~exist('j','var') || isempty(j) 
+    tic;
     fprintf('Finding elements in FgsIn containing nodes in FgsOut ... ');
     j=FindElementsInStrTree(FgsIn,FgsOut.x,FgsOut.y);
-    fprintf('done.\n');
+    v=toc;
+    fprintf('Done. Took %f secs\n',v);
 end
 
 f13Out.header=FgsOut.name;

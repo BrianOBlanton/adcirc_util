@@ -11,3 +11,6 @@ addpath([ADCIRC '/IO'])
 addpath([ADCIRC '/misc'])
 addpath([ADCIRC '/tides'])   
 addpath([ADCIRC '/owi'])   
+
+% add javapath for jts
+javaaddpath(genpath([ADCIRC '/java/-1.9.jar']));
