@@ -13,4 +13,4 @@ addpath([ADCIRC '/tides'])
 addpath([ADCIRC '/owi'])   
 
 % add javapath for jts
-javaaddpath(genpath([ADCIRC '/java/-1.9.jar']));
+javaaddpath(genpath([ADCIRC '/java/jts-1.9.jar']));
