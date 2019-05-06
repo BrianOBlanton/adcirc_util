@@ -1,4 +1,5 @@
 function f13Out=MapFort13(FgsIn,f13In,FgsOut,j)
+% f13Out=MapFort13(FgsIn,f13In,FgsOut,j)
 
 if ~is_valid_struct(FgsIn) || ~is_valid_struct(FgsOut)
     error('One or both of the input FGS structs are not valid')

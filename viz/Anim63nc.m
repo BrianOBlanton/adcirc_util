@@ -124,7 +124,8 @@ if (1)
    %drawelems(g,'Color',[1 1 1]*.7,'Linewidth',.25);
    plotbnd(g,'LineWidth',.2);
    hc=lcontour(g,'z',0,'Color','k','LineWidth',.2);
-   set_height(hc,1);
+   nz=ones(size(get(hc,'XData')));
+   set(hc,'ZData',nz)
    plotcoast('states')
    grid
    %hc=lcontour(g,'z',[2:8],'Color','r','LineWidth',.2);
