@@ -15,6 +15,7 @@ Compile the mex files in adcirc_util/mex.  From within MATLAB, cd to the mex dir
 To add ADCIRC paths to the MATLAB MATLABPATH variable in the user's matlab/startup.m file, add:
 
 % Add distribition paths
+
 global ADCIRC
 ADCIRC='<INSTALL_DIR>/adcirc_util';
 AddAdcircPaths
