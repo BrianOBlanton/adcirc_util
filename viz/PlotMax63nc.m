@@ -6,14 +6,15 @@ function [h,g]=PlotMax63nc(varargin)
 % 
 % P/V pairs:
 %     AxisLims        - plot axis limits, as in the axis command (def=grid lims)
-%     Title           - title string as a cell array (def={''})
 %     ColorMin        - min pressure to clip below (def=950)
 %     ColorMax        - max pressure to clip above (def=1030)
 %     ColorMap        - colormap to use (def=jet(32))
-%     ScriptToAdd     - script that defines plot overlays (def='none')
+%     Grid            - ADCIRC grid to use, instead of extracting from nc object
 %     ImageResolution - (def='-r200';)
 %     FrameBaseName   - base of image output file name (def='frame')
+%     ScriptToAdd     - script that defines plot overlays (def='none')
 %     StartingTime    - datenum of starttime
+%     Title           - title string as a cell array (def={''})
 
 % set defaults
 p.FrameBaseName='frame';
