@@ -35,8 +35,6 @@ AdcUtil=adcirc_util_init;
 
 p=parse_pv_pairs(p,varargin);
 
-fvar=strtok(p.filename,'.');
-
 if nargin==0
 %   disp('Plot63nc(g,nc) OR:')
 %   disp('Plot63nc(fgs,nc,p1,v1,p2,v2,...)')
@@ -51,6 +49,10 @@ try
 catch
     error('nc file %s not found.',p.filename);
 end
+
+% get filename in case its not maxele
+[~,b,~]=fileparts(p.filename); 
+fvar=strtok(b,'.');
 
 if isempty(p.Grid)
     g=ExtractGrid(nc);
@@ -91,5 +93,5 @@ plotbnd(g)
 %[hst,axx]=stamp_right(datestr(t(i)));
 %axis('equal')
 %axis('tight')
-title(p.Title,'FontSize',14)
+title(p.Title,'FontSize',14,'Interpreter','none')
 drawnow
