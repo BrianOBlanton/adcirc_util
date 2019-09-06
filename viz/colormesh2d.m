@@ -90,7 +90,7 @@ try
 
 catch
 %   disp('plain')
-    hp=patch('XData',x,'YData',y,'ZData',z,'faces',e,'CData',Q,'EdgeColor','none',...
+    hp=patch('XData',x,'YData',y,'ZData',z,'faces',e,'CData',Q, 'EdgeColor','none',...
              'FaceColor','interp','Tag','colorsurf');
      
 end

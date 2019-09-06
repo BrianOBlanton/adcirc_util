@@ -100,13 +100,17 @@ end
 for kk=1:length(cval)
     if ch(kk)
         if ismap(gca)     
-            h(kk)=linem(YY{kk},XX{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
+            h(kk)=linem(YY{kk},XX{kk});
         else
-            h(kk)=line(XX{kk},YY{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
+            h(kk)=line(XX{kk},YY{kk});
         end
+        set(h(kk),'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on')
+        set(h(kk),'DisplayName',sprintf('%.2f',cval))
     end
 end
     
+
+
 
 % for kk=1:length(cval)
 %     if ishandle(h(kk))

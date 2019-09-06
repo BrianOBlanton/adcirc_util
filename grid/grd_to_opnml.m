@@ -67,12 +67,11 @@ fem_grid_struct.ne=length(e);
 % scan open boundary
 if verbose, fprintf('\nopen boundary = '), end
 fem_grid_struct.nopenboundaries=fscanf(f14,'%d',1);fgets(f14);
-fem_grid_struct.elevation=fscanf(f14,'%d',1);fgets(f14);
 if (fem_grid_struct.nopenboundaries==0)
     fem_grid_struct.nopenboundarynodes=0;
     fem_grid_struct.ob={0};
-else
-    
+else    
+    fem_grid_struct.elevation=fscanf(f14,'%d',1);fgets(f14);
     for i=1:fem_grid_struct.nopenboundaries
         fem_grid_struct.nopennodes{i}=fscanf(f14,'%d',1);
         fgets(f14);
@@ -135,12 +134,14 @@ for i=1:fem_grid_struct.nland
       fem_grid_struct.weirheights{i}=temp(:,3);
       
    otherwise
-      fprint('Boundary type not coded: %s\n ',int2str(temp(2)))
+      fprintf('Boundary type not coded: %s\n ',int2str(temp(2)))
    end
 end
 
 fclose(f14);
-
+if isempty(fem_grid_struct.name)
+    fem_grid_struct.name='changeme';
+end
 fem_grid_struct.n23nodes=n23nodes;
 fem_grid_struct.n24pairs=n24pairs;
 fem_grid_struct.nweir=n24;

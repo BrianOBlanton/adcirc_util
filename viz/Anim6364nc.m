@@ -32,6 +32,7 @@ end
 p.FrameBaseName='frame';
 p.ScriptToAdd='none';
 p.ImageResolution='-r100';
+p.ImageWriteDir='./';
 p.AxisLims=[];  
 p.Title={};     
 p.IterStart=1; 
@@ -44,6 +45,10 @@ p.ColorMap=jet(32);
 p.VectorStride=1;
 p.VectorScaleFac=1;
 p.VectorColor='k';
+p.ScaleXor=[];
+p.ScaleYor=[];
+p.ScaleLabel='no scale';
+p.ManualAdvance=false;
 p.Grid='';
 p.nc63='';
 p.nc64='';
@@ -97,18 +102,20 @@ tlen=length(p.Title);
 
 % set up figure
 if (1)
-   figure
-   %drawelems(g,'Color',[1 1 1]*.7,'Linewidth',.25);
-   plotbnd(p.Grid,'LineWidth',.2);
-   hc=lcontour(p.Grid,'z',0,'Color','k','LineWidth',.2);
-   set_height(hc,1);
-   plotcoast('states')
-   grid on
-   grid minor
-   %hc=lcontour(g,'z',[2:8],'Color','r','LineWidth',.2);
-   %set_height(hc,1);
-   %hc=lcontour(g,'z',-[2:10],'Color','b','LineWidth',.2);
-   %set_height(hc,1);
+    figure
+    %drawelems(g,'Color',[1 1 1]*.7,'Linewidth',.25);
+    plotbnd(p.Grid,'LineWidth',.2);
+    hc=lcontour(p.Grid,'z',0,'Color','k','LineWidth',.2);
+    if isgraphics(hc)
+        set_height(hc,1);
+    end
+    plotcoast('states')
+    grid on
+    grid minor
+    %hc=lcontour(g,'z',[2:8],'Color','r','LineWidth',.2);
+    %set_height(hc,1);
+    %hc=lcontour(g,'z',-[2:10],'Color','b','LineWidth',.2);
+    %set_height(hc,1);
 end
 axis('equal')
 
@@ -152,7 +159,10 @@ for i=p.IterStart:p.IterStride:p.IterStop
    %if ~isempty(hst),delete(hst);delete(axx),end
    h=colormesh2d(p.Grid,zz);
    %hz0=lcontour(g,zz,0,'Color','b');
-   hu0=vecplot(p.Grid.x,p.Grid.y,uu,vv,'ScaleLabel','no scale',...
+   hu0=vecplot(p.Grid.x,p.Grid.y,uu,vv,...
+       'ScaleLabel',p.ScaleLabel,...
+       'ScaleXor',p.ScaleXor,...
+       'ScaleYor',p.ScaleYor,...
        'ScaleFac',p.VectorScaleFac,...
        'Stride',p.VectorStride,...
        'Color',p.VectorColor);
@@ -174,8 +184,11 @@ for i=p.IterStart:p.IterStride:p.IterStop
 
    fnamebase=sprintf('%s_%03d',p.FrameBaseName,i);
    fprintf('Printing %s\n',fnamebase)
-   export_fig('-png',p.ImageResolution,sprintf('%s.png',fnamebase));
+   export_fig('-png',p.ImageResolution,sprintf('%s/%s.png',p.ImageWriteDir,fnamebase));
 %   print('-dpng',ImageResolution,sprintf('%s.png',fnamebase));
    %eval(sprintf('!/usr/local/bin/convert %s.png %s.gif',fnamebase,fnamebase));
+    if p.ManualAdvance
+        pause
+    end
 end
 

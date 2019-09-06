@@ -43,7 +43,6 @@ Y=[y(ns) y(ne) NaN*ones(size(ns))]';
 X=X(:);
 Y=Y(:);
 
-
 try 
     mm=gcm;
     hboun=linem(Y,X,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
@@ -52,6 +51,7 @@ catch
 end
 
 set(hboun,'ZData',2*ones(size(get(hboun,'XData'))))
+set(hboun,'DisplayName','Boundary')
 
 if nargout==1,retval=hboun;end
 %
