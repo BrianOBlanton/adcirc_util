@@ -1,5 +1,5 @@
 function Anim6364nc(varargin)
-% Anim6364nc generate an animatiom of an ADCIRC 63 file in netCDF format
+% Anim6364nc generate an animatiom of an ADCIRC 63,64 netCDF file pair
 % Defaults: 
 %     nc63 - will open fort.63.nc as an ncgeodataset
 %     nc64 - will open fort.64.nc as an ncgeodataset
@@ -19,15 +19,19 @@ function Anim6364nc(varargin)
 %     ColorMap   - colormap to use (def=jet(32))
 %     ScriptToAdd - script that defines plot overlays (def='none')
 %     ImageResolution - (def='-r200';)
+%     ImageWriteDir
 %     FrameBaseName - base of image output file name (def='frame')
+%     ManualAdvance
+%     Url 
+
 %     StartingTime - datenum of starttime
 
-if nargin==0
-   disp('setting defaults:')
-   nc=ncgeodataset('fort.63.nc');
-   nc64=ncgeodataset('fort.64.nc');
-   g=ExtractGrid(nc);
-end
+% if nargin==0
+%    disp('setting defaults:')
+%    nc=ncgeodataset('fort.63.nc');
+%    nc64=ncgeodataset('fort.64.nc');
+%    g=ExtractGrid(nc);
+% end
 
 p.FrameBaseName='frame';
 p.ScriptToAdd='none';
@@ -50,17 +54,29 @@ p.ScaleYor=[];
 p.ScaleLabel='no scale';
 p.ManualAdvance=false;
 p.Grid='';
-p.nc63='';
-p.nc64='';
+p.nc63='fort.63.nc';
+p.nc64='fort.64.nc';
+p.Url='';
 
 p=parse_pv_pairs(p,varargin);
 
-if isempty(p.nc63)
-    p.nc63=ncgeodataset('fort.63.nc');
+if isempty(p.Url)
+    if exist('p.nc63','file')
+        p.nc63=ncgeodataset(p.nc63);
+        p.nc64=ncgeodataset(p.nc64);
+    else
+        error('fort.63,64.nc does not exist locally. Either cd to a directory, or use Url.')
+    end
+else
+    try
+        p.nc63=ncgeodataset([p.Url '/fort.63.nc']);
+        p.nc64=ncgeodataset([p.Url '/fort.64.nc']);
+    catch ME
+        disp(['ID: ' ME.identifier])
+        throw(ME)
+    end
 end
-if isempty(p.nc64)
-    p.nc64=ncgeodataset('fort.64.nc');
-end
+
 if isempty(p.Grid)
     p.Grid=ExtractGrid(p.nc63);
 end
@@ -71,6 +87,7 @@ nTimes=size(time,1);
 t=time;
 
 if p.IterStop==-1,p.IterStop=nTimes;end
+if p.IterStart==-1,p.IterStart=nTimes;p.IterStop=nTimes;end
 
 if (p.IterStart<1 || p.IterStart>nTimes)
    error('IterStart must be between %d and %d',1,nTimes)
