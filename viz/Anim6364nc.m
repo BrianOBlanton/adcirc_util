@@ -109,7 +109,7 @@ if (1)
     if isgraphics(hc)
         set_height(hc,1);
     end
-    plotcoast('states')
+%    plotcoast('states')
     grid on
     grid minor
     %hc=lcontour(g,'z',[2:8],'Color','r','LineWidth',.2);
