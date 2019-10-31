@@ -28,22 +28,22 @@ end
 if verbose, fprintf('Scanning %s ... ',fort14name), end
 
 % Open fort.14 file
-[f14,message]=fopen(fort14name,'r');
-if (f14<0)
+[fid,message]=fopen(fort14name,'r');
+if (fid<0)
    error(message)
 end
 
 % Get grid info
-gridname=fgetl(f14);
+gridname=fgetl(fid);
 
-l=fgetl(f14);
+l=fgetl(fid);
 [ne,the_rest]=strtok(l,' ');
 ne=str2double(ne);
 nn=str2double(strtok(the_rest));
 
 % Get node locations
 if verbose, fprintf('\nnodes = '),end
-temp=fscanf(f14,'%d %f %f %f',[4 nn])';
+temp=fscanf(fid,'%d %f %f %f',[4 nn])';
 x=temp(:,2);
 y=temp(:,3);
 z=temp(:,4);
@@ -51,7 +51,7 @@ if verbose, fprintf('%d ... ',nn),end
 
 % Get elements
 if verbose, fprintf('\nelements = '),end 
-temp=fscanf(f14,'%d %d %d %d %d',[5 ne])';
+temp=fscanf(fid,'%d %d %d %d %d',[5 ne])';
 e=temp(:,3:5);
 if verbose, fprintf('%d ... ',ne),end
 
@@ -66,16 +66,18 @@ fem_grid_struct.ne=length(e);
 
 % scan open boundary
 if verbose, fprintf('\nopen boundary = '), end
-fem_grid_struct.nopenboundaries=fscanf(f14,'%d',1);fgets(f14);
+fem_grid_struct.nopenboundaries=fscanf(fid,'%d',1);
+fgets(fid);
 if (fem_grid_struct.nopenboundaries==0)
-    fem_grid_struct.nopenboundarynodes=0;
-    fem_grid_struct.ob={0};
+    fem_grid_struct.nopenboundarynodes{1}=0;
+    fem_grid_struct.ob{1}={0};
+    fgets(fid);
 else    
-    fem_grid_struct.elevation=fscanf(f14,'%d',1);fgets(f14);
+    fem_grid_struct.elevation=fscanf(fid,'%d',1);fgets(fid);
     for i=1:fem_grid_struct.nopenboundaries
-        fem_grid_struct.nopennodes{i}=fscanf(f14,'%d',1);
-        fgets(f14);
-        temp=fscanf(f14,'%d',fem_grid_struct.nopennodes{i});
+        fem_grid_struct.nopenboundarynodes{i}=fscanf(fid,'%d',1);
+        fgets(fid);
+        temp=fscanf(fid,'%d',fem_grid_struct.nopenboundarynodes{i});
         fem_grid_struct.ob{i}=temp;
     end
 end
@@ -83,8 +85,10 @@ if verbose, fprintf('%d ... ',fem_grid_struct.nopenboundaries),end
 
 % scan land boundary
 if verbose, fprintf('\nland boundary segments = '),end 
-fem_grid_struct.nland=fscanf(f14,'%d',1);fgets(f14);
-fem_grid_struct.nlandnodestotal=fscanf(f14,'%d',1);fgets(f14);
+fem_grid_struct.nland=fscanf(fid,'%d',1);
+fgets(fid);
+fem_grid_struct.nlandnodes=fscanf(fid,'%d',1);
+fgets(fid);
 if verbose, fprintf('%d ... ',fem_grid_struct.nland),end
 if verbose, fprintf('\n'),end 
 
@@ -102,8 +106,8 @@ fem_grid_struct.weirheights={0};
 
 for i=1:fem_grid_struct.nland
 
-   temp=fscanf(f14,'%d',2);
-   fgets(f14); % get remainder of line
+   temp=fscanf(fid,'%d',2);
+   fgets(fid); % get remainder of line
 
    fem_grid_struct.nlandnodes(i)=temp(1);
    fem_grid_struct.ibtype(i)    =temp(2);
@@ -114,21 +118,21 @@ for i=1:fem_grid_struct.nland
    case {0, 1, 2, 10, 11, 12, 20, 21, 22, 30, 52} 
        temp=NaN*ones(fem_grid_struct.nlandnodes(i),1);
        for j=1:fem_grid_struct.nlandnodes(i)
-          temp(j)=fscanf(f14,'%d',1);
-          fgets(f14);
+          temp(j)=fscanf(fid,'%d',1);
+          fgets(fid);
        end
-      %temp=fscanf(f14,'%d',fem_grid_struct.nlandnodes(i));
+      %temp=fscanf(fid,'%d',fem_grid_struct.nlandnodes(i));
       fem_grid_struct.ln{i}=temp;
 
    case {3, 13, 23}          % Exterior Boundary 
       n23=n23+1;
-      temp=fscanf(f14,'%d %f %f',[3 fem_grid_struct.nlandnodes(i)])';
+      temp=fscanf(fid,'%d %f %f',[3 fem_grid_struct.nlandnodes(i)])';
       n23nodes=n23nodes+fem_grid_struct.nlandnodes(i);
       fem_grid_struct.ln{i}=temp(:,1);
      
    case {4, 24}          % Node pairs for weirs
       n24=n24+1;
-      temp=fscanf(f14,'%d %d %f %f %f',[5 fem_grid_struct.nlandnodes(i)])';
+      temp=fscanf(fid,'%d %d %f %f %f',[5 fem_grid_struct.nlandnodes(i)])';
       n24pairs=n24pairs+fem_grid_struct.nlandnodes(i);
       fem_grid_struct.ln{i}=temp(:,1:2);
       fem_grid_struct.weirheights{i}=temp(:,3);
@@ -138,7 +142,7 @@ for i=1:fem_grid_struct.nland
    end
 end
 
-fclose(f14);
+fclose(fid);
 if isempty(fem_grid_struct.name)
     fem_grid_struct.name='changeme';
 end
