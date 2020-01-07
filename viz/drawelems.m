@@ -13,7 +13,6 @@ function hel=drawelems(fem_grid_struct,varargin)
 %     
 
 %REARTH=6367500;
-TheseElems=[];
 %LabelElems='no';
 
 % DEFINE ERROR STRINGS
@@ -29,8 +28,8 @@ if ~is_valid_struct(fem_grid_struct)
    error('    Argument to DRAWELEMS must be a valid fem_grid_struct.')
 end
 
-
 % Default propertyname values
+TheseElems=[];
 MeshHeight=1.;
 SPH=true;
 
@@ -82,8 +81,10 @@ if isempty(TheseElems)
         axx=axis;
         dx=axx(2)-axx(1);
         dy=axx(4)-axx(3);
-        ikeep=fem_grid_struct.xecen>axx(1)-dx & fem_grid_struct.xecen<axx(2)+dx & ...
-              fem_grid_struct.yecen>axx(3)-dy & fem_grid_struct.yecen<axx(4)+dy;
+        ikeep=fem_grid_struct.xecen>axx(1)-dx & ...
+              fem_grid_struct.xecen<axx(2)+dx & ...
+              fem_grid_struct.yecen>axx(3)-dy & ...
+              fem_grid_struct.yecen<axx(4)+dy;
         if ~all(ikeep==0)
             elems=elems(ikeep,:);
         end

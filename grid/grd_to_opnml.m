@@ -65,7 +65,7 @@ fem_grid_struct.nn=length(x);
 fem_grid_struct.ne=length(e);
 
 % scan open boundary
-if verbose, fprintf('\nopen boundary = '), end
+if verbose, fprintf('\nNumber of open boundary segments = '), end
 fem_grid_struct.nopenboundaries=fscanf(f14,'%d',1);fgets(f14);
 if (fem_grid_struct.nopenboundaries==0)
     fem_grid_struct.nopenboundarynodes=0;
@@ -82,7 +82,7 @@ end
 if verbose, fprintf('%d ... ',fem_grid_struct.nopenboundaries),end
 
 % scan land boundary
-if verbose, fprintf('\nland boundary segments = '),end 
+if verbose, fprintf('\nNumber of land boundary segments = '),end 
 fem_grid_struct.nland=fscanf(f14,'%d',1);fgets(f14);
 fem_grid_struct.nlandnodestotal=fscanf(f14,'%d',1);fgets(f14);
 if verbose, fprintf('%d ... ',fem_grid_struct.nland),end
@@ -99,12 +99,14 @@ fem_grid_struct.nlandnodes=0;
 fem_grid_struct.ibtype=0;
 fem_grid_struct.ln={0};
 fem_grid_struct.weirheights={0};
+nodeStrings=cell(fem_grid_struct.nland,1);
 
 for i=1:fem_grid_struct.nland
 
    temp=fscanf(f14,'%d',2);
-   fgets(f14); % get remainder of line
-
+   rr=fgets(f14); % get remainder of line
+   nodeStrings{i}=rr;
+   
    fem_grid_struct.nlandnodes(i)=temp(1);
    fem_grid_struct.ibtype(i)    =temp(2);
    %if verbose, fprintf('\n      %d %d %d ... ',i,temp(1),temp(2)),end
@@ -134,11 +136,19 @@ for i=1:fem_grid_struct.nland
       fem_grid_struct.weirheights{i}=temp(:,3);
       
    otherwise
-      fprintf('Boundary type not coded: %s\n ',int2str(temp(2)))
+      fprintf('Encountered a boundary type (%d) not coded, on segment %d.\n',temp(2),i)
+      if temp(2)>100
+          fprintf('Boundary type (%d) exceeds allowable range. Terminal.\n',temp(2));
+          error('Last Node String: %s',nodeStrings{i-1})
+      end
    end
 end
-
 fclose(f14);
+
+if verbose, fprintf('\nNumber of Weir segments = %d \n',n24), end
+
+%if verbose, fprintf('\n Last line of file read: %s',temp);end
+
 if isempty(fem_grid_struct.name)
     fem_grid_struct.name='changeme';
 end
@@ -155,6 +165,5 @@ catch ME
 end
 
 
-if verbose, fprintf('\nNumber of Weir segments = %d \n',n24), end
 
 return

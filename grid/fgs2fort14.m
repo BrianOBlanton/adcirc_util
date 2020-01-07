@@ -20,11 +20,11 @@ fprintf(fid,'%10d %2d %10d %10d %10d\n',out');
 
 % total number of open boundary nodes
 if isfield(fgs,'nopenboundaries')
-   fprintf(fid,'%-20d ! Number of open boundaries\n',fgs.nopenboundaries);  % nope   
-   for i=1:fgs.nopenboundaries
-       fprintf(fid,'%-20d ! Total number of open boundary nodes\n',fgs.nopenboundarynodes{i});  % neta, total number of elevation nodes
+   fprintf(fid,'%-20d ! Number of open boundaries\n',length(fgs.ob));  % nope   
+   for i=1:length(fgs.ob)
+       fprintf(fid,'%-20d ! Total number of open boundary nodes\n',fgs.elevation);  % neta, total number of elevation nodes
        %fprintf(fid,'%-20d Total number of open boundary nodes\n',fgs.elevation);  % neta, total number of elevation nodes
-       fprintf(fid,'%-20d\n',fgs.nopenboundarynodes{i});
+       fprintf(fid,'%-20d\n',fgs.nopennodes{i});
        fprintf(fid,'%-20d \n',fgs.ob{i});
    end
 else
@@ -37,7 +37,7 @@ if isfield(fgs,'nland')
       fprintf(fid,'%-20d ! Number of land boundaries\n',fgs.nland);  % default nbou   
       fprintf(fid,'%-20d ! Total number of flux boundary nodes\n',fgs.nlandnodestotal);  % default nbou 
       for i=1:fgs.nland
-           fprintf(fid,'%-20d %2d  !Nodes for land bnd %d\n',fgs.nlandnodes(i),fgs.ibtype(i),i); 
+           fprintf(fid,'%-2d %2d  ! Nodes for land bnd %d\n',fgs.nlandnodes(i),fgs.ibtype(i),i); 
            fprintf(fid,'%-10d\n',fgs.ln{i});
       end
 else
