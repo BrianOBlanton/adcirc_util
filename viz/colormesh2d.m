@@ -95,8 +95,8 @@ catch
      
 end
 
-dcm_obj = datacursormode(gcf);
-set(dcm_obj,'UpdateFcn',{@myupdatefcn,Q,fem_grid_struct})
+%dcm_obj = datacursormode(gcf);
+%set(dcm_obj,'UpdateFcn',{@myupdatefcn,Q,fem_grid_struct})
 
 %colormap(jet(nband))
 

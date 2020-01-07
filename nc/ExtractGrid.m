@@ -23,35 +23,34 @@ if size(TheGrid.e,1)<size(TheGrid.e,2)  % then element array is 3x, not x3
     TheGrid.e=TheGrid.e';
 end
 
-%NeedsConvertToCart=true;
+ConvertToCart=false;
 temp=NcTBHandle.standard_name('longitude');
 if ~isempty(temp)
     TheGrid.x=NcTBHandle.data(temp);
+    ConvertToCart=true;
 else
-    fprintf('**** No zonal variable with standard_name=longitude found. Looking for x_coordinate...')
+    fprintf('*** No zonal variable with standard_name=longitude found.\n****** Looking for x_coordinate...\n')
     temp=NcTBHandle.standard_name('x_coordinate');
     if ~isempty(temp)
-        fprintf(' Got it.\n')
+        fprintf('****** Got it.\n')
         TheGrid.x=NcTBHandle.data(temp);
     else
         error('\nNo zonal variable found with standard_name = {longitude,x_coordinate}')
     end
-%    NeedsConvertToCart=false;
 end
 
 temp=NcTBHandle.standard_name('latitude');
 if ~isempty(temp)
     TheGrid.y=NcTBHandle.data(temp);
 else
-    fprintf('**** No meridional variable with standard_name=latitude found. Looking for y_coordinate...')
+    fprintf('*** No meridional variable with standard_name=latitude found.\n****** Looking for y_coordinate...\n')
     temp=NcTBHandle.standard_name('y_coordinate');
     if ~isempty(temp)
-        fprintf(' Got it.\n')
+        fprintf('****** Got it.\n')
         TheGrid.y=NcTBHandle.data(temp);
     else
         error('\nNo meridional variable found with standard_name = {latitude,y_coordinate}')
     end
-%    NeedsConvertToCart=false;
 end
 
 temp1=NcTBHandle.standard_name('depth_below_geoid');
@@ -72,17 +71,25 @@ if isa(TheGrid.x,'single')
 end
 
 TheGrid.bnd=detbndy(TheGrid.e);
+TheGrid=el_areas(TheGrid);
+TheGrid=attach_elem_centroids(TheGrid);
+TheGrid=belint(TheGrid);
+TheGrid.nn=size(TheGrid.x,1);
+TheGrid.ne=size(TheGrid.e,1);
 
-NeedsConvertToCart=true;
-if NeedsConvertToCart
-%     TheGrid.lo=TheGrid.x;
-%     TheGrid.la=TheGrid.y;
+if ConvertToCart
+    lon=TheGrid.x;
+    lat=TheGrid.y;
+    
     temp=TheGrid;
-    [temp.x,temp.y]=AdcircCppForward(TheGrid.x,TheGrid.y,mean(TheGrid.x),mean(TheGrid.y));
+    
+    [temp.x,temp.y]=AdcircCppForward(lon,lat,mean(lon),mean(lat));
+    
     %fprintf('**** Lon/Lat grid converted to CPP. \n')
     temp=el_areas(temp);
     temp=belint(temp);
     temp=attach_elem_centroids(temp);
+    
     TheGrid.ar_cart=temp.ar;
     TheGrid.A_cart=temp.A;
     TheGrid.A0_cart=temp.A0;
@@ -93,18 +100,37 @@ if NeedsConvertToCart
     TheGrid.dl_cart=sqrt(4*TheGrid.ar_cart/sqrt(3));
     TheGrid.x_cart=temp.x;
     TheGrid.y_cart=temp.y;
+    
+else
+    
+    TheGrid.ar_cart=TheGrid.ar;
+    TheGrid.A_cart=TheGrid.A;
+    TheGrid.A0_cart=TheGrid.A0;
+    TheGrid.B_cart=TheGrid.B;
+    TheGrid.T_cart=TheGrid.T;
+    TheGrid.dx_cart=TheGrid.dx;
+    TheGrid.dy_cart=TheGrid.dy;
+    TheGrid.dl_cart=sqrt(4*TheGrid.ar_cart/sqrt(3));
+    TheGrid.x_cart=TheGrid.x;
+    TheGrid.y_cart=TheGrid.y;
+    
 end
     
-TheGrid=el_areas(TheGrid);
+%TheGrid=el_areas(TheGrid);
 if all(TheGrid.ar<0)  % assume elements are ordered CW and switch to CCW
     fprintf('**** Permuting element list to CCW.\n ')
     TheGrid.e=TheGrid.e(:,[1 3 2]);
     TheGrid=el_areas(TheGrid);
     TheGrid.bnd=detbndy(TheGrid.e);
 end
-TheGrid=belint(TheGrid);
 
-TheGrid=attach_elem_centroids(TheGrid);
 
-TheGrid.nn=size(TheGrid.x,1);
-TheGrid.ne=size(TheGrid.e,1);
+%
+%LabSig  Brian O. Blanton
+%        Renaissance Computing Institute
+%        University of North Carolina
+%        Chapel Hill, NC
+%
+%        brian_blanton@renci.org
+%
+

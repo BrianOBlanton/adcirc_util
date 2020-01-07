@@ -83,8 +83,10 @@ if verbose, fprintf('%d ... ',fem_grid_struct.nopenboundaries),end
 
 % scan land boundary
 if verbose, fprintf('\nland boundary segments = '),end 
-fem_grid_struct.nland=fscanf(f14,'%d',1);fgets(f14);
-fem_grid_struct.nlandnodestotal=fscanf(f14,'%d',1);fgets(f14);
+fem_grid_struct.nland=fscanf(f14,'%d',1);
+fgets(f14);
+fem_grid_struct.nlandnodestotal=fscanf(f14,'%d',1);
+fgets(f14);
 if verbose, fprintf('%d ... ',fem_grid_struct.nland),end
 if verbose, fprintf('\n'),end 
 
