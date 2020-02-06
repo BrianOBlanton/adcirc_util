@@ -134,8 +134,8 @@ while k<length(varargin)
       varargin([k k+1])=[];
     otherwise
       k=k+2;
-  end;
-end;
+  end
+end
 
 if length(varargin)<2
    varargin={};
@@ -248,13 +248,13 @@ switch VecType
     case 'arrow'
         %Strip out attributes not used in arrow mode.
         k=1;
-        while k<length(varargin),
-            switch lower(varargin{k}),
-                case 'dotcolor',
+        while k<length(varargin)
+            switch lower(varargin{k})
+                case 'dotcolor'
                     varargin([k k+1])=[];
-                case 'dotsize',
+                case 'dotsize'
                     varargin([k k+1])=[];
-                case 'dotstyle',
+                case 'dotstyle'
                     varargin([k k+1])=[];
                 otherwise
                     k=k+2;

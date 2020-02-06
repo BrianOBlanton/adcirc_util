@@ -18,7 +18,13 @@ D.fname=fname;
 D.nb=nb;
 
 D.dt=fscanf(fid,'%f',1);
-temp=fscanf(fid,'%f');
+i=0;
+while ~feof(fid)
+    i=i+1;
+    temp(i)=fscanf(fid,'%f',1);
+    fgetl(fid);
+end
+
 nt= length(temp)/nb;
 D.z=reshape(temp,[nb nt])';
 

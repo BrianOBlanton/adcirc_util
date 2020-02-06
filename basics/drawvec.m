@@ -31,18 +31,18 @@ ArrowFac=.25;
 % Strip off parameter/value pairs in varargin not related to
 % "line" object properties.
 k=1;
-while k<length(varargin),
-  switch lower(varargin{k}),
-    case 'arrowangle',
+while k<length(varargin)
+  switch lower(varargin{k})
+    case 'arrowangle'
       ArrowAngle=varargin{k+1};
       varargin([k k+1])=[];
-    case 'arrowfac',
+    case 'arrowfac'
       ArrowFac=varargin{k+1};
       varargin([k k+1])=[];
     otherwise
       k=k+2;
-  end;
-end;
+  end
+end
 if length(varargin)<2
    varargin={};
 end

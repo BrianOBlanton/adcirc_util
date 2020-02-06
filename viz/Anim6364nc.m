@@ -18,6 +18,7 @@ function fign=Anim6364nc(varargin)
 %     ColorMax   - max pressure to clip above (def=1030)
 %     ColorMap   - colormap to use (def=jet(32))
 %     ScriptToAdd - script that defines plot overlays (def='none')
+%     FlushFrames - whether or not to output images frames (def=false)
 %     ImageResolution - (def='-r200';)
 %     ImageWriteDir
 %     FrameBaseName - base of image output file name (def='frame')
@@ -33,6 +34,7 @@ function fign=Anim6364nc(varargin)
 %    g=ExtractGrid(nc);
 % end
 
+p.FlushFrames=false;
 p.FrameBaseName='frame';
 p.ScriptToAdd='none';
 p.ImageResolution='-r50';
@@ -45,7 +47,7 @@ p.IterStop=-1;
 p.ColorMin=[];  
 p.ColorMax=[];  
 p.ColorMap=jet(32);  
-%StartingTime=0;
+p.StartingTime=datetime(0,0,0);
 p.VectorStride=1;
 p.VectorScaleFac=1;
 p.VectorColor='k';
@@ -87,9 +89,25 @@ time=p.nc63.time('time');
 time=datetime(datevec(time));
 nTimes=size(time,1); 
 t=time;
+if p.StartingTime ~= datetime(0,0,0)
+    t=t-t(1);
+    t=t+p.StartingTime;
+end
+    
+% check times in nc files
+%nTimes
+%return
 
 if p.IterStop==-1,p.IterStop=nTimes;end
-if p.IterStart==-1,p.IterStart=nTimes;p.IterStop=nTimes;end
+if p.IterStart==0
+    p.IterStart=1;
+elseif p.IterStart==-1
+    p.IterStart=nTimes;
+    p.IterStop=nTimes;
+elseif p.IterStart<-1
+    p.IterStart=nTimes+p.IterStart;
+    p.IterStop=nTimes;
+end
 
 if (p.IterStart<1 || p.IterStart>nTimes)
    error('IterStart must be between %d and %d',1,nTimes)
@@ -123,8 +141,8 @@ tlen=length(p.Title);
 if (1)
     fign=figure('Position',p.FigurePosition);
     %drawelems(g,'Color',[1 1 1]*.7,'Linewidth',.25);
-    plotbnd(p.Grid,'LineWidth',.2);
-    hc=lcontour(p.Grid,'z',p.ContourVals,'Color','k','LineWidth',2);
+    plotbnd(p.Grid,'LineWidth',.2,'Color','m');
+    hc=lcontour(p.Grid,'z',p.ContourVals,'Color','k','LineWidth',1);
     if isgraphics(hc)
         set_height(hc,1);
     end
@@ -201,13 +219,15 @@ for i=p.IterStart:p.IterStride:p.IterStop
    %[hst,axx]=stamp_right(datestr(t(i)));
    drawnow
 
-   fnamebase=sprintf('%s_%05d',p.FrameBaseName,i);
-   fprintf('Printing %s\n',fnamebase)
-   export_fig('-png',p.ImageResolution,sprintf('%s/%s.png',p.ImageWriteDir,fnamebase));
-%   print('-dpng',ImageResolution,sprintf('%s.png',fnamebase));
-   %eval(sprintf('!/usr/local/bin/convert %s.png %s.gif',fnamebase,fnamebase));
-    if p.ManualAdvance
-        pause
-    end
+   if p.FlushFrames
+       fnamebase=sprintf('%s_%05d',p.FrameBaseName,i);
+       fprintf('Printing %s\n',fnamebase)
+       export_fig('-png',p.ImageResolution,sprintf('%s/%s.png',p.ImageWriteDir,fnamebase));
+       %print('-dpng',ImageResolution,sprintf('%s.png',fnamebase));
+       %eval(sprintf('!/usr/local/bin/convert %s.png %s.gif',fnamebase,fnamebase));
+   end
+   if p.ManualAdvance
+       pause
+   end
 end
 
