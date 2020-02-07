@@ -32,6 +32,7 @@ end
 TheseElems=[];
 MeshHeight=1.;
 SPH=true;
+ax=gca;
 
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
@@ -49,7 +50,10 @@ while k<length(varargin)
 %       varargin([k k+1])=[];
     case 'theseelems'
       TheseElems=varargin{k+1};
-      varargin([k k+1])=[];      
+      varargin([k k+1])=[];
+    case 'axes'
+      ax=varargin{k+1};
+      varargin([k k+1])=[];
     otherwise
       k=k+2;
   end
@@ -109,7 +113,7 @@ yt=yt(:);
 zt=zt(:);
 
 % DRAW GRID
-hel=line(xt,yt,zt,'Color','k',varargin{:},'Tag','elements');
+hel=line(ax,xt,yt,zt,'Color','k',varargin{:},'Tag','elements');
 
 
 
