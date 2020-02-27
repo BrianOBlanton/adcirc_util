@@ -27,12 +27,16 @@ fac = 3.14159/180.;
 % Default PN/PV for DRAWVEC
 ArrowAngle=25;
 ArrowFac=.25;
+ax=gca;
 
 % Strip off parameter/value pairs in varargin not related to
 % "line" object properties.
 k=1;
 while k<length(varargin)
   switch lower(varargin{k})
+    case 'axes'
+      ax=varargin{k+1};
+      varargin([k k+1])=[];
     case 'arrowangle'
       ArrowAngle=varargin{k+1};
       varargin([k k+1])=[];
@@ -76,7 +80,7 @@ x=[xo xe x1 xe x2 NaN*ones(size(xo))]';
 y=[yo ye y1 ye y2 NaN*ones(size(yo))]';
 x=x(:);
 y=y(:);
-hp=line(x,y,varargin{:});
+hp=line(ax,x,y,varargin{:});
 
 %
 %LabSig  Brian O. Blanton

@@ -93,6 +93,7 @@ ScaleFac=1.;
 ScaleXor=[];
 ScaleYor=[];
 PctAxis=10;
+ax=gca;
 
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
@@ -125,6 +126,9 @@ while k<length(varargin)
       varargin([k k+1])=[];
     case 'pctaxis'
       PctAxis=varargin{k+1};
+      varargin([k k+1])=[];
+    case 'axes'
+      ax=varargin{k+1};
       varargin([k k+1])=[];
     case 'vectype'
       VecType=lower(varargin{k+1});
@@ -159,11 +163,11 @@ end
 
 % SCALE VELOCITY DATA TO RENDERED WINDOW SCALE 
 %
-RLs= get(gca,'XLim');
+RLs= get(ax,'XLim');
 xr=RLs(2)-RLs(1);
 X1=RLs(1);
 X2=RLs(2);
-RLs= get(gca,'YLim');
+RLs= get(ax,'YLim');
 yr=RLs(2)-RLs(1);
 Y1=RLs(1);
 Y2=RLs(2);
@@ -264,7 +268,7 @@ switch VecType
             varargin={};
         end
         
-        hp=drawvec(x,y,us,vs,varargin{:});
+        hp=drawvec(x,y,us,vs,'Axes',ax,varargin{:});
         set(hp,'UserData',[xin yin uin vin]);
     case 'stick'
         hp=drawstick(x,y,us,vs,varargin{:});
@@ -282,7 +286,7 @@ set(hp,'Tag','vectors');
 
 if ~strcmp(strip(ScaleLabel),'no scale')
    [ht1,scaletext,scaleaxes]=drawvecscale(ScaleLabel,ScaleXor,ScaleYor,...
-          VecType,ScaleType,ScaleFac,pct10,Y1,Y2,varargin{:}); 
+          VecType,ScaleType,ScaleFac,pct10,Y1,Y2,ax,varargin{:}); 
 else
    ht1=[];scaletext=[];scaleaxes=[];
 end
@@ -308,7 +312,7 @@ if nargout==1,retval=[hp; scaletext; ht1(:); scaleaxes];end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [ht1,scaletext,scale_axes]=drawvecscale(ScaleLabel,...
           ScaleXor,ScaleYor,...
-          VecType,ScaleType,ScaleFac,pct10,Y1,Y2,varargin)
+          VecType,ScaleType,ScaleFac,pct10,Y1,Y2,ax,varargin)
 
 % PLACE SCALE WITH MOUSE ON SCREEN
 %
@@ -338,7 +342,7 @@ switch lower(ScaleType)
       scale_axes=[];
 
    case 'floating'
-      mainax=gca;
+      mainax=ax;
       % Draw vector scale
       data_axis=axis;
       xdif=data_axis(2)-data_axis(1);
@@ -348,9 +352,9 @@ switch lower(ScaleType)
       dy1=data_axis(3);
       dy2=data_axis(3)+ydif*.1;
       
-      %cur_units=get(gca,'Units');
-      set(gca,'Units','normalized');
-      axnorm=get(gca,'Position');
+      %cur_units=get(ax,'Units');
+      set(ax,'Units','normalized');
+      axnorm=get(ax,'Position');
 
       if isempty(ScaleXor)
          xstart=0;
@@ -362,10 +366,10 @@ switch lower(ScaleType)
 	 set(gcf,'Units','pixels');
 	 figpixunits=get(gcf,'Position');
 	 set(gcf,'Units',oldfigunits);
-	 oldaxesunits=get(gca,'Units');
-	 set(gca,'Units','pixels');
+	 oldaxesunits=get(ax,'Units');
+	 set(ax,'Units','pixels');
 	 axespixunits=get(gca,'Position');
-	 set(gca,'Units',oldaxesunits);
+	 set(ax,'Units',oldaxesunits);
 	 
 	 xstart=(xtemp*axespixunits(3)+axespixunits(1))/figpixunits(3);
 	 ystart=(ytemp*axespixunits(4)+axespixunits(2))/figpixunits(4);
@@ -380,7 +384,7 @@ switch lower(ScaleType)
       sc_or_x=dx1+(dx2-dx1)/10;
       switch VecType
 	 case 'arrow'
-            ht1=drawvec(sc_or_x,(dy1+dy2)/2.,pct10,0.,varargin{:});
+            ht1=drawvec(sc_or_x,(dy1+dy2)/2.,pct10,0.,'Axes',ax,varargin{:});
 	 case 'stick'
             ht1=drawstick(sc_or_x,(dy1+dy2)/2.,pct10,0.,varargin{:});
       end

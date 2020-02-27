@@ -2,6 +2,9 @@ function TheGrid=ExtractGrid(NcTBHandle)
 % Extract a grid from a CF-UGRID netCDF file
 % TheGrid=ExtractGrid(NcTBHandle) 
 
+verbose=false;
+
+
 if ~isa(NcTBHandle,'ncgeodataset')
     error('Arg to ExtractGrid must be an ncgeodataset object from nctoolbox.')
 end
@@ -29,10 +32,10 @@ if ~isempty(temp)
     TheGrid.x=NcTBHandle.data(temp);
     ConvertToCart=true;
 else
-    fprintf('*** No zonal variable with standard_name=longitude found.\n****** Looking for x_coordinate...\n')
+    if verbose, fprintf('*** No zonal variable with standard_name=longitude found.\n****** Looking for x_coordinate...\n'); end
     temp=NcTBHandle.standard_name('x_coordinate');
     if ~isempty(temp)
-        fprintf('****** Got it.\n')
+        if verbose, fprintf('****** Got it.\n');end
         TheGrid.x=NcTBHandle.data(temp);
     else
         error('\nNo zonal variable found with standard_name = {longitude,x_coordinate}')
@@ -43,10 +46,10 @@ temp=NcTBHandle.standard_name('latitude');
 if ~isempty(temp)
     TheGrid.y=NcTBHandle.data(temp);
 else
-    fprintf('*** No meridional variable with standard_name=latitude found.\n****** Looking for y_coordinate...\n')
+    if verbose, fprintf('*** No meridional variable with standard_name=latitude found.\n****** Looking for y_coordinate...\n');end
     temp=NcTBHandle.standard_name('y_coordinate');
     if ~isempty(temp)
-        fprintf('****** Got it.\n')
+        if verbose, fprintf('****** Got it.\n');end
         TheGrid.y=NcTBHandle.data(temp);
     else
         error('\nNo meridional variable found with standard_name = {latitude,y_coordinate}')
@@ -60,7 +63,7 @@ if ~(isempty(temp1) && isempty(temp2))
     temp=NcTBHandle.data(temp);
     TheGrid.z=cast(temp(:),'double');
 else
-    fprintf('**** No depth variable with standard_name=depth_below_geoid found.  Setting depths to NaN...\n')
+    if verbose, fprintf('**** No depth variable with standard_name=depth_below_geoid found.  Setting depths to NaN...\n');end
     TheGrid.z=NaN(size(TheGrid.x));
 end
        

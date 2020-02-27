@@ -60,7 +60,7 @@ Y=Y(:);
 
 try 
     mm=gcm;
-    hboun=linem(Y,X,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+    hboun=linem(ax,Y,X,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
 catch
     hboun=line(ax,X,Y,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
 end
