@@ -91,7 +91,6 @@ fgets(fid);
 fem_grid_struct.nlandnodes=fscanf(fid,'%d',1);
 fgets(fid);
 
-
 if verbose, fprintf('%d ... ',fem_grid_struct.nland),end
 if verbose, fprintf('\n'),end 
 

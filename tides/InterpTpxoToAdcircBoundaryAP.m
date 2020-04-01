@@ -3,7 +3,6 @@ function ReturnThisZeta=InterpTpxoToAdcircBoundaryAP(fgs,varargin)
 % InterpTpxoToAdcircBoundaryAP(FemGridStruct,TpxoModelFile,...)
 % ca=InterpTpxoToAdcircBoundaryAP(fgs,TpxoModelFileUrl,varargin)
 
-
 TpxoModelFileUrl='http://tds.renci.org:8080/thredds/dodsC/DataLayers/Tides/TPXO/h_tpxo7.2.nc';
 
 %% extract model zeta 
