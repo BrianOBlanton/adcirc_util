@@ -32,7 +32,7 @@ end
 TheseElems=[];
 MeshHeight=1.;
 SPH=true;
-ax=gca;
+ax=[];
 
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
@@ -58,6 +58,9 @@ while k<length(varargin)
       k=k+2;
   end
 end
+if isempty(ax)
+    ax=gca;
+end
 
 if ~SPH && ~isfield(fem_grid_struct,'xecen_cart')
     error('SPH set to false, but cartesian coord fields are not in input fem_grid_struct.')
@@ -82,7 +85,7 @@ z=fem_grid_struct.z;
 % attached to grid struct
 if isempty(TheseElems)
     if isfield(fem_grid_struct,'xecen')
-        axx=axis;
+        axx=axis(ax);
         dx=axx(2)-axx(1);
         dy=axx(4)-axx(3);
         ikeep=fem_grid_struct.xecen>axx(1)-dx & ...

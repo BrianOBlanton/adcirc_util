@@ -69,6 +69,7 @@ end
 % Default propertyname values
 Digits=6;
 fs=12;
+ax=[];
 
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
@@ -78,10 +79,17 @@ while k<length(varargin)
     case 'digits'
       Digits=varargin{k+1};
       varargin([k k+1])=[];
+    case 'axes'
+      ax=varargin{k+1};
+      varargin([k k+1])=[];
     otherwise
       k=k+2;
   end
 end
+if isempty(ax)
+    ax=gca;
+end
+
 
 if length(varargin)<2
    varargin={};
@@ -96,8 +104,8 @@ if length(x)~=length(Q)
 end
 
 % compute offset as 2% of each axis range
-X=get(gca,'Xlim');
-Y=get(gca,'YLim');
+X=get(ax,'Xlim');
+Y=get(ax,'YLim');
 dx=X(2)-X(1);
 dy=Y(2)-Y(1);
 %off=(X(2)-X(1))/50;
@@ -129,9 +137,7 @@ filt=find(x>=X(1)-dx&x<=X(2)+dx&y>=Y(1)-dy&y<=Y(2)+dy);
 %   h1=text(x(filt)+off,y(filt)+off,int2str(Q(filt)),...
 fmtstr=sprintf('%%.%dg',Digits);
 %fmtstr='%d';
-h1=text(x(filt)+off,y(filt)+off,1*ones(size(filt)),num2str(Q(filt),fmtstr),...
-    'HorizontalAlignment','center',...
-    'VerticalAlignment','middle',...
+h1=text(ax,x(filt)+off,y(filt)+off,1*ones(size(filt)),num2str(Q(filt),fmtstr),...
     'BackgroundColor','w',...
     'Color','k',...
     'EdgeColor','k',...
@@ -141,7 +147,7 @@ h1=text(x(filt)+off,y(filt)+off,1*ones(size(filt)),num2str(Q(filt),fmtstr),...
     'VerticalAlignment','middle',...
     'Tag','Node Scalar Value',...
     'Clipping','on',...
-    'FontSize',12,varargin{:});
+    varargin{:});
         
 if nargout>0,h=h1;end
 

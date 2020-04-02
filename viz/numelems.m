@@ -23,7 +23,7 @@ end
 
 k=1;
 ps=15;
-ax=gca;
+ax=[];
 while k<length(varargin)
   switch lower(varargin{k})
     case 'axes'
@@ -33,7 +33,9 @@ while k<length(varargin)
       k=k+2;
   end
 end
-
+if isempty(ax)
+    ax=gca;
+end
 
 % Extract grid fields from fem_grid_struct
 %

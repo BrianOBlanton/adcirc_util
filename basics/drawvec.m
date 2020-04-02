@@ -27,7 +27,7 @@ fac = 3.14159/180.;
 % Default PN/PV for DRAWVEC
 ArrowAngle=25;
 ArrowFac=.25;
-ax=gca;
+ax=[];
 
 % Strip off parameter/value pairs in varargin not related to
 % "line" object properties.
@@ -49,6 +49,9 @@ while k<length(varargin)
 end
 if length(varargin)<2
    varargin={};
+end
+if isempty(ax)
+    ax=gca;
 end
 
 % Conv to rads

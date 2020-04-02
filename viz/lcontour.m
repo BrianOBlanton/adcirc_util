@@ -51,7 +51,7 @@ end
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
 k=1;
-ax=gca;
+ax=[];
 
 while k<length(varargin)
   switch lower(varargin{k})
@@ -62,6 +62,10 @@ while k<length(varargin)
       k=k+2;
   end
 end
+if isempty(ax)
+    ax=gca;
+end
+
 
 e=fem_grid_struct.e;
 x=fem_grid_struct.x;
@@ -115,7 +119,7 @@ end
 
 for kk=1:length(cval)
     if ch(kk)
-        if ismap(gca)     
+        if ismap(ax)     
             h(kk)=linem(ax,YY{kk},XX{kk});
         else
             h(kk)=line(ax,XX{kk},YY{kk});

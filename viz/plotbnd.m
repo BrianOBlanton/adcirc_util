@@ -33,8 +33,7 @@ end
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
 k=1;
-ax=gca;
-
+ax=[];
 while k<length(varargin)
   switch lower(varargin{k})
     case 'axes'
@@ -43,6 +42,9 @@ while k<length(varargin)
     otherwise
       k=k+2;
   end
+end
+if isempty(ax)
+    ax=gca;
 end
 
 % Extract grid fields from fem_grid_struct

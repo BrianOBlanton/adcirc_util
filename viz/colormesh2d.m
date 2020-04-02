@@ -26,7 +26,7 @@ function rv1=colormesh2d(fem_grid_struct,Q,varargin)
 
 
 % Default property values
-ax=gca;
+ax=[];
 nband=Inf;
 
 % Strip off propertyname/value pairs in varargin not related to
@@ -43,6 +43,9 @@ while k<length(varargin)
     otherwise
       k=k+2;
   end
+end
+if isempty(ax)
+    ax=gca;
 end
 
 if length(varargin)<2
@@ -103,7 +106,7 @@ end
 Q=Q(:);
 
 % delete previous colorsurf objects
-delete(findobj(gca,'Type','patch','Tag','colorsurf'))
+delete(findobj(ax,'Type','patch','Tag','colorsurf'))
 
 z=0*ones(size(x));
 try 

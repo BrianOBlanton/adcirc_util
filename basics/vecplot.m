@@ -93,7 +93,7 @@ ScaleFac=1.;
 ScaleXor=[];
 ScaleYor=[];
 PctAxis=10;
-ax=gca;
+ax=[];
 
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
@@ -139,6 +139,9 @@ while k<length(varargin)
     otherwise
       k=k+2;
   end
+end
+if isempty(ax)
+    ax=gca;
 end
 
 if length(varargin)<2
@@ -322,7 +325,6 @@ if (isempty(ScaleXor) || isempty(ScaleYor)) && strcmp(ScaleType,'fixed')
    [ScaleXor,ScaleYor]=ginput(1);
 end 
 
-
 switch lower(ScaleType)
    case 'fixed'
       switch VecType
@@ -417,46 +419,46 @@ if ~ischar(arg)
 end
 
 switch arg
-   case 'help'      
-      disp('VECPLOT additional help section')
-      str=[];
-      str=[str sprintf('\n')];
-      str=[str sprintf('VECPLOT returns a vector of handles to objects\n')];
-      str=[str sprintf('drawn in the current axes.  The vector contains: \n')];
-      str=[str sprintf('   If the ''stick'' method is used, then h is ordered like:\n')];
-      str=[str sprintf('      h(1) -> vector shaft object (Tag=vectors)\n')];
-      str=[str sprintf('      h(2) -> stick vector origin object (Tag=vecrots)\n')];
-      str=[str sprintf('      h(3) -> scale vector text object (Tag=scaletext)\n')];
-      str=[str sprintf('      h(4) -> scale vector shaft object (Tag=scalearrow)\n')];
-      str=[str sprintf('      h(5) -> scale vector origin object (Tag=scalearrow)\n')];
-      str=[str sprintf('\n   If the ''arrow'' method is used, then h is ordered like:\n')];
-      str=[str sprintf('      h(1) -> vector object (Tag=vectors)\n')];
-      str=[str sprintf('      h(2) -> scale vector text object (Tag=scaletext)\n')];
-      str=[str sprintf('      h(3) -> scale vector object (Tag=scalearrow)\n')];
-		
-str=[str sprintf('\nPN/PV pairs accepted by VECPLOT:\n')];
-str=[str sprintf('    ArrowAngle - angle (in degrees) that the arrow head wings\n')];
-str=[str sprintf('                             make with the shaft. Default=25.\n')];
-str=[str sprintf('    DotColor   - origin symbol color, for VecType==''stick''. Default=''k''\n')];
-str=[str sprintf('    DotSize    - origin symbol size, for VecType==''stick''. Default=10\n')];
-str=[str sprintf('    DotStyle   - origin symbol, or VecType==''stick''. Default=''.''\n')];
-str=[str sprintf('    MaxThresh  - Maximum vector magnitude to plot. Default=Inf.\n')];
-str=[str sprintf('    MinThresh  - Minimum vector magnitude to plot. Default=0.\n')];
-str=[str sprintf('    ScaleFac   - vector scaling factor. Default=1.\n')];
-str=[str sprintf('    ScaleLabel - label for vector scale; ''no scale'' prevents scale\n')];
-str=[str sprintf('		               from being drawn; Default=''m/s''.\n')];
-str=[str sprintf('    ScaleType  - how to draw the vector scale, either ''fixed'' or\n')];
-str=[str sprintf('		               ''floating''; Default=''fixed''.\n')];
-str=[str sprintf('    ScaleXor  - scale x-origin; Default=[].\n')];
-str=[str sprintf('    ScaleYor  - scale y-origin; Default=[].\n')];
-str=[str sprintf('    Stride     - amount to stride over in drawing vectors. Default=1,\n')]; 
-str=[str sprintf('		               meaning no stride. Stride=2 skips every other point.\n')];
-str=[str sprintf('    VecType    - vector drawing method, either ''arrow'' or ''stick'';\n')];
-str=[str sprintf('		               Default=''arrow''.\n')];
-     title1='VECPLOT Additional Help';
-
-   otherwise
-      error('invalid help string to VECPLOT')
+    case 'help'
+        disp('VECPLOT additional help section')
+        str=[];
+        str=[str sprintf('\n')];
+        str=[str sprintf('VECPLOT returns a vector of handles to objects\n')];
+        str=[str sprintf('drawn in the current axes.  The vector contains: \n')];
+        str=[str sprintf('   If the ''stick'' method is used, then h is ordered like:\n')];
+        str=[str sprintf('      h(1) -> vector shaft object (Tag=vectors)\n')];
+        str=[str sprintf('      h(2) -> stick vector origin object (Tag=vecrots)\n')];
+        str=[str sprintf('      h(3) -> scale vector text object (Tag=scaletext)\n')];
+        str=[str sprintf('      h(4) -> scale vector shaft object (Tag=scalearrow)\n')];
+        str=[str sprintf('      h(5) -> scale vector origin object (Tag=scalearrow)\n')];
+        str=[str sprintf('\n   If the ''arrow'' method is used, then h is ordered like:\n')];
+        str=[str sprintf('      h(1) -> vector object (Tag=vectors)\n')];
+        str=[str sprintf('      h(2) -> scale vector text object (Tag=scaletext)\n')];
+        str=[str sprintf('      h(3) -> scale vector object (Tag=scalearrow)\n')];
+        
+        str=[str sprintf('\nPN/PV pairs accepted by VECPLOT:\n')];
+        str=[str sprintf('    ArrowAngle - angle (in degrees) that the arrow head wings\n')];
+        str=[str sprintf('                             make with the shaft. Default=25.\n')];
+        str=[str sprintf('    DotColor   - origin symbol color, for VecType==''stick''. Default=''k''\n')];
+        str=[str sprintf('    DotSize    - origin symbol size, for VecType==''stick''. Default=10\n')];
+        str=[str sprintf('    DotStyle   - origin symbol, or VecType==''stick''. Default=''.''\n')];
+        str=[str sprintf('    MaxThresh  - Maximum vector magnitude to plot. Default=Inf.\n')];
+        str=[str sprintf('    MinThresh  - Minimum vector magnitude to plot. Default=0.\n')];
+        str=[str sprintf('    ScaleFac   - vector scaling factor. Default=1.\n')];
+        str=[str sprintf('    ScaleLabel - label for vector scale; ''no scale'' prevents scale\n')];
+        str=[str sprintf('		               from being drawn; Default=''m/s''.\n')];
+        str=[str sprintf('    ScaleType  - how to draw the vector scale, either ''fixed'' or\n')];
+        str=[str sprintf('		               ''floating''; Default=''fixed''.\n')];
+        str=[str sprintf('    ScaleXor  - scale x-origin; Default=[].\n')];
+        str=[str sprintf('    ScaleYor  - scale y-origin; Default=[].\n')];
+        str=[str sprintf('    Stride     - amount to stride over in drawing vectors. Default=1,\n')];
+        str=[str sprintf('		               meaning no stride. Stride=2 skips every other point.\n')];
+        str=[str sprintf('    VecType    - vector drawing method, either ''arrow'' or ''stick'';\n')];
+        str=[str sprintf('		               Default=''arrow''.\n')];
+        title1='VECPLOT Additional Help';
+        
+    otherwise
+        error('invalid help string to VECPLOT')
 end
 
 if ~isempty(str)
