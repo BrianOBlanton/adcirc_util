@@ -10,3 +10,6 @@ addpath([ADCPTH '/IO'])
 addpath([ADCPTH '/misc'])
 addpath([ADCPTH '/tides'])   
 addpath([ADCPTH '/owi'])   
+addpath([ADCPTH '/adcircAnimator'])   
+
+
