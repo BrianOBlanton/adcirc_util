@@ -370,7 +370,7 @@ switch lower(ScaleType)
 	 set(gcf,'Units',oldfigunits);
 	 oldaxesunits=get(ax,'Units');
 	 set(ax,'Units','pixels');
-	 axespixunits=get(gca,'Position');
+	 axespixunits=get(ax,'Position');
 	 set(ax,'Units',oldaxesunits);
 	 
 	 xstart=(xtemp*axespixunits(3)+axespixunits(1))/figpixunits(3);
