@@ -1,4 +1,9 @@
 function h=sdlr_compass(f13,n,varargin)
+% function h=sdlr_compass(f13,n,varargin)
+% Inputs: f13 - complete fort.13 file struct
+%         n   - node to plot
+% Outputs: handles to vectors drawn.
+
 
 theta=(15:30:370)*pi/180;
 if n>f13.nn
