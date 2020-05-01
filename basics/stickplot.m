@@ -33,9 +33,9 @@ Voffset=0.;
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
 k=1;
-while k<length(varargin),
-  switch lower(varargin{k}),
-    case 'voffset',
+while k<length(varargin)
+  switch lower(varargin{k})
+    case 'voffset'
       Voffset=varargin{k+1};
       varargin([k k+1])=[];
     otherwise
@@ -63,7 +63,7 @@ for i=1:n
 end          
              
 h=line(vec(:,1),vec(:,2)+Voffset,varargin{:});
-if nargout==1,hstick=h;,end
+if nargout==1,hstick=h;end
 axis(ax)     
 
 %

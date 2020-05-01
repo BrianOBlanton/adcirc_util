@@ -19,7 +19,7 @@ function h=sdelr_compass(f13,n,varargin)
 % Outputs: handles to vectors drawn.
 
 
-theta=(15:30:370)*pi/180;
+theta=(0:30:355)*pi/180;
 if n>f13.nn
     error('Input node number (%d) exceeds size of grid (%d).',n,f13.nn)
 end
