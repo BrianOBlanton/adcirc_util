@@ -20,10 +20,7 @@ function rv1=colormesh2d(fem_grid_struct,Q,varargin)
 % added map catch/linem, 21 Aug 14, BOB
 %
 
-
 % narginchk(1,3);
-
-
 
 % Default property values
 ax=[];
@@ -108,7 +105,7 @@ Q=Q(:);
 % delete previous colorsurf objects
 delete(findobj(ax,'Type','patch','Tag','colorsurf'))
 
-z=0*ones(size(x));
+z=10*ones(size(x));
 try 
     mm=gcm; %#ok<NASGU>
 %    disp('map')

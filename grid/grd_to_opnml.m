@@ -37,9 +37,9 @@ end
 gridname=fgetl(fid);
 
 l=fgetl(fid);
-[ne,the_rest]=strtok(l,' ');
-ne=str2double(ne);
-nn=str2double(strtok(the_rest));
+temp=strsplit(strip(l));
+ne=str2double(temp{1});
+nn=str2double(temp{2});
 
 % Get node locations
 if verbose, fprintf('\nnodes = '),end

@@ -3,7 +3,7 @@ function h=PlotOwi(OwiStruct,i,varargin)
 
 % Default propertyname values
 
-ColorMin=910;  
+ColorMin=980;  
 ColorMax=1030;  
 ColorMap=jet(32);  
 
@@ -69,8 +69,8 @@ while k<length(varargin)
       varargin([k k+1])=[];
     otherwise
       k=k+2;
-  end;
-end;
+  end
+end
 
 if length(varargin)<2
    varargin={};

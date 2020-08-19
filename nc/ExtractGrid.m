@@ -4,7 +4,6 @@ function TheGrid=ExtractGrid(NcTBHandle)
 
 verbose=false;
 
-
 if ~isa(NcTBHandle,'ncgeodataset')
     error('Arg to ExtractGrid must be an ncgeodataset object from nctoolbox.')
 end
