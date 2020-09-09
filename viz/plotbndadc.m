@@ -213,7 +213,7 @@ if isfield(fem_grid_struct,'ibtype')
                     j=fem_grid_struct.ln{i24(i)};
                     x=fem_grid_struct.x(j);
                     y=fem_grid_struct.y(j);
-                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',20);
+                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',12);
                 end
                 hleg=[hleg;h];
                 legstr={legstr{:},legs{jj}};
