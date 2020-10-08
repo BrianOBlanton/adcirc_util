@@ -46,8 +46,6 @@ hboun=line(X,Y,'Tag','boundary','Color','k',varargin{:});
 legstr={};
 hleg=[];
 
-
-
 cols={
     'g' 'none' '*'   % type 0
     'm' 'none' '.'   % type 1
@@ -205,17 +203,19 @@ if isfield(fem_grid_struct,'ibtype')
                     j=fem_grid_struct.ln{i24(ii)};
                     x=fem_grid_struct.x(j);
                     y=fem_grid_struct.y(j);
-                    line(x,y,'Color','r')
-                    
+                    %line(x,y,'Color','r',LineWidth',2)
+                    %h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',12);
+                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',6);
+
                     %   j=floor(length(x)/2);
                     %   text(x(j),y(j),int2str(i),'Horiz','center','Vert','middle')
                     
-                    j=fem_grid_struct.ln{i24(i)};
-                    x=fem_grid_struct.x(j);
-                    y=fem_grid_struct.y(j);
-                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',12);
+%                     j=fem_grid_struct.ln{i24(i)};
+%                     x=fem_grid_struct.x(j);
+%                     y=fem_grid_struct.y(j);
+%                     h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',12);
                 end
-                hleg=[hleg;h];
+                hleg=[hleg;h(1)];
                 legstr={legstr{:},legs{jj}};
             otherwise
                 
@@ -229,7 +229,7 @@ if isfield(fem_grid_struct,'nopenboundaries')
     if fem_grid_struct.nopenboundaries>0
         for i=1:fem_grid_struct.nopenboundaries
             iob=fem_grid_struct.ob{i};
-            hob(i)=line(fem_grid_struct.x(iob), fem_grid_struct.y(iob),'Color','b','LineStyle','-','Marker','o','MarkerSize',10);
+            hob(i)=line(fem_grid_struct.x(iob), fem_grid_struct.y(iob),'Color','r','LineStyle','-','Marker','x','MarkerSize',10);
         end
         legstr={legstr{:},'Elevation'};
         hleg=[hleg;hob(1)];
