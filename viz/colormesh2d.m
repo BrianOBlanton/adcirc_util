@@ -36,8 +36,6 @@ e=fem_grid_struct.e;
 x=fem_grid_struct.x;
 y=fem_grid_struct.y;
 
-set(gcf,'DeleteFcn','doc datacursormode')
-
 % DETERMINE SCALAR TO CONTOUR
 %
 if ~exist('Q','var')

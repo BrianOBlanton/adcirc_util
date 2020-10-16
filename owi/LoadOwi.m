@@ -111,7 +111,7 @@ if ~isempty(RegionPreFileName) && exist(RegionPreFileName,'file')
       owi.Region.XGrid{i}=temp(i).SWLon+(0:temp(i).iLong-1)*temp(i).DX;
       owi.Region.YGrid{i}=temp(i).SWLat+(0:temp(i).iLat-1)'*temp(i).DY;
       owi.Region.Pre{i}=temp(i).Pre';
-      minp=min(minp,owi.Basin.Pre{i}');
+      minp=min(minp,owi.Region.Pre{i}');
    end
    FillRegionGrid=false;
    owi.Region.minp=minp;

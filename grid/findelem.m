@@ -40,8 +40,6 @@ function j=findelem(fem_grid_struct,xorig,yorig,jorig)
 %   Fall 2009 : added x,y 
 %
 
-
-j=[];
 Debug=false;
 
 % VERIFY INCOMING STRUCTURE
@@ -103,7 +101,6 @@ DefaultTolerance=1.e-6;
 if ~exist('tolerance','var')
    tolerance=DefaultTolerance;
 end
-
 
 % at this point, xp,yp,jsearch must all be 1-d vectors
 if ~(size(xp,2)==1 && size(yp,2)==1 && size(xp,1)==size(yp,1)) 

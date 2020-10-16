@@ -25,7 +25,7 @@ function D=read_adcirc_fort63(varargin)
 %             changed to varargins, Fall '07
 
 
-if nargin==0 & nargout==0
+if nargin==0 && nargout==0
    disp('D=read_adcirc_fort63(''FortName'',''<FortName>'',...);')
    return
 end
@@ -43,24 +43,24 @@ TimeClipMax=NaN;
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
 k=1;
-while k<length(varargin),
-  switch lower(varargin{k}),
-    case 'compact',
+while k<length(varargin)
+  switch lower(varargin{k})
+    case 'compact'
       Compact=varargin{k+1};
       varargin([k k+1])=[];
-    case 'clipval',
+    case 'clipval'
       ClipVal=varargin{k+1};
       varargin([k k+1])=[];
-    case 'fortname',
+    case 'fortname'
       FortName=varargin{k+1};
       varargin([k k+1])=[];
-    case 'timeclipmin',
+    case 'timeclipmin'
       TimeClipMin=varargin{k+1};
       varargin([k k+1])=[];
-    case 'timeclipmax',
+    case 'timeclipmax'
       TimeClipMax=varargin{k+1};
       varargin([k k+1])=[];
-    case 'asd',
+    case 'asd'
       ASD=varargin{k+1};
       if length(ASD) ~=6
           error('Length of ASD must be 6.')
@@ -69,8 +69,8 @@ while k<length(varargin),
       varargin([k k+1])=[];
    otherwise
       k=k+2;
-  end;
-end;
+  end
+end
 
 if length(varargin)<2
    varargin={};
@@ -93,7 +93,11 @@ fgetl(fid);
 NTRSPE=data(1);
 NSTAE=data(2);
 outdt=data(3);
-NSPOOLE=data(4);
+if length(data)<4
+    NSPOOLE=NaN;
+else
+    NSPOOLE=data(4);
+end
 
 % determine clipping times
 t0=outdt/86400;
@@ -102,12 +106,12 @@ tt=t0:outdt/86400:tend;
 if isnan(TimeClipMin)
    i0=1;
 else
-   [a,i0]=min(abs(tt-TimeClipMin));
+   [~,i0]=min(abs(tt-TimeClipMin));
 end
 if isnan(TimeClipMax)
    iend=NTRSPE;
 else
-   [a,iend]=min(abs(tt-TimeClipMax));
+   [~,iend]=min(abs(tt-TimeClipMax));
 end
 
 zeta=NaN*ones(NSTAE,iend-i0+1);
@@ -122,7 +126,7 @@ if (~Compact)
       temp=fscanf(fid,'%f %d',[1 2]);
       data=fscanf(fid,'%d %f',[2 NSTAE])';
       
-      if (ii>=i0) & (ii<=iend) 
+      if (ii>=i0) && (ii<=iend) 
          disp(['Storing ' num2str(temp(1)) ])
          jj=jj+1;
          zeta(:,jj)=data(:,2);
@@ -139,7 +143,7 @@ else
       ii=ii+1;
       temp=fscanf(fid,'%f %d %d %f',[1 4]);
       NWET=temp(3);
-      if (ii>=i0) & (ii<=iend) 
+      if (ii>=i0) && (ii<=iend) 
          fprintf('Storing iter=%d : Time=%f  : NWET = %d\n',temp(1),temp(1)/86400,NWET)
          jj=jj+1;
          fillval=temp(4);

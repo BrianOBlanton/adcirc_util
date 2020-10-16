@@ -280,7 +280,7 @@ set(hp,'Tag','vectors');
 %set(hvmax,'Tag','scalearrow');
 
 
-if ~strcmp(blank(ScaleLabel),'no scale')
+if ~strcmp(strip(ScaleLabel),'no scale')
    [ht1,scaletext,scaleaxes]=drawvecscale(ScaleLabel,ScaleXor,ScaleYor,...
           VecType,ScaleType,ScaleFac,pct10,Y1,Y2,varargin{:}); 
 else

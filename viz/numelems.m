@@ -32,6 +32,8 @@ end
 elems=fem_grid_struct.e;
 x=fem_grid_struct.x;
 y=fem_grid_struct.y;
+z=10;
+
 
 % compute centroid of each element 
 i=1:length(elems(:,1));
@@ -42,8 +44,8 @@ ycent=(y(elems(i,1))+y(elems(i,2))+y(elems(i,3)))/3;
 X=get(gca,'XLim');
 Y=get(gca,'YLim');
 
-   % get indices of element centroids within viewing window defined by X,Y
-   filt=find((xcent>X(1)&xcent<X(2))&(ycent>Y(1)&ycent<Y(2)));
+% get indices of element centroids within viewing window defined by X,Y
+filt=find((xcent>X(1)&xcent<X(2))&(ycent>Y(1)&ycent<Y(2)));
 
 %    % determine if viewing window is zoomed-in enough for element
 %    % numbers to be meaningful;
@@ -66,11 +68,12 @@ Y=get(gca,'YLim');
 % Build string matrix
 strlist=num2str(filt,12);
 
-xx=xcent(filt);yy=ycent(filt);
-
+xx=xcent(filt);
+yy=ycent(filt);
+zz=z*ones(size(xx));
 format long e
 % label only those nodes that lie within viewing window.
-htext=text(xx,yy,strlist,...
+htext=text(xx,yy,zz,strlist,...
                  'HorizontalAlignment','center',...
                  'VerticalAlignment','middle',...
                  'BackgroundColor','k',...
@@ -78,7 +81,7 @@ htext=text(xx,yy,strlist,...
                  'Color','w',...
                  'FontSize',ps,...
                  'Tag','Element #',varargin{:});
-if nargout==1,h=htext;,end
+if nargout==1,h=htext;end
 return
 
 %

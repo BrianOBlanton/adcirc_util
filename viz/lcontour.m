@@ -69,13 +69,14 @@ Qmax=max(Q);
 Qmin=min(Q);
 cval=cval(:);
 %h=zeros(size(cval));
+ch = true(size(cval));
 h = gobjects(size(cval));
 
 for kk=1:length(cval)
 %parfor (kk=1:length(cval))
    if (cval(kk) > Qmax) || (cval(kk) < Qmin)
-      fprintf('%s not within range of scalar field.  Min = %f  :  Max = %f',num2str(cval(kk)),Qmin,Qmax);
-      h(kk)=NaN;
+      fprintf('%s not within range of scalar field.  Min = %f  :  Max = %f\n',num2str(cval(kk)),Qmin,Qmax);
+        ch(kk)=false;
    else
    
 % Call cmex function contmex5
@@ -86,30 +87,27 @@ for kk=1:length(cval)
          XX{kk} = X(:);
          YY{kk} = Y(:);
          %len(kk)=length(X(:));
-         h(kk)=line(XX{kk},YY{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
-         set(h(kk),'ZData',1*ones(size(get(h(kk),'XData'))))
+         %h(kk)=line(XX{kk},YY{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
+         %set(h(kk),'ZData',1*ones(size(get(h(kk),'XData'))))
       else
          disp(['CVal ' num2str(cval(kk)) ' within range but still invalid.']);
-         h(kk)=NaN;
+         ch(kk)=false;
       end
    end
 end 
 
-% try 
-%     mm=gcm;
-%     for kk=1:length(cval)
-%         if ~isnan(h(kk))
-%             h(kk)=linem(YY{kk},XX{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
-%         end
-%     end
-% catch
-%     for kk=1:length(cval)
-%         if ~isnan(h(kk))
-%             h(kk)=line(XX{kk},YY{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
-%         end
-%     end    
-% end
-% 
+
+for kk=1:length(cval)
+    if ch(kk)
+        if ismap(gca)     
+            h(kk)=linem(YY{kk},XX{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
+        else
+            h(kk)=line(XX{kk},YY{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
+        end
+    end
+end
+    
+
 % for kk=1:length(cval)
 %     if ishandle(h(kk))
 %         set(h(kk),'ZData',ones(size(get(h(kk),'XData'))))

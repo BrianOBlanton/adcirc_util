@@ -46,17 +46,7 @@ hboun=line(X,Y,'Tag','boundary','Color','k',varargin{:});
 legstr={};
 hleg=[];
 
-% color bnd types
-if isfield(fem_grid_struct,'nopenboundaries')
-    if fem_grid_struct.nopenboundaries>0
-        for i=1:fem_grid_struct.nopenboundaries
-            iob=fem_grid_struct.ob{i};
-            hob(i)=line(fem_grid_struct.x(iob), fem_grid_struct.y(iob),'Color','b','LineStyle','-','Marker','*');
-        end
-        legstr={'Elevation (0)'};
-        hleg=[hleg;hob(1)];
-    end
-end
+
 
 cols={
     'g' 'none' '*'   % type 0
@@ -71,7 +61,7 @@ cols={
     '-' 'none' '-'   % type 9 (n/a)
     'b' 'none' '.'   % type 10
     'c' 'none' '.'   % type 11
-    'c' 'none' '.'   % type 12
+    'r' 'none' '.'   % type 12
     'c' 'none' '.'   % type 13
     '-' 'none' '-'   % type 14 (n/a)
     '-' 'none' '-'   % type 15 (n/a)
@@ -97,7 +87,7 @@ legs={'Land (0, strong no normal, free tangential)'            % ibtype==0
       '-'
       'Land (10, strong no normal, no tangential)'
       'Island (11, strong no normal, no tangential)'
-      '-'
+      'River (12, strong normal, no tangential)'
       '-'
       '-'
       '-'
@@ -147,7 +137,7 @@ if isfield(fem_grid_struct,'ibtype')
                 hleg=[hleg;h];
                 legstr={legstr{:},legs{jj}};
                 
-            case 10  % land (no normal, no tangential)
+            case 10  % Land (10, strong no normal, no tangential)
                 
                 for j=1:length(idx)
                     k=fem_grid_struct.ln{idx(j)};
@@ -158,7 +148,19 @@ if isfield(fem_grid_struct,'ibtype')
                 hleg=[hleg;h];
                 legstr={legstr{:},legs{jj}};
                 
-            case 20  % land (no normal, free tangential)
+            case 12  % River (12, strong normal, no tangential)
+                
+                for j=1:length(idx)
+                    k=fem_grid_struct.ln{idx(j)};
+                    x=fem_grid_struct.x(k);
+                    y=fem_grid_struct.y(k);
+                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',20);
+                end
+                hleg=[hleg;h];
+                legstr={legstr{:},legs{jj}};
+                
+                
+            case 20  % Land (20, weak no normal, free tangential)
                 
                 for j=1:length(idx)
                     k=fem_grid_struct.ln{idx(j)};
@@ -170,7 +172,7 @@ if isfield(fem_grid_struct,'ibtype')
                 hleg=[hleg;h];
                 legstr={legstr{:},legs{jj}};
                 
-            case 21  % "This type of boundary represents an island boundary with a weak no normal flow condition and free tangential slip"
+            case 21  % Island (21, weak no normal, free tangential)
                 
                 for j=1:length(idx)
                     k=fem_grid_struct.ln{idx(j)};
@@ -182,7 +184,7 @@ if isfield(fem_grid_struct,'ibtype')
                 hleg=[hleg;h];
                 legstr={legstr{:},legs{jj}};
                 
-            case 22  % "river"
+            case 22  % River (22, weak normal, free tangential)
                               
                 for j=1:length(idx)
                     nriver=nriver+1;
@@ -217,6 +219,18 @@ if isfield(fem_grid_struct,'ibtype')
                 
         end
         
+    end
+end
+
+% color bnd types
+if isfield(fem_grid_struct,'nopenboundaries')
+    if fem_grid_struct.nopenboundaries>0
+        for i=1:fem_grid_struct.nopenboundaries
+            iob=fem_grid_struct.ob{i};
+            hob(i)=line(fem_grid_struct.x(iob), fem_grid_struct.y(iob),'Color','b','LineStyle','-','Marker','*');
+        end
+        legstr={legstr{:},'Elevation (0)'};
+        hleg=[hleg;hob(1)];
     end
 end
 

@@ -30,13 +30,13 @@ if ~is_valid_struct(fem_grid_struct)
 end
  
 % Default fontsize
-ps=20;
+fs=12;
  
 % Extract grid fields from fem_grid_struct
 %elems=fem_grid_struct.e;
 x=fem_grid_struct.x;
 y=fem_grid_struct.y;
-%z=10*ones(size(y));
+z=10*ones(size(y));
 
 X=get(gca,'Xlim');
 Y=get(gca,'YLim');
@@ -65,24 +65,27 @@ filt=find(x>=X(1)&x<=X(2)&y>=Y(1)&y<=Y(2));
 % Build string matrix
 strlist=num2str(filt,10);
 
-xx=x(filt);yy=y(filt);
-%zz=z(filt);
+xx=x(filt);
+yy=y(filt);
+zz=z(filt);
 %format long e
 % label only those nodes that lie within viewing window.
-h=text(xx,yy,strlist,...
-             'FontSize',ps,...
-             'HorizontalAlignment','center',...
-             'VerticalAlignment','middle',...
-             'EdgeColor','k',...
+htext=text(xx,yy,zz,strlist,...
              'BackgroundColor','w',...
              'Clipping','on',...
              'Color','k',...
+             'EdgeColor','k',...
+             'FontSize',fs,...
+             'HorizontalAlignment','center',...
+             'Margin',.5,...
+             'VerticalAlignment','middle',...
              'Tag','Node #',...
-             varargin{:});
-
+              varargin{:});
+line(xx,yy,zz,'LineStyle','none'); % ,'Visible','off')
 
 if nargout==1,h=htext;end
 return
+
 %
 %LabSig  Brian O. Blanton
 %        Department of Marine Sciences

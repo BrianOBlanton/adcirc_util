@@ -58,17 +58,6 @@ e=FgsIn.e;
 x=FgsIn.x;
 y=FgsIn.y;
 
-% convert to cart for areas and edge length arrays
-%if range(x) < 90 && range(y) < 90   % assume in lon/lat
-%    FgsOut.lo0=mean(x);
-%    FgsOut.la0=mean(y);
-%    [x,y]=convll2m(x,y,FgsOut.lo0,FgsOut.la0);
-%    FgsOut.trx0=mean(x);
-%    FgsOut.try0=mean(y);
-%    FgsOut.xcart=x-FgsOut.trx0;
-%    FgsOut.ycart=y-FgsOut.try0;
-%end
-
 % COMPUTE GLOBAL DX,DY, Len, angles
 %
 i1=e(:,1);
@@ -121,9 +110,29 @@ FgsOut.ineg=ineg;
 
 % edge lengths
 FgsOut.EL=[a b c];
+FgsOut.dl=mean(FgsOut.EL,2);
 
 % triangle quality; ratio of inner to outer circles
 FgsOut.triQual=(b+c-a).*(c+a-b).*(a+b-c)./(a.*b.*c);
+
+% if range of coords is < 360, assume grid is in lon/lat, and convert to
+% cart and add _cart fields
+if (range(FgsOut.x)<360 && range(FgsOut.y)<360)
+    temp=FgsOut;
+    [temp.x,temp.y]=AdcircCppForward(FgsOut.x,FgsOut.y,mean(FgsOut.x),mean(FgsOut.y));
+    %fprintf('**** Lon/Lat grid converted to CPP. \n')
+    temp=el_areas(temp);
+    temp=belint(temp);
+    temp=attach_elem_centroids(temp);
+    FgsOut.ar_cart=temp.ar;
+    FgsOut.A_cart=temp.A;
+    FgsOut.A0_cart=temp.A0;
+    FgsOut.B_cart=temp.B;
+    FgsOut.T_cart=temp.T;
+    FgsOut.dx_cart=temp.dx;
+    FgsOut.dy_cart=temp.dy;
+    FgsOut.dl_cart=sqrt(4*FgsOut.ar_cart/sqrt(3));
+end
 
 %
 %LabSig  Brian O. Blanton

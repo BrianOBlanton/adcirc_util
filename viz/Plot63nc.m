@@ -1,4 +1,4 @@
-function AxesHandle=Plot63nc(g,nc,varargin)
+function h=Plot63nc(g,nc,varargin)
 % Plot63nc draw a timestep of an ADCIRC 63 file in netCDF format
 % Required inputs: 
 %     fgs - grid structure on which the 63 file was computed 
@@ -15,78 +15,51 @@ function AxesHandle=Plot63nc(g,nc,varargin)
 %     FrameBaseName - base of image output file name (def='frame')
 %     StartingTime - datenum of starttime
 
+% set defaults
+% p.FrameBaseName='frame';
+p.ScriptToAdd='none';
+% p.ImageResolution='-r200';
+p.AxisLims=[];  
+p.Title={''};     
+p.ColorMin=NaN;  
+p.ColorMax=NaN;  
+p.ColorMap=jet(32);  
+p.StartingTime=0;
+p.Iter=-1;
+p.SetUpAxes=true;
+p.AxesHandle=gca;
+p.filename='fort.63.nc';
+p.Grid='';
 
-
+p=parse_pv_pairs(p,varargin);
 
 if nargin==0
-   disp('Plot63nc(g,nc) OR:')
-   disp('Plot63nc(fgs,nc,p1,v1,p2,v2,...)')
-   return
+%   disp('Plot63nc(g,nc) OR:')
+%   disp('Plot63nc(fgs,nc,p1,v1,p2,v2,...)')
+%   return
+    if ~exist(p.filename,'file')
+        error('If no arguments, fort.63.nc must locally exist.')
+    end   
 end
 
-% set defaults
-% FrameBaseName='frame';
-ScriptToAdd='none';
-% ImageResolution='-r200';
-AxisLims=[];  
-Title={''};     
-ColorMin=NaN;  
-ColorMax=NaN;  
-ColorMap=jet(32);  
-StartingTime=0;
-Iter=NaN;
-SetUpAxes=true;
-AxesHandle=NaN;
-
-% Strip off propertyname/value pairs in varargin not related to
-% "line" object properties.
-k=1;
-while k<length(varargin),
-  switch lower(varargin{k}),
-    case 'startingtime',
-      StartingTime=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'framebasename',
-      FrameBaseName=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'scripttoadd',
-      ScriptToAdd=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'axislims',
-      AxisLims=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'iter',
-      Iter=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'title',
-      Title=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'colormin',
-      ColorMin=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'colormax',
-      ColorMax=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'colormap',
-      ColorMap=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'setupaxes',
-      SetUpAxes=varargin{k+1};
-      varargin([k k+1])=[];
-    case 'axeshandle',
-      AxesHandle=varargin{k+1};
-      varargin([k k+1])=[];
-    otherwise
-      k=k+2;
-  end;
-end;
-
-if length(varargin)<2
-   varargin={};
+try 
+    nc=ncgeodataset(p.filename);
+catch
+    error('nc file %s not found.',p.filename);
 end
 
-nTimes=ncsize(nc{'time'});
-t=StartingTime+nc{'time'}(:)/24;
+if isempty(p.Grid)
+    g=ExtractGrid(nc);
+else
+    g=p.Grid;
+end
+
+time=nc.time('time');
+time=datetime(datevec(time));
+
+nTimes=size(time,1); 
+%t=p.StartingTime+time;
+t=time;
 
 % if (IterStart<1 || IterStart>nTimes)
 %    error('IterStart must be between %d and %d',1,nTimes)
@@ -110,51 +83,53 @@ hz0=[];
 hst=[];
 axx=[];
 
+% if ~iscell(p.Title)
+%     error('Title to Plot63nc must be a cell array')
+% end
+% tlen=length(p.Title);
 
-if ~iscell(Title)
-   error('Title to Plot63nc must be a cell array')
+if exist(p.ScriptToAdd,'file')
+   eval(p.ScriptToAdd)
 end
 
-tlen=length(Title);
-
-if exist(ScriptToAdd,'file')
-   eval(ScriptToAdd)
+if ~(isnan(p.ColorMin) && isnan(p.ColorMax))    
+    set(gca,'CLim',[p.ColorMin p.ColorMax])
 end
-
-if ~(isnan(ColorMin) && isnan(ColorMax))    
-    set(gca,'CLim',[ColorMin ColorMax])
-end
-colormap(ColorMap)
+colormap(p.ColorMap)
 colorbar
+
+if p.Iter==-1
+    p.Iter=nTimes;
+end
 
 % generate frame
    
    ff=get(gcf,'Position');
-   axes(AxesHandle)
+   %axes(p.AxesHandle)
    %set(gcf,'Position',ff)
    
-   if isnan(t(Iter)),return,end
+   if isnat(t(p.Iter)),return,end
    %zz=D.zeta(:,i);
-   zz=nc{'zeta'}(Iter,:)';
+   zz=nc{'zeta'}(p.Iter,:)';
    zz(zz<-1000)=NaN;
    %if ~isempty(h),delete(h),end   
    %if ~isempty(hz0),delete(hz0),end
    %if ~isempty(hst),delete(hst);delete(axx),end
-   delete(findobj(AxesHandle,'Tag','colorsurf'));
+   delete(findobj(p.AxesHandle,'Tag','colorsurf'));
    h=colormesh2d(g,zz);
    %hz0=lcontour(g,zz,0,'Color','b');
-   if ~(isnan(ColorMin) & isnan(ColorMax))    
-       set(gca,'CLim',[ColorMin ColorMax])
-   else
-       cmin=min(zz(InViewingBox));
-       cmax=max(zz(InViewingBox));
-       set(gca,'CLim',[cmin cmax])
+   if ~(isnan(p.ColorMin) && isnan(p.ColorMax))    
+       set(gca,'CLim',[p.ColorMin p.ColorMax])
+%   else
+%       cmin=min(zz(InViewingBox));
+%       cmax=max(zz(InViewingBox));
+%       set(gca,'CLim',[cmin cmax])
    end
    %set(gca,'CLim',[-1 1]*max(zz))
    %shading flat
    %set_height(h,1)
-   Title{tlen+1}=datestr(t(Iter),0);
-   title(Title,'FontSize',14);
+   %Title{tlen+1}=datestr(t(Iter),0);
+   title(p.Title,'FontSize',14);
    %[hst,axx]=stamp_right(datestr(t(i)));
    drawnow
 

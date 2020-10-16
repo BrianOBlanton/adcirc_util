@@ -1,12 +1,12 @@
-function AddAdcircPaths
+function AddAdcircPaths(ADCPTH)
 
-global ADCIRC 
-addpath([ADCIRC '/basics'])
-addpath([ADCIRC '/mex'])
-addpath([ADCIRC '/nc'])
-addpath([ADCIRC '/viz'])
-addpath([ADCIRC '/grid'])
-addpath([ADCIRC '/IO'])
-addpath([ADCIRC '/misc'])
-addpath([ADCIRC '/tides'])   
-addpath([ADCIRC '/owi'])   
+addpath([ADCPTH '/basics'])
+addpath([ADCPTH '/owi'])
+addpath([ADCPTH '/mex'])
+addpath([ADCPTH '/nc'])
+addpath([ADCPTH '/viz'])
+addpath([ADCPTH '/grid'])
+addpath([ADCPTH '/IO'])
+addpath([ADCPTH '/misc'])
+addpath([ADCPTH '/tides'])   
+addpath([ADCPTH '/owi'])   

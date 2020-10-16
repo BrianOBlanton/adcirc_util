@@ -32,7 +32,7 @@ end
 
 % Default propertyname values
 MeshHeight=1.;
-SPH=false;
+SPH=true;
 
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
@@ -53,8 +53,12 @@ while k<length(varargin)
       varargin([k k+1])=[];      
     otherwise
       k=k+2;
-  end;
-end;
+  end
+end
+
+if ~SPH && ~isfield(fem_grid_struct,'xecen_cart')
+    error('SPH set to false, but cartesian coord fields are not in input fem_grid_struct.')
+end
 
 if length(varargin)<2
    varargin={};
@@ -62,18 +66,24 @@ end
 
 % Extract grid fields from fem_grid_struct
 elems=fem_grid_struct.e;
-x=fem_grid_struct.x;
-y=fem_grid_struct.y;
+if SPH
+    x=fem_grid_struct.x;
+    y=fem_grid_struct.y;
+else
+    x=fem_grid_struct.x_cart;
+    y=fem_grid_struct.y_cart;
+end
 z=fem_grid_struct.z;
-
 
 % eliminate elements outside of current view; if element centroids are
 % attached to grid struct
 if isempty(TheseElems)
     if isfield(fem_grid_struct,'xecen')
         axx=axis;
-        ikeep=fem_grid_struct.xecen>axx(1) & fem_grid_struct.xecen<axx(2) & ...
-              fem_grid_struct.yecen>axx(3) & fem_grid_struct.yecen<axx(4);
+        dx=axx(2)-axx(1);
+        dy=axx(4)-axx(3);
+        ikeep=fem_grid_struct.xecen>axx(1)-dx & fem_grid_struct.xecen<axx(2)+dx & ...
+              fem_grid_struct.yecen>axx(3)-dy & fem_grid_struct.yecen<axx(4)+dy;
         if ~all(ikeep==0)
             elems=elems(ikeep,:);
         end
@@ -89,37 +99,18 @@ xt=[x(edges) NaN*ones([m 1])];
 yt=[y(edges) NaN*ones([m 1])];
 zt=ones(size([z(edges) NaN*ones([m 1])]));
 
+xt=xt';
+yt=yt';
+zt=zt';
 
+xt=xt(:);
+yt=yt(:);
+zt=zt(:);
 
 % DRAW GRID
-if ~SPH
-    % eliminate edges that cross the branch cut
-%     temp=xt(:,1).*xt(:,2);
-%     iding=find(temp<-1000);
-%     xt(iding,:)=[];
-%     yt(iding,:)=[];
-    
-    
-    xt=xt';
-    yt=yt';
-    zt=zt';
-    
-    xt=xt(:);
-    yt=yt(:);
-    zt=zt(:);
-    hel=line(xt,yt,zt,'Color','k',varargin{:},'Tag','elements');
-else
-    xt=xt';
-    yt=yt';
-    %zt=zt';
-    
-    xt=xt(:);
-    yt=yt(:);
-    %zt=zt(:);
-    %[x,y,z]=sph2cart(REARTH*xt*pi/180,REARTH*yt*pi/180,REARTH);
-    [x,y,z]=sph2cart(xt*pi/180,yt*pi/180,1);
-    hel=line(x,y,z,'Color','k',varargin{:},'Tag','elements');
-end
+hel=line(xt,yt,zt,'Color','k',varargin{:},'Tag','elements');
+
+
 
 % Default fontsize=20;
 % ps=20;
@@ -151,6 +142,43 @@ end
 % if exist('plotfx')
 %    plotfx;
 % end
+
+
+
+
+% if SPH
+%     
+%     % eliminate edges that cross the branch cut
+% %     temp=xt(:,1).*xt(:,2);
+% %     iding=find(temp<-1000);
+% %     xt(iding,:)=[];
+% %     yt(iding,:)=[];
+%     
+%     
+%     xt=xt';
+%     yt=yt';
+%     zt=zt';
+%     
+%     xt=xt(:);
+%     yt=yt(:);
+%     zt=zt(:);
+% else
+%     xt=xt';
+%     yt=yt';
+%     %zt=zt';
+%     
+%     xt=xt(:);
+%     yt=yt(:);
+%     %zt=zt(:);
+%     %[x,y,z]=sph2cart(REARTH*xt*pi/180,REARTH*yt*pi/180,REARTH);
+%     [x,y,z]=sph2cart(xt*pi/180,yt*pi/180,1);
+%     hel=line(x,y,z,'Color','k',varargin{:},'Tag','elements');
+% end
+
+
+
+
+
 
 
 %

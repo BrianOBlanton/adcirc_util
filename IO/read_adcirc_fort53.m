@@ -14,6 +14,8 @@ function [A,G,FREQ,PERNAMES]=read_adcirc_fort53(varargin)
 %                  per period. 
 %          gname - if flag==1, then gname provides the grid name
 %                  for the .s2c file output format.
+%          constits - cell array of constituents to extract; e.g., 
+%                    {'M2','N2','S2','K2','O1','K1','P1','Q1'}
 % Output : AMP      -  matrix of amplitudes = [amp1 amp2 ...];
 %          PHA      -  matrix of phases = [pha1 pha2 ...];
 %          FREQ     -  vector of component frequencies
@@ -32,7 +34,6 @@ G=[];
 FREQ=[];
 PERNAMES=[];
 skipdataread=0;
-
 
 % Default propertyname values
 fname='./fort.53';
@@ -77,16 +78,15 @@ while k<length(varargin)
       varargin([k k+1])=[];
     otherwise
       k=k+2;
-  end;
-end;
+  end
+end
 
 if length(varargin)<2
    varargin={};
 end
 
-
 % See if fname is string
-if ~isstr(fname)
+if ~ischar(fname)
     fname='./fort.53';
     if flag~=0 || flag~=1
         error('FLAG to READ_ADCIRC_FORT53 must be 0|1')
@@ -135,7 +135,7 @@ end
 
 nnodes=fscanf(fid,'%d',1);
 
-ncomps=NcompsInFile;
+%ncomps=NcompsInFile;
 if iscell(constits)
     % find matches in PERNAMES
     %if any(~isstr(constits))
@@ -149,28 +149,19 @@ if iscell(constits)
         end
     end
 elseif constits(1)==-1
-       idx=1:length(FREQ);
+    idx=1:length(FREQ);
 else
-      if max(constits)>NcompsInFile
-         error('Largest constit number in constits larger that number of constituents in file.')
-      end
-      idx=intersect(1:length(FREQ),constits);
+    if max(constits)>NcompsInFile
+        error('Largest constit number in constits larger that number of constituents in file.')
+    end
+    idx=intersect(1:length(FREQ),constits);
 end
 ConstitsToExtract=idx;
  
 ncomps=length(ConstitsToExtract);
 
-A=NaN*ones(nnodes,ncomps);
-G=NaN*ones(nnodes,ncomps);
-
-% for i=1:nnodes
-%    n=fscanf(fid,'%d',1);
-%    for j=1:ncomp
-%       temp=fscanf(fid,'%e %f',[1 2]);
-%       a(i,j)=temp(1);
-%       g(i,j)=temp(2);
-%    end
-% end
+A=nan(nnodes,ncomps);
+G=nan(nnodes,ncomps);
 
 if ~skipdataread
 
@@ -204,15 +195,36 @@ if ~skipdataread
     G(inan)=NaN;
 
 end
+PERNAMES=PERNAMES(idx);
+FREQ=FREQ(idx);
 
 clear temp
-if nargout==1
+% if nargout==1 && strcmp(strrep(ext,'.',''),'51')
+%     % convert to table
+%     
+%     for i=1:length(PERNAMES)
+%         temp=PERNAMES{i};
+%         if temp(1)=='2'
+%             temp=['x' temp];
+%         end
+%         ca{i}=sprintf('%sa',temp);
+%         %ua{i}='m';
+%         cp{i}=sprintf('%sp',temp);
+%         %up{i}='deg GMT';
+%     end   
+%     
+%     A=array2table(A,'VariableNames',ca);
+%     G=array2table(G,'VariableNames',cp);
+%     A=([A G]);
+%     
+% else
+% here
    temp.AMP=A;
    temp.PHA=G;
-   temp.FREQ=FREQ(ConstitsToExtract);
-   temp.PERNAMES=PERNAMES(ConstitsToExtract);
+   temp.FREQ=FREQ;
+   temp.PERNAMES=PERNAMES;
    clear PERNAMES G FREQ A
    A=temp;
-end
+% end
 
 

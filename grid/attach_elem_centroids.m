@@ -2,8 +2,7 @@ function fgsout=attach_elem_centroids(fgsin)
 %ATTACH_ELEM_CENTROIDS attach element centroids to a fem_grid_struct
 % Call as: fgsout=attach_elem_centroids(fgsin);
 
-
-if nargin==0 & nargout==0
+if nargin==0 && nargout==0
    disp('fgsout=attach_elem_centroids(fgsin);')
    return
 end
@@ -15,4 +14,7 @@ fgsout.xecen=mean(fgsin.x(fgsin.e'))';
 fgsout.yecen=mean(fgsin.y(fgsin.e'))';
 fgsout.zecen=mean(fgsin.z(fgsin.e'))';
 
-
+if isfield(fgsin,'x_cart')
+    fgsout.xecen_cart=mean(fgsin.x_cart(fgsin.e'))';
+    fgsout.yecen_cart=mean(fgsin.y_cart(fgsin.e'))';
+end
