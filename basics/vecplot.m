@@ -93,6 +93,7 @@ ScaleFac=1.;
 ScaleXor=[];
 ScaleYor=[];
 PctAxis=10;
+ax=[];
 
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
@@ -126,6 +127,9 @@ while k<length(varargin)
     case 'pctaxis'
       PctAxis=varargin{k+1};
       varargin([k k+1])=[];
+    case 'axes'
+      ax=varargin{k+1};
+      varargin([k k+1])=[];
     case 'vectype'
       VecType=lower(varargin{k+1});
       if strcmp(VecType,{'arrow','stick'})
@@ -134,8 +138,11 @@ while k<length(varargin)
       varargin([k k+1])=[];
     otherwise
       k=k+2;
-  end;
-end;
+  end
+end
+if isempty(ax)
+    ax=gca;
+end
 
 if length(varargin)<2
    varargin={};
@@ -159,11 +166,11 @@ end
 
 % SCALE VELOCITY DATA TO RENDERED WINDOW SCALE 
 %
-RLs= get(gca,'XLim');
+RLs= get(ax,'XLim');
 xr=RLs(2)-RLs(1);
 X1=RLs(1);
 X2=RLs(2);
-RLs= get(gca,'YLim');
+RLs= get(ax,'YLim');
 yr=RLs(2)-RLs(1);
 Y1=RLs(1);
 Y2=RLs(2);
@@ -248,13 +255,13 @@ switch VecType
     case 'arrow'
         %Strip out attributes not used in arrow mode.
         k=1;
-        while k<length(varargin),
-            switch lower(varargin{k}),
-                case 'dotcolor',
+        while k<length(varargin)
+            switch lower(varargin{k})
+                case 'dotcolor'
                     varargin([k k+1])=[];
-                case 'dotsize',
+                case 'dotsize'
                     varargin([k k+1])=[];
-                case 'dotstyle',
+                case 'dotstyle'
                     varargin([k k+1])=[];
                 otherwise
                     k=k+2;
@@ -264,7 +271,7 @@ switch VecType
             varargin={};
         end
         
-        hp=drawvec(x,y,us,vs,varargin{:});
+        hp=drawvec(x,y,us,vs,'Axes',ax,varargin{:});
         set(hp,'UserData',[xin yin uin vin]);
     case 'stick'
         hp=drawstick(x,y,us,vs,varargin{:});
@@ -282,7 +289,7 @@ set(hp,'Tag','vectors');
 
 if ~strcmp(strip(ScaleLabel),'no scale')
    [ht1,scaletext,scaleaxes]=drawvecscale(ScaleLabel,ScaleXor,ScaleYor,...
-          VecType,ScaleType,ScaleFac,pct10,Y1,Y2,varargin{:}); 
+          VecType,ScaleType,ScaleFac,pct10,Y1,Y2,ax,varargin{:}); 
 else
    ht1=[];scaletext=[];scaleaxes=[];
 end
@@ -308,7 +315,7 @@ if nargout==1,retval=[hp; scaletext; ht1(:); scaleaxes];end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [ht1,scaletext,scale_axes]=drawvecscale(ScaleLabel,...
           ScaleXor,ScaleYor,...
-          VecType,ScaleType,ScaleFac,pct10,Y1,Y2,varargin)
+          VecType,ScaleType,ScaleFac,pct10,Y1,Y2,ax,varargin)
 
 % PLACE SCALE WITH MOUSE ON SCREEN
 %
@@ -317,7 +324,6 @@ if (isempty(ScaleXor) || isempty(ScaleYor)) && strcmp(ScaleType,'fixed')
    disp('place scale on plot with a mouse button');
    [ScaleXor,ScaleYor]=ginput(1);
 end 
-
 
 switch lower(ScaleType)
    case 'fixed'
@@ -338,7 +344,7 @@ switch lower(ScaleType)
       scale_axes=[];
 
    case 'floating'
-      mainax=gca;
+      mainax=ax;
       % Draw vector scale
       data_axis=axis;
       xdif=data_axis(2)-data_axis(1);
@@ -348,9 +354,9 @@ switch lower(ScaleType)
       dy1=data_axis(3);
       dy2=data_axis(3)+ydif*.1;
       
-      %cur_units=get(gca,'Units');
-      set(gca,'Units','normalized');
-      axnorm=get(gca,'Position');
+      %cur_units=get(ax,'Units');
+      set(ax,'Units','normalized');
+      axnorm=get(ax,'Position');
 
       if isempty(ScaleXor)
          xstart=0;
@@ -362,10 +368,10 @@ switch lower(ScaleType)
 	 set(gcf,'Units','pixels');
 	 figpixunits=get(gcf,'Position');
 	 set(gcf,'Units',oldfigunits);
-	 oldaxesunits=get(gca,'Units');
-	 set(gca,'Units','pixels');
-	 axespixunits=get(gca,'Position');
-	 set(gca,'Units',oldaxesunits);
+	 oldaxesunits=get(ax,'Units');
+	 set(ax,'Units','pixels');
+	 axespixunits=get(ax,'Position');
+	 set(ax,'Units',oldaxesunits);
 	 
 	 xstart=(xtemp*axespixunits(3)+axespixunits(1))/figpixunits(3);
 	 ystart=(ytemp*axespixunits(4)+axespixunits(2))/figpixunits(4);
@@ -380,7 +386,7 @@ switch lower(ScaleType)
       sc_or_x=dx1+(dx2-dx1)/10;
       switch VecType
 	 case 'arrow'
-            ht1=drawvec(sc_or_x,(dy1+dy2)/2.,pct10,0.,varargin{:});
+            ht1=drawvec(sc_or_x,(dy1+dy2)/2.,pct10,0.,'Axes',ax,varargin{:});
 	 case 'stick'
             ht1=drawstick(sc_or_x,(dy1+dy2)/2.,pct10,0.,varargin{:});
       end
@@ -413,46 +419,46 @@ if ~ischar(arg)
 end
 
 switch arg
-   case 'help'      
-      disp('VECPLOT additional help section')
-      str=[];
-      str=[str sprintf('\n')];
-      str=[str sprintf('VECPLOT returns a vector of handles to objects\n')];
-      str=[str sprintf('drawn in the current axes.  The vector contains: \n')];
-      str=[str sprintf('   If the ''stick'' method is used, then h is ordered like:\n')];
-      str=[str sprintf('      h(1) -> vector shaft object (Tag=vectors)\n')];
-      str=[str sprintf('      h(2) -> stick vector origin object (Tag=vecrots)\n')];
-      str=[str sprintf('      h(3) -> scale vector text object (Tag=scaletext)\n')];
-      str=[str sprintf('      h(4) -> scale vector shaft object (Tag=scalearrow)\n')];
-      str=[str sprintf('      h(5) -> scale vector origin object (Tag=scalearrow)\n')];
-      str=[str sprintf('\n   If the ''arrow'' method is used, then h is ordered like:\n')];
-      str=[str sprintf('      h(1) -> vector object (Tag=vectors)\n')];
-      str=[str sprintf('      h(2) -> scale vector text object (Tag=scaletext)\n')];
-      str=[str sprintf('      h(3) -> scale vector object (Tag=scalearrow)\n')];
-		
-str=[str sprintf('\nPN/PV pairs accepted by VECPLOT:\n')];
-str=[str sprintf('    ArrowAngle - angle (in degrees) that the arrow head wings\n')];
-str=[str sprintf('                             make with the shaft. Default=25.\n')];
-str=[str sprintf('    DotColor   - origin symbol color, for VecType==''stick''. Default=''k''\n')];
-str=[str sprintf('    DotSize    - origin symbol size, for VecType==''stick''. Default=10\n')];
-str=[str sprintf('    DotStyle   - origin symbol, or VecType==''stick''. Default=''.''\n')];
-str=[str sprintf('    MaxThresh  - Maximum vector magnitude to plot. Default=Inf.\n')];
-str=[str sprintf('    MinThresh  - Minimum vector magnitude to plot. Default=0.\n')];
-str=[str sprintf('    ScaleFac   - vector scaling factor. Default=1.\n')];
-str=[str sprintf('    ScaleLabel - label for vector scale; ''no scale'' prevents scale\n')];
-str=[str sprintf('		               from being drawn; Default=''m/s''.\n')];
-str=[str sprintf('    ScaleType  - how to draw the vector scale, either ''fixed'' or\n')];
-str=[str sprintf('		               ''floating''; Default=''fixed''.\n')];
-str=[str sprintf('    ScaleXor  - scale x-origin; Default=[].\n')];
-str=[str sprintf('    ScaleYor  - scale y-origin; Default=[].\n')];
-str=[str sprintf('    Stride     - amount to stride over in drawing vectors. Default=1,\n')]; 
-str=[str sprintf('		               meaning no stride. Stride=2 skips every other point.\n')];
-str=[str sprintf('    VecType    - vector drawing method, either ''arrow'' or ''stick'';\n')];
-str=[str sprintf('		               Default=''arrow''.\n')];
-     title1='VECPLOT Additional Help';
-
-   otherwise
-      error('invalid help string to VECPLOT')
+    case 'help'
+        disp('VECPLOT additional help section')
+        str=[];
+        str=[str sprintf('\n')];
+        str=[str sprintf('VECPLOT returns a vector of handles to objects\n')];
+        str=[str sprintf('drawn in the current axes.  The vector contains: \n')];
+        str=[str sprintf('   If the ''stick'' method is used, then h is ordered like:\n')];
+        str=[str sprintf('      h(1) -> vector shaft object (Tag=vectors)\n')];
+        str=[str sprintf('      h(2) -> stick vector origin object (Tag=vecrots)\n')];
+        str=[str sprintf('      h(3) -> scale vector text object (Tag=scaletext)\n')];
+        str=[str sprintf('      h(4) -> scale vector shaft object (Tag=scalearrow)\n')];
+        str=[str sprintf('      h(5) -> scale vector origin object (Tag=scalearrow)\n')];
+        str=[str sprintf('\n   If the ''arrow'' method is used, then h is ordered like:\n')];
+        str=[str sprintf('      h(1) -> vector object (Tag=vectors)\n')];
+        str=[str sprintf('      h(2) -> scale vector text object (Tag=scaletext)\n')];
+        str=[str sprintf('      h(3) -> scale vector object (Tag=scalearrow)\n')];
+        
+        str=[str sprintf('\nPN/PV pairs accepted by VECPLOT:\n')];
+        str=[str sprintf('    ArrowAngle - angle (in degrees) that the arrow head wings\n')];
+        str=[str sprintf('                             make with the shaft. Default=25.\n')];
+        str=[str sprintf('    DotColor   - origin symbol color, for VecType==''stick''. Default=''k''\n')];
+        str=[str sprintf('    DotSize    - origin symbol size, for VecType==''stick''. Default=10\n')];
+        str=[str sprintf('    DotStyle   - origin symbol, or VecType==''stick''. Default=''.''\n')];
+        str=[str sprintf('    MaxThresh  - Maximum vector magnitude to plot. Default=Inf.\n')];
+        str=[str sprintf('    MinThresh  - Minimum vector magnitude to plot. Default=0.\n')];
+        str=[str sprintf('    ScaleFac   - vector scaling factor. Default=1.\n')];
+        str=[str sprintf('    ScaleLabel - label for vector scale; ''no scale'' prevents scale\n')];
+        str=[str sprintf('		               from being drawn; Default=''m/s''.\n')];
+        str=[str sprintf('    ScaleType  - how to draw the vector scale, either ''fixed'' or\n')];
+        str=[str sprintf('		               ''floating''; Default=''fixed''.\n')];
+        str=[str sprintf('    ScaleXor  - scale x-origin; Default=[].\n')];
+        str=[str sprintf('    ScaleYor  - scale y-origin; Default=[].\n')];
+        str=[str sprintf('    Stride     - amount to stride over in drawing vectors. Default=1,\n')];
+        str=[str sprintf('		               meaning no stride. Stride=2 skips every other point.\n')];
+        str=[str sprintf('    VecType    - vector drawing method, either ''arrow'' or ''stick'';\n')];
+        str=[str sprintf('		               Default=''arrow''.\n')];
+        title1='VECPLOT Additional Help';
+        
+    otherwise
+        error('invalid help string to VECPLOT')
 end
 
 if ~isempty(str)

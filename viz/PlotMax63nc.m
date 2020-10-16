@@ -6,14 +6,15 @@ function [h,g]=PlotMax63nc(varargin)
 % 
 % P/V pairs:
 %     AxisLims        - plot axis limits, as in the axis command (def=grid lims)
-%     Title           - title string as a cell array (def={''})
 %     ColorMin        - min pressure to clip below (def=950)
 %     ColorMax        - max pressure to clip above (def=1030)
 %     ColorMap        - colormap to use (def=jet(32))
-%     ScriptToAdd     - script that defines plot overlays (def='none')
+%     Grid            - ADCIRC grid to use, instead of extracting from nc object
 %     ImageResolution - (def='-r200';)
 %     FrameBaseName   - base of image output file name (def='frame')
+%     ScriptToAdd     - script that defines plot overlays (def='none')
 %     StartingTime    - datenum of starttime
+%     Title           - title string as a cell array (def={''})
 
 % set defaults
 p.FrameBaseName='frame';
@@ -35,8 +36,6 @@ AdcUtil=adcirc_util_init;
 
 p=parse_pv_pairs(p,varargin);
 
-fvar=strtok(p.filename,'.');
-
 if nargin==0
 %   disp('Plot63nc(g,nc) OR:')
 %   disp('Plot63nc(fgs,nc,p1,v1,p2,v2,...)')
@@ -51,6 +50,10 @@ try
 catch
     error('nc file %s not found.',p.filename);
 end
+
+% get filename in case its not maxele
+[~,b,~]=fileparts(p.filename); 
+fvar=strtok(b,'.');
 
 if isempty(p.Grid)
     g=ExtractGrid(nc);
@@ -91,5 +94,5 @@ plotbnd(g)
 %[hst,axx]=stamp_right(datestr(t(i)));
 %axis('equal')
 %axis('tight')
-title(p.Title,'FontSize',14)
+title(p.Title,'FontSize',14,'Interpreter','none')
 drawnow

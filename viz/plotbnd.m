@@ -30,6 +30,23 @@ if ~is_valid_struct(fem_grid_struct)
    error('    Argument to PLOTBND must be a valid fem_grid_struct.')
 end
 
+% Strip off propertyname/value pairs in varargin not related to
+% "line" object properties.
+k=1;
+ax=[];
+while k<length(varargin)
+  switch lower(varargin{k})
+    case 'axes'
+      ax=varargin{k+1};
+      varargin([k k+1])=[];
+    otherwise
+      k=k+2;
+  end
+end
+if isempty(ax)
+    ax=gca;
+end
+
 % Extract grid fields from fem_grid_struct
 %
 bnd=fem_grid_struct.bnd;
@@ -43,15 +60,15 @@ Y=[y(ns) y(ne) NaN*ones(size(ns))]';
 X=X(:);
 Y=Y(:);
 
-
 try 
     mm=gcm;
-    hboun=linem(Y,X,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+    hboun=linem(ax,Y,X,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
 catch
-    hboun=line(X,Y,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+    hboun=line(ax,X,Y,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
 end
 
 set(hboun,'ZData',2*ones(size(get(hboun,'XData'))))
+set(hboun,'DisplayName','Boundary')
 
 if nargout==1,retval=hboun;end
 %

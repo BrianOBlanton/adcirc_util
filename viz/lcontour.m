@@ -47,6 +47,26 @@ if ~is_valid_struct(fem_grid_struct)
    error('    fem_grid_struct to LCONTOUR invalid.')
 end
 
+
+% Strip off propertyname/value pairs in varargin not related to
+% "line" object properties.
+k=1;
+ax=[];
+
+while k<length(varargin)
+  switch lower(varargin{k})
+    case 'axes'
+      ax=varargin{k+1};
+      varargin([k k+1])=[];
+    otherwise
+      k=k+2;
+  end
+end
+if isempty(ax)
+    ax=gca;
+end
+
+
 e=fem_grid_struct.e;
 x=fem_grid_struct.x;
 y=fem_grid_struct.y;
@@ -99,14 +119,18 @@ end
 
 for kk=1:length(cval)
     if ch(kk)
-        if ismap(gca)     
-            h(kk)=linem(YY{kk},XX{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
-        else
-            h(kk)=line(XX{kk},YY{kk},'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on');
-        end
+        %if ismap(ax)     
+        %    h(kk)=linem(ax,YY{kk},XX{kk});
+        %else
+            h(kk)=line(ax,XX{kk},YY{kk},20*ones(size(XX{kk})));
+        %end
+        set(h(kk),'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on')
+        set(h(kk),'DisplayName',sprintf('%.2f',cval))
     end
 end
     
+
+
 
 % for kk=1:length(cval)
 %     if ishandle(h(kk))

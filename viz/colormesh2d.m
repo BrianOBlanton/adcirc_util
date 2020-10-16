@@ -1,4 +1,4 @@
-function rv1=colormesh2d(fem_grid_struct,Q,nband)
+function rv1=colormesh2d(fem_grid_struct,Q,varargin)
 %COLORMESH2D draw a FEM mesh in 2-d colored by a scalar quantity.
 %
 %   INPUT : fem_grid_struct (from LOADGRID, see FEM_GRID_STRUCT)
@@ -20,8 +20,34 @@ function rv1=colormesh2d(fem_grid_struct,Q,nband)
 % added map catch/linem, 21 Aug 14, BOB
 %
 
+% narginchk(1,3);
 
-narginchk(1,3);
+% Default property values
+ax=[];
+nband=Inf;
+
+% Strip off propertyname/value pairs in varargin not related to
+% "line" object properties.
+k=1;
+while k<length(varargin)
+  switch lower(varargin{k})
+    case 'nband'
+      nband=varargin{k+1};
+      varargin([k k+1])=[];
+    case 'axes'
+      ax=varargin{k+1};
+      varargin([k k+1])=[];
+    otherwise
+      k=k+2;
+  end
+end
+if isempty(ax)
+    ax=gca;
+end
+
+if length(varargin)<2
+   varargin={};
+end
 
 % VERIFY INCOMING STRUCTURE
 %
@@ -77,26 +103,25 @@ end
 Q=Q(:);
 
 % delete previous colorsurf objects
-delete(findobj(gca,'Type','patch','Tag','colorsurf'))
+delete(findobj(ax,'Type','patch','Tag','colorsurf'))
 
-z=0*ones(size(x));
-
+z=10*ones(size(x));
 try 
     mm=gcm; %#ok<NASGU>
 %    disp('map')
     %hp=patchesm('faces',e,'vertices',[y x z],'facevertexcdata',Q,'EdgeColor','none',...
     %         'FaceColor','interp','Tag','colorsurf');
-    hp=patchm('XData',y,'YData',x,'ZData',z,'CData',Q,'Tag','colorsurf');
+    hp=patchm(ax,'XData',y,'YData',x,'ZData',z,'CData',Q,'Tag','colorsurf');
 
 catch
 %   disp('plain')
-    hp=patch('XData',x,'YData',y,'ZData',z,'faces',e,'CData',Q,'EdgeColor','none',...
+    hp=patch(ax,'XData',x,'YData',y,'ZData',z,'faces',e,'CData',Q, 'EdgeColor','none',...
              'FaceColor','interp','Tag','colorsurf');
      
 end
 
-dcm_obj = datacursormode(gcf);
-set(dcm_obj,'UpdateFcn',{@myupdatefcn,Q,fem_grid_struct})
+%dcm_obj = datacursormode(gcf);
+%set(dcm_obj,'UpdateFcn',{@myupdatefcn,Q,fem_grid_struct})
 
 %colormap(jet(nband))
 

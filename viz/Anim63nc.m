@@ -17,6 +17,7 @@ function Anim63nc(g,nc,varargin)
 %     ImageResolution - (def='-r200';)
 %     FrameBaseName - base of image output file name (def='frame')
 %     StartingTime - datenum of starttime
+%     PlotDiff   -  plt diff btwn iterations (def=false)
 
 if nargin==0
    disp('Anim63nc(g,nc) OR:')
@@ -33,9 +34,10 @@ IterStart=1;
 IterStride=1;
 IterStop=-1;  
 ColorMin=NaN;  
-ColorMax=NaN;  
+ColorMax=Inf;  
 ColorMap=jet(32);  
 StartingTime=0;
+PlotDiff=false;
 
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
@@ -75,6 +77,9 @@ while k<length(varargin)
     case 'colormap'
       ColorMap=varargin{k+1};
       varargin([k k+1])=[];
+    case 'plotdiff'
+      PlotDiff=varargin{k+1};
+      varargin([k k+1])=[];
     otherwise
       k=k+2;
   end
@@ -85,14 +90,14 @@ if length(varargin)<2
 end
 
 nTimes=nc.size('time');
-t=StartingTime+nc{'time'}(:)/24;
+t=nctime(nc);
+%=StartingTime+nc{'time'}(:)/86400;
 %t=D.t/86400;
 
 if IterStop==-1,IterStop=nTimes;end
 
 if (IterStart<1 || IterStart>nTimes)
    error('IterStart must be between %d and %d',1,nTimes)
-   IterStart=1;
 elseif (IterStop<1 || IterStop>nTimes)
    error('IterStop must be between %d and %d',1,nTimes)
 elseif (IterStop<IterStart)
@@ -102,6 +107,8 @@ end
 if IterStride<1
     error('Stride must be greater than 1.')
 end
+
+if PlotDiff,IterStop=IterStop-1;,end
 
 fprintf('Starting iteration =  %d\n',IterStart)
 fprintf('Stride =  %d\n',IterStride)
@@ -161,10 +168,15 @@ colorbar
 % generate frames
 for i=IterStart:IterStride:IterStop
    
-   if isnan(t(i)),break,end
+   if isnat(t(i)),break,end
    %zz=D.zeta(:,i);
-   zz=nc{'zeta'}(i,:)';
-   zz(zz<-1000)=NaN;
+    zz=nc{'zeta'}(i,:)';
+    zz(zz<-1000)=NaN;
+    if PlotDiff
+       temp2=nc{'zeta'}(i+1,:)';
+       zz=temp2-zz;
+       zz=log10(abs(zz));
+    end
    if ~isempty(h),delete(h),end   
    if ~isempty(hz0),delete(hz0),end
    %if ~isempty(hst),delete(hst);delete(axx),end

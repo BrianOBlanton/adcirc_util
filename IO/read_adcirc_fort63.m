@@ -51,7 +51,7 @@ while k<length(varargin)
     case 'clipval'
       ClipVal=varargin{k+1};
       varargin([k k+1])=[];
-    case 'fortname'
+    case {'fortname','filename'}
       FortName=varargin{k+1};
       varargin([k k+1])=[];
     case 'timeclipmin'

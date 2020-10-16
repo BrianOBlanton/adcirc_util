@@ -1,0 +1,171 @@
+<deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
+  <configuration file="/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/adcircAnimator/ADCIRC_Animator_V0.9.prj" location="/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/adcircAnimator" name="ADCIRC_Animator_V0.9" target="target.ezdeploy.standalone" target-name="Application Compiler">
+    <param.appname>ADCIRC_Animator_V09</param.appname>
+    <param.icon />
+    <param.icons />
+    <param.version>0.9</param.version>
+    <param.authnamewatermark>Brian Blanton</param.authnamewatermark>
+    <param.email>Brian_Blanton@Renci.Org</param.email>
+    <param.company>UNC-CH/RENCI</param.company>
+    <param.summary>MATLAB App to viz basic ADCIRC output netCDF files</param.summary>
+    <param.description />
+    <param.screenshot>/Users/bblanton/Dropbox/Screenshots/Screenshot 2020-04-08 12.10.32.png</param.screenshot>
+    <param.guid />
+    <param.installpath.string>/UNC-CH/RENCI/ADCIRC_Animator_V09/</param.installpath.string>
+    <param.installpath.combo>option.installpath.systemwideapp</param.installpath.combo>
+    <param.logo />
+    <param.install.notes />
+    <param.target.install.notes>In the following directions, replace MR/v97 by the directory on the target machine where MATLAB is installed, or MR by the directory where the MATLAB Runtime is installed.
+
+If the environment variable DYLD_LIBRARY_PATH is undefined, set it to the following string:
+
+MR/v97/runtime/maci64:MR/v97/sys/os/maci64:MR/v97/bin/maci64
+
+If it is defined, set it to the following:
+
+${DYLD_LIBRARY_PATH}:MR/v97/runtime/maci64:MR/v97/sys/os/maci64:MR/v97/bin/maci64</param.target.install.notes>
+    <param.intermediate>${PROJECT_ROOT}/ADCIRC_Animator_V0.9/for_testing</param.intermediate>
+    <param.files.only>${PROJECT_ROOT}/ADCIRC_Animator_V0.9/for_redistribution_files_only</param.files.only>
+    <param.output>${PROJECT_ROOT}/ADCIRC_Animator_V0.9/for_redistribution</param.output>
+    <param.logdir>${PROJECT_ROOT}/ADCIRC_Animator_V0.9</param.logdir>
+    <param.enable.clean.build>false</param.enable.clean.build>
+    <param.user.defined.mcr.options />
+    <param.target.type>subtarget.standalone</param.target.type>
+    <param.support.packages />
+    <param.web.mcr>false</param.web.mcr>
+    <param.package.mcr>true</param.package.mcr>
+    <param.no.mcr>false</param.no.mcr>
+    <param.web.mcr.name>MyAppInstaller_web</param.web.mcr.name>
+    <param.package.mcr.name>MyAppInstaller_mcr</param.package.mcr.name>
+    <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
+    <param.windows.command.prompt>false</param.windows.command.prompt>
+    <param.create.log>true</param.create.log>
+    <param.log.file>adcanimlog</param.log.file>
+    <param.native.matlab>false</param.native.matlab>
+    <param.checkbox>false</param.checkbox>
+    <param.example />
+    <param.help.text>Syntax 
+	  -? 
+	 
+ Input Arguments 
+	 -?  print help on how to use the application 
+	 input arguments</param.help.text>
+    <unset>
+      <param.icon />
+      <param.icons />
+      <param.authnamewatermark />
+      <param.email />
+      <param.company />
+      <param.description />
+      <param.guid />
+      <param.installpath.string />
+      <param.installpath.combo />
+      <param.logo />
+      <param.install.notes />
+      <param.intermediate />
+      <param.files.only />
+      <param.output />
+      <param.logdir />
+      <param.enable.clean.build />
+      <param.user.defined.mcr.options />
+      <param.target.type />
+      <param.support.packages />
+      <param.no.mcr />
+      <param.web.mcr.name />
+      <param.package.mcr.name />
+      <param.no.mcr.name />
+      <param.windows.command.prompt />
+      <param.native.matlab />
+      <param.checkbox />
+      <param.example />
+    </unset>
+    <fileset.main>
+      <file>${PROJECT_ROOT}/adcircAnimator.mlapp</file>
+    </fileset.main>
+    <fileset.resources />
+    <fileset.package />
+    <fileset.depfun>
+      <file>${PROJECT_ROOT}/Left_64.png</file>
+      <file>${PROJECT_ROOT}/Right_64.png</file>
+      <file>${PROJECT_ROOT}/plot_google_map.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/basics/drawstick.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/basics/drawvec.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/basics/numscal.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/basics/vecplot.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/AdcircCppForward.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/attach_elem_centroids.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/belint.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/detbndy.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/el_areas.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/findelem.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/is_valid_struct.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/is_valid_struct2.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/mex/contmex5.mexmaci64</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/mex/findelemex5.mexmaci64</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/mex/findelemex52.mexmaci64</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/nc/ExtractGrid.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/viz/colormesh2d.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/viz/drawelems.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/viz/lcontour.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/viz/numelems.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/viz/numnodes.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/viz/plotbnd.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/cfdataset.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/ncdataset.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/ncgeodataset.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/ncgeovariable.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/ncvariable.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/interp/av2.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/interp/complex_ongrid.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/misc/indexing.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/misc/near.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/misc/near_lonlat.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/misc/sw_dist.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/misc/utc2sdn.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/misc/value4key.m</file>
+      <file>/Users/bblanton/GitHub/plot_google_map/makescale.m</file>
+      <file>/Users/bblanton/MATSVN/LocalMatlab/misc/GetCurrentPoint.m</file>
+      <file>/Users/bblanton/MATSVN/LocalMatlab/misc/range.m</file>
+      <file>/Users/bblanton/matlab/api_key.mat</file>
+    </fileset.depfun>
+    <build-deliverables>
+      <file location="${PROJECT_ROOT}/ADCIRC_Animator_V0.9/for_testing" name="run_ADCIRC_Animator_V09.sh" optional="false">/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/adcircAnimator/ADCIRC_Animator_V0.9/for_testing/run_ADCIRC_Animator_V09.sh</file>
+      <file location="${PROJECT_ROOT}/ADCIRC_Animator_V0.9/for_testing" name="readme.txt" optional="true">/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/adcircAnimator/ADCIRC_Animator_V0.9/for_testing/readme.txt</file>
+      <file location="${PROJECT_ROOT}/ADCIRC_Animator_V0.9/for_testing" name="splash.png" optional="false">/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/adcircAnimator/ADCIRC_Animator_V0.9/for_testing/splash.png</file>
+      <file location="${PROJECT_ROOT}/ADCIRC_Animator_V0.9/for_testing" name="ADCIRC_Animator_V09.app" optional="false">/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/adcircAnimator/ADCIRC_Animator_V0.9/for_testing/ADCIRC_Animator_V09.app</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>/Applications/MATLAB_R2019b.app</root>
+      <toolboxes>
+        <toolbox name="matlabcoder" />
+        <toolbox name="neuralnetwork" />
+      </toolboxes>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <neuralnetwork>
+          <enabled>true</enabled>
+        </neuralnetwork>
+      </toolbox>
+    </matlab>
+    <platform>
+      <unix>true</unix>
+      <mac>true</mac>
+      <windows>false</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.15.6</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>maci64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>

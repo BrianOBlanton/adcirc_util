@@ -29,17 +29,31 @@ if ~is_valid_struct(fem_grid_struct)
    error('    Argument to NUMNODES must be a valid fem_grid_struct.')
 end
  
+k=1;
 % Default fontsize
 fs=12;
- 
+ax=[];
+while k<length(varargin)
+  switch lower(varargin{k})
+    case 'axes'
+      ax=varargin{k+1};
+      varargin([k k+1])=[];
+    otherwise
+      k=k+2;
+  end
+end
+if isempty(ax)
+    ax=gca;
+end
+
 % Extract grid fields from fem_grid_struct
 %elems=fem_grid_struct.e;
 x=fem_grid_struct.x;
 y=fem_grid_struct.y;
 z=10*ones(size(y));
 
-X=get(gca,'Xlim');
-Y=get(gca,'YLim');
+X=get(ax,'Xlim');
+Y=get(ax,'YLim');
 
 % get indices of nodes within viewing window defined by X,Y
 filt=find(x>=X(1)&x<=X(2)&y>=Y(1)&y<=Y(2));
@@ -70,7 +84,7 @@ yy=y(filt);
 zz=z(filt);
 %format long e
 % label only those nodes that lie within viewing window.
-htext=text(xx,yy,zz,strlist,...
+htext=text(ax,xx,yy,zz,strlist,...
              'BackgroundColor','w',...
              'Clipping','on',...
              'Color','k',...
@@ -81,7 +95,7 @@ htext=text(xx,yy,zz,strlist,...
              'VerticalAlignment','middle',...
              'Tag','Node #',...
               varargin{:});
-line(xx,yy,zz,'LineStyle','none'); % ,'Visible','off')
+line(ax,xx,yy,zz,'LineStyle','none'); % ,'Visible','off')
 
 if nargout==1,h=htext;end
 return

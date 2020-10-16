@@ -13,7 +13,6 @@ function hel=drawelems(fem_grid_struct,varargin)
 %     
 
 %REARTH=6367500;
-TheseElems=[];
 %LabelElems='no';
 
 % DEFINE ERROR STRINGS
@@ -29,10 +28,11 @@ if ~is_valid_struct(fem_grid_struct)
    error('    Argument to DRAWELEMS must be a valid fem_grid_struct.')
 end
 
-
 % Default propertyname values
+TheseElems=[];
 MeshHeight=1.;
 SPH=true;
+ax=[];
 
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
@@ -50,10 +50,16 @@ while k<length(varargin)
 %       varargin([k k+1])=[];
     case 'theseelems'
       TheseElems=varargin{k+1};
-      varargin([k k+1])=[];      
+      varargin([k k+1])=[];
+    case 'axes'
+      ax=varargin{k+1};
+      varargin([k k+1])=[];
     otherwise
       k=k+2;
   end
+end
+if isempty(ax)
+    ax=gca;
 end
 
 if ~SPH && ~isfield(fem_grid_struct,'xecen_cart')
@@ -79,11 +85,13 @@ z=fem_grid_struct.z;
 % attached to grid struct
 if isempty(TheseElems)
     if isfield(fem_grid_struct,'xecen')
-        axx=axis;
+        axx=axis(ax);
         dx=axx(2)-axx(1);
         dy=axx(4)-axx(3);
-        ikeep=fem_grid_struct.xecen>axx(1)-dx & fem_grid_struct.xecen<axx(2)+dx & ...
-              fem_grid_struct.yecen>axx(3)-dy & fem_grid_struct.yecen<axx(4)+dy;
+        ikeep=fem_grid_struct.xecen>axx(1)-dx & ...
+              fem_grid_struct.xecen<axx(2)+dx & ...
+              fem_grid_struct.yecen>axx(3)-dy & ...
+              fem_grid_struct.yecen<axx(4)+dy;
         if ~all(ikeep==0)
             elems=elems(ikeep,:);
         end
@@ -108,7 +116,7 @@ yt=yt(:);
 zt=zt(:);
 
 % DRAW GRID
-hel=line(xt,yt,zt,'Color','k',varargin{:},'Tag','elements');
+hel=line(ax,xt,yt,zt,'Color','k',varargin{:},'Tag','elements');
 
 
 

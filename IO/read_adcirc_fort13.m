@@ -15,9 +15,9 @@ fprintf('%d attributes to scan in ... \n',D.natts)
 
 fprintf('Scanning attribute metadata ... \n')
 for i=1:D.natts
-   D.att_names{i}=deblank(fgets(fid));
+   D.att_names{i}=strip(fgets(fid));
    fprintf('   %s ... \n',D.att_names{i})
-   D.att_units{i}=deblank(fgets(fid));
+   D.att_units{i}=strip(fgets(fid));
    D.att_numdefvals(i)=fscanf(fid,'%d',1);
    D.att_defvals{i}=fscanf(fid,'%f',D.att_numdefvals(i));
    fgets(fid);
@@ -29,7 +29,7 @@ for i=1:D.natts
 
    ThisNumberOfColumns=D.att_numdefvals(i);
    
-   an=deblank(fgets(fid));
+   an=strip(fgets(fid));
    non_def_vals=fscanf(fid,'%d',1);
    fgets(fid);
    

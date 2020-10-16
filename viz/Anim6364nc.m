@@ -1,5 +1,5 @@
-function Anim6364nc(varargin)
-% Anim6364nc generate an animatiom of an ADCIRC 63 file in netCDF format
+function fign=Anim6364nc(varargin)
+% Anim6364nc generate an animatiom of an ADCIRC 63,64 netCDF file pair
 % Defaults: 
 %     nc63 - will open fort.63.nc as an ncgeodataset
 %     nc64 - will open fort.64.nc as an ncgeodataset
@@ -18,44 +18,69 @@ function Anim6364nc(varargin)
 %     ColorMax   - max pressure to clip above (def=1030)
 %     ColorMap   - colormap to use (def=jet(32))
 %     ScriptToAdd - script that defines plot overlays (def='none')
+%     FlushFrames - whether or not to output images frames (def=false)
 %     ImageResolution - (def='-r200';)
+%     ImageWriteDir
 %     FrameBaseName - base of image output file name (def='frame')
+%     ManualAdvance
+%     Url 
+
 %     StartingTime - datenum of starttime
 
-if nargin==0
-   disp('setting defaults:')
-   nc=ncgeodataset('fort.63.nc');
-   nc64=ncgeodataset('fort.64.nc');
-   g=ExtractGrid(nc);
-end
+% if nargin==0
+%    disp('setting defaults:')
+%    nc=ncgeodataset('fort.63.nc');
+%    nc64=ncgeodataset('fort.64.nc');
+%    g=ExtractGrid(nc);
+% end
 
+p.FlushFrames=false;
 p.FrameBaseName='frame';
 p.ScriptToAdd='none';
-p.ImageResolution='-r100';
+p.ImageResolution='-r50';
+p.ImageWriteDir='./';
 p.AxisLims=[];  
 p.Title={};     
 p.IterStart=1; 
 p.IterStride=1;
 p.IterStop=-1;  
-p.ColorMin=NaN;  
-p.ColorMax=NaN;  
+p.ColorMin=[];  
+p.ColorMax=[];  
 p.ColorMap=jet(32);  
-%StartingTime=0;
+p.StartingTime=datetime(0,0,0);
 p.VectorStride=1;
 p.VectorScaleFac=1;
 p.VectorColor='k';
+p.ScaleXor=[];
+p.ScaleYor=[];
+p.ScaleLabel='no scale';
+p.ManualAdvance=false;
 p.Grid='';
-p.nc63='';
-p.nc64='';
+p.nc63='fort.63.nc';
+p.nc64='fort.64.nc';
+p.Url='';
+p.ContourVals=[0];
+p.FigurePosition=[2495 594 800 600];
 
 p=parse_pv_pairs(p,varargin);
 
-if isempty(p.nc63)
-    p.nc63=ncgeodataset('fort.63.nc');
+if isempty(p.Url)
+    if exist(p.nc63,'file')
+        p.nc63=ncgeodataset(p.nc63);
+        p.nc64=ncgeodataset(p.nc64);
+    else
+        error('fort.63,64.nc does not exist locally. Either cd to a directory, or use Url.')
+    end
+else
+    try
+        p.nc63=ncgeodataset([p.Url '/fort.63.nc']);
+        p.nc64=ncgeodataset([p.Url '/fort.64.nc']);
+    catch ME
+        disp(['ID: ' ME.identifier])
+        throw(ME)
+    end
 end
-if isempty(p.nc64)
-    p.nc64=ncgeodataset('fort.64.nc');
-end
+
 if isempty(p.Grid)
     p.Grid=ExtractGrid(p.nc63);
 end
@@ -64,8 +89,25 @@ time=p.nc63.time('time');
 time=datetime(datevec(time));
 nTimes=size(time,1); 
 t=time;
+if p.StartingTime ~= datetime(0,0,0)
+    t=t-t(1);
+    t=t+p.StartingTime;
+end
+    
+% check times in nc files
+%nTimes
+%return
 
 if p.IterStop==-1,p.IterStop=nTimes;end
+if p.IterStart==0
+    p.IterStart=1;
+elseif p.IterStart==-1
+    p.IterStart=nTimes;
+    p.IterStop=nTimes;
+elseif p.IterStart<-1
+    p.IterStart=nTimes+p.IterStart;
+    p.IterStop=nTimes;
+end
 
 if (p.IterStart<1 || p.IterStart>nTimes)
    error('IterStart must be between %d and %d',1,nTimes)
@@ -90,25 +132,27 @@ hu0=[];
 %axx=[];
 
 if ~iscell(p.Title)
-   error('Title to Anim63 must be a cell array')
+   error('Title to Anim6364nc must be a cell array')
 end
 
 tlen=length(p.Title);
 
 % set up figure
 if (1)
-   figure
-   %drawelems(g,'Color',[1 1 1]*.7,'Linewidth',.25);
-   plotbnd(p.Grid,'LineWidth',.2);
-   hc=lcontour(p.Grid,'z',0,'Color','k','LineWidth',.2);
-   set_height(hc,1);
-   plotcoast('states')
-   grid on
-   grid minor
-   %hc=lcontour(g,'z',[2:8],'Color','r','LineWidth',.2);
-   %set_height(hc,1);
-   %hc=lcontour(g,'z',-[2:10],'Color','b','LineWidth',.2);
-   %set_height(hc,1);
+    fign=figure('Position',p.FigurePosition);
+    %drawelems(g,'Color',[1 1 1]*.7,'Linewidth',.25);
+    plotbnd(p.Grid,'LineWidth',.2,'Color','m');
+    hc=lcontour(p.Grid,'z',p.ContourVals,'Color','k','LineWidth',1);
+    if isgraphics(hc)
+        set_height(hc,1);
+    end
+%    plotcoast('states')
+    grid on
+    grid minor
+    %hc=lcontour(g,'z',[2:8],'Color','r','LineWidth',.2);
+    %set_height(hc,1);
+    %hc=lcontour(g,'z',-[2:10],'Color','b','LineWidth',.2);
+    %set_height(hc,1);
 end
 axis('equal')
 
@@ -131,7 +175,7 @@ if exist(p.ScriptToAdd,'file')
    eval(p.ScriptToAdd)
 end
 
-if ~(isnan(p.ColorMin) && isnan(p.ColorMax))    
+if ~(isempty(p.ColorMin) && isempty(p.ColorMax))    
     set(gca,'CLim',[p.ColorMin p.ColorMax])
 end
 colormap(p.ColorMap)
@@ -139,7 +183,7 @@ colorbar
 
 % generate frames
 for i=p.IterStart:p.IterStride:p.IterStop
-   
+   figure(fign)
    if isnat(t(i)),break,end
    %zz=D.zeta(:,i);
    uu=p.nc64{'u-vel'}(i,:)';
@@ -152,12 +196,15 @@ for i=p.IterStart:p.IterStride:p.IterStop
    %if ~isempty(hst),delete(hst);delete(axx),end
    h=colormesh2d(p.Grid,zz);
    %hz0=lcontour(g,zz,0,'Color','b');
-   hu0=vecplot(p.Grid.x,p.Grid.y,uu,vv,'ScaleLabel','no scale',...
-       'ScaleFac',p.VectorScaleFac,...
-       'Stride',p.VectorStride,...
-       'Color',p.VectorColor);
+   hu0=vecplot(p.Grid.x,p.Grid.y,uu,vv,...
+               'ScaleLabel',p.ScaleLabel,...
+               'ScaleXor',p.ScaleXor,...
+               'ScaleYor',p.ScaleYor,...
+               'ScaleFac',p.VectorScaleFac,...
+               'Stride',p.VectorStride,...
+               'Color',p.VectorColor);
    
-   if ~(isnan(p.ColorMin) && isnan(p.ColorMax))    
+   if ~(isempty(p.ColorMin) && isempty(p.ColorMax))    
        set(gca,'CLim',[p.ColorMin p.ColorMax])
    else
        cmin=min(zz(InViewingBox));
@@ -168,14 +215,19 @@ for i=p.IterStart:p.IterStride:p.IterStop
    %shading flat
    %set_height(h,1)
    p.Title{tlen+1}=sprintf('%s  //  %04d',datestr(t(i),0),i);
-   title(p.Title,'FontSize',14);
+   title(p.Title,'FontSize',18,'Interpreter','none');
    %[hst,axx]=stamp_right(datestr(t(i)));
    drawnow
 
-   fnamebase=sprintf('%s_%03d',p.FrameBaseName,i);
-   fprintf('Printing %s\n',fnamebase)
-   export_fig('-png',p.ImageResolution,sprintf('%s.png',fnamebase));
-%   print('-dpng',ImageResolution,sprintf('%s.png',fnamebase));
-   %eval(sprintf('!/usr/local/bin/convert %s.png %s.gif',fnamebase,fnamebase));
+   if p.FlushFrames
+       fnamebase=sprintf('%s_%05d',p.FrameBaseName,i);
+       fprintf('Printing %s\n',fnamebase)
+       export_fig('-png',p.ImageResolution,sprintf('%s/%s.png',p.ImageWriteDir,fnamebase));
+       %print('-dpng',ImageResolution,sprintf('%s.png',fnamebase));
+       %eval(sprintf('!/usr/local/bin/convert %s.png %s.gif',fnamebase,fnamebase));
+   end
+   if p.ManualAdvance
+       pause
+   end
 end
 

@@ -1,4 +1,4 @@
-function shownode(fem_grid_struct,in,varargin)
+function h=shownode(fem_grid_struct,in,varargin)
 %SHOWNODE highlight and display statistics on selected node
 % SHOWNODE highlights a user-specified node, either 
 % by mouse-click or by passing SHOWNODE an node number.
@@ -133,8 +133,8 @@ end
 
 %figure(currfig);
 % Place a red asterisk on the node
-line(x(in),y(in),'Color',[1 0 0]*1,'Marker','*','LineStyle','none','MarkerSize',20,varargin{:})
-text(x(in),y(in),int2str(in),'HorizontalAlignment','center',...
+h{1}=line(x(in),y(in),'Color',[1 0 0]*1,'Marker','*','LineStyle','none','MarkerSize',20,varargin{:});
+h{2}=text(x(in),y(in),int2str(in),'HorizontalAlignment','center',...
              'VerticalAlignment','middle',...
              'EdgeColor','k',...
              'BackgroundColor','w',...

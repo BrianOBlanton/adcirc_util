@@ -65,8 +65,8 @@ else
         end
     end
 end
-
-time_string='iLat=%4diLong=%4dDX=%6.4fDY=%6.4fSWLat=%8.5fSWLon=%8.4fDT=%12s';
+%             1234567890
+time_string ='iLat=%4diLong=%4dDX=%6.4fDY=%6.4fSWLat=%8.5fSWLon=%8.4fDT=%12s';
 value_string=' %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f\n';
 %value_string=' %9d %9d %9d %9d %9d %9d %9d %9d\n';
 
@@ -109,18 +109,18 @@ for i=1:length(D.Basin.time)
    out=D.Basin.Pre{i};
    fprintf(fidp,'%s\n',header);
    %fprintf('   Min,Max pre = %f %f\n',min(out(:)),max(out(:)))
-   fprintf(fidp,value_string,out);
+   fprintf(fidp,value_string,out');
    fprintf(fidp,'\n');
    
    out=D.Basin.WinU{i};
    fprintf(fidw,'%s\n',header);
    %fprintf('   Min,Max u = %f %f\n',min(out(:)),max(out(:)))
-   fprintf(fidw,value_string,out);
+   fprintf(fidw,value_string,out');
    fprintf(fidw,'\n');
    
    out=D.Basin.WinV{i};
    %fprintf('   Min,Max v = %f %f\n',min(out(:)),max(out(:)))
-   fprintf(fidw,value_string,out);
+   fprintf(fidw,value_string,out');
    fprintf(fidw,'\n');
   
 end
@@ -146,18 +146,18 @@ if Region
         out=D.Region.Pre{i};
         fprintf(fidp,'%s\n',header);
         %fprintf('   Min,Max pre = %f %f\n',min(out(:)),max(out(:)))
-        fprintf(fidp,value_string,out);
+        fprintf(fidp,value_string,out');
         fprintf(fidp,'\n');
         
         out=D.Region.WinU{i};
         fprintf(fidw,'%s\n',header);
         %fprintf('   Min,Max u = %f %f\n',min(out(:)),max(out(:)))
-        fprintf(fidw,value_string,out);
+        fprintf(fidw,value_string,out');
         fprintf(fidw,'\n');
         
         out=D.Region.WinV{i};
         %fprintf('   Min,Max v = %f %f\n',min(out(:)),max(out(:)))
-        fprintf(fidw,value_string,out);
+        fprintf(fidw,value_string,out');
         fprintf(fidw,'\n');
         
     end

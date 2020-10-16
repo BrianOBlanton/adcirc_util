@@ -74,7 +74,7 @@ end
 % DEFINE ERROR STRINGS
 err1=str2mat('You must specify 1 output argument; call LOADGRID',...
       'as grid_struct=loadgrid(gridname)');
-err2=['gridname not supplied and global DOMAIN is empty'];
+err2='gridname not supplied and global DOMAIN is empty';
 
 global DOMAIN GRIDS GRIDDIRS
 
