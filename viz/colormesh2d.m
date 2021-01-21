@@ -105,7 +105,7 @@ Q=Q(:);
 % delete previous colorsurf objects
 delete(findobj(ax,'Type','patch','Tag','colorsurf'))
 
-z=10*ones(size(x));
+z=-10*ones(size(x));
 try 
     mm=gcm; %#ok<NASGU>
 %    disp('map')

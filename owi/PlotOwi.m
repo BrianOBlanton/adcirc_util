@@ -1,5 +1,27 @@
 function h=PlotOwi(OwiStruct,i,varargin)
-% h=PlotOwi(OwiStruct,index)
+%
+% h=PlotOwi(OwiStruct,index,p1,v1,...)
+%
+% PV args/defaults:
+%
+% ColorMin=980;  
+% ColorMax=1030;  
+% ColorMap=jet(32);  
+% 
+% BasinVectorColor='r';
+% RegionVectorColor='b';
+% 
+% BasinVectorStride=10;
+% RegionVectorStride=10;
+% 
+% BasinVectorScaleFac=50;
+% RegionVectorScaleFac=20;
+% 
+% BasinPressureDraw=true;
+% BasinVectorDraw=true;
+% RegionPressureDraw=true;
+% RegionVectorDraw=true;
+%
 
 % Default propertyname values
 
