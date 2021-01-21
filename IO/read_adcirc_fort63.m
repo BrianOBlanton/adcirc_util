@@ -93,7 +93,11 @@ fgetl(fid);
 NTRSPE=data(1);
 NSTAE=data(2);
 outdt=data(3);
-NSPOOLE=data(4);
+if length(data)<4
+    NSPOOLE=NaN;
+else
+    NSPOOLE=data(4);
+end
 
 % determine clipping times
 t0=outdt/86400;

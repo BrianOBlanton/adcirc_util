@@ -1,11 +1,12 @@
 function AdcircHarmonics2NC(fgs,F53)
+% AdcircHarmonics2NC(fgs,F53)
 
 
 
 % output a netcdf file
 mode = netcdf.getConstant('NETCDF4');
 mode = bitor(mode,netcdf.getConstant('CLOBBER'));
-f = netcdf.create('f53.nc', mode);
+f = netcdf.create('/tmp/f53.nc', mode)
 GlobalId=netcdf.getConstant('GLOBAL');
 netcdf.putAtt(f,GlobalId,'creation_date',datestr(now));
 netcdf.putAtt(f,GlobalId,'title','Tide Harmonics');

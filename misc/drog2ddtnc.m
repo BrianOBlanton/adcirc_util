@@ -1,9 +1,17 @@
 function D=drog2ddtnc(t1d,t2d,dt,idt,xi,yi,Z,V,options)
 %function D=drog2ddtnc(TheGrid,t1d,t2d,dt,idt,xi,yi,V,options)
+<<<<<<< HEAD
+%DROG2DDTNC track drogues in a 2-D FEM domain, time-stepping version
+% DROG2DDTNC tracks particles through a discrete squence of
+% 2-D velocity fields, vertically averaged for example.  The
+% integrator is a 4th order Runge-Kutta method.  Pass empty ([]) for
+% default parameter values
+=======
 %DROG2DDT track drogues in a 2-D FEM domain, time-stepping version
 % DROG2DDT tracks particles through a discrete squence of 2-D velocity
 % fields, vertically averaged for example.  The integrator is a 4th order
 % Runge-Kutta method.  Pass empty ([]) for default parameter values.
+>>>>>>> a45ea275a84cdaf1467b116357ef34e3d466250e
 %
 % Inputs: t1,t2    - integration end-points; both t1 & t2 must lie within
 %                    the min and max time in the velocity sequence
@@ -226,6 +234,7 @@ vv(:,1)=vt;
 
 %Draw initial positions on screen
 if isfield(options,'draw') && options.draw
+    figure
     %axx=[ 3.7319e+05   3.7635e+05   4.5794e+06   4.5819e+06];
     plotbnd(TheGridll,'LineWidth',2)
     lcontour(TheGridll,'z',0,'Color','k');
