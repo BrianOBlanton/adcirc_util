@@ -4,7 +4,7 @@ function j=FindElementsInStrTree(fgs,points_x,points_y,TOL)
 [m,n]=size(points_x);
 j=NaN*ones(m,n);
 if ~exist('TOL')
-    TOL=1e-3;
+    TOL=1e-2;
 end
 
 strtree=fgs.strtree;
@@ -15,7 +15,7 @@ for i=1:m
 
 %parfor i=1:m
     
-    fprintf('%04d/%05d ... \n',i,m)
+    %fprintf('%04d/%05d ... \n',i,m)
     temppx=points_x(i,:);
     temppy=points_y(i,:);
     jtemp=j(i,:);

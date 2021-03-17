@@ -130,7 +130,9 @@ function varargout = plot_google_map(varargin)
 %       - Set and use an API key which enables a much higher usage volume per day.
 % Version 1.1 - 25/08/2011
 
+
 persistent apiKey useTemp
+
 if isnumeric(apiKey)
     % first run, check if API key file exists
     if exist('api_key.mat','file')

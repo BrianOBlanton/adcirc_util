@@ -44,6 +44,7 @@ nn=str2double(temp{2});
 % Get node locations
 if verbose, fprintf('\nnodes = '),end
 temp=fscanf(fid,'%d %f %f %f',[4 nn])';
+idx=temp(:,1);
 x=temp(:,2);
 y=temp(:,3);
 z=temp(:,4);
@@ -55,6 +56,16 @@ temp=fscanf(fid,'%d %d %d %d %d',[5 ne])';
 e=temp(:,3:5);
 if verbose, fprintf('%d ... ',ne),end
 
+if range(e(:)) > length(x)
+   etemp=e(:);
+    for i=1:length(idx)
+        n=idx(i);
+        ich=etemp==n;
+        etemp(ich)=i;
+    end
+    e=reshape(etemp,size(e));
+end
+        
 fem_grid_struct.name=strtrim(gridname);
 fem_grid_struct.x=x;
 fem_grid_struct.y=y;

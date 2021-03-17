@@ -53,8 +53,8 @@ else
       ii=rem(i,length(cols))+1;
       g=MetisStruct{i};
       h(i)=plotbnd(g,'Color',cols(ii,:),'LineWidth',1.5);
-      %h(i)=drawelems(g,'Color',cols(ii,:),'LineWidth',.25);
-      text(mean([min(g.x) max(g.x)]),mean([min(g.y) max(g.y)]),2,sprintf('%04d',g.Pe),...
+      h(i)=drawelems(g,'Color',cols(ii,:),'LineWidth',.25);
+      text(mean([min(g.x) max(g.x)]),mean([min(g.y) max(g.y)]),2,sprintf('PE%04d',g.Pe),...
          'HorizontalAlignment','center','VerticalAlignment','middle');
    end
    

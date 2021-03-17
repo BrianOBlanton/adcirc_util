@@ -68,22 +68,22 @@ end
 
 % Check the max node numbers in .bnd and .e fields
 %
-len_x=length(fem_grid_struct.x);
-len_y=length(fem_grid_struct.y);
-len_z=length(fem_grid_struct.z);
-max_e=max(max(fem_grid_struct.e));
-max_b=max(max(fem_grid_struct.bnd));
-
-if(len_x~=len_y)
-   disp('    Lengths of .x and .y fields NOT equal');return
-elseif(len_x~=len_z)
-   disp('    Lengths of .x, .y and .z fields NOT equal');return
-elseif(max_e>len_x)
-   disp('    Maximum node number in .e field exceeds length of .xy field');return
-elseif(max_b>len_x)
-   disp('    Maximum node number in .bnd field exceeds length of .xy field');return
-end
-
+% len_x=length(fem_grid_struct.x);
+% len_y=length(fem_grid_struct.y);
+% len_z=length(fem_grid_struct.z);
+% max_e=max(max(fem_grid_struct.e));
+% max_b=max(max(fem_grid_struct.bnd));
+% 
+% if(len_x~=len_y)
+%    disp('    Lengths of .x and .y fields NOT equal');return
+% elseif(len_x~=len_z)
+%    disp('    Lengths of .x, .y and .z fields NOT equal');return
+% elseif(max_e>len_x)
+%    disp('    Maximum node number in .e field exceeds length of .xy field');return
+% elseif(max_b>len_x)
+%    disp('    Maximum node number in .bnd field exceeds length of .xy field');return
+% end
+% 
 errflag=1;
 
 % These are non-fatal warnings!
