@@ -30,12 +30,15 @@ end
 for i=1:f13In.natts
     fprintf('%s\n',f13In.att_names{i})
     fprintf(fid,'%s\n',f13In.att_names{i});
-    fprintf(fid,'%d\n',length(f13In.att_setnodes{i}));
-    
-    fmtstr=repmat(' %f',[1 f13In.att_numdefvals(i)]);
-    iset=f13In.att_setnodes{i};
-    out=f13In.atts{i}(iset,:);
-    fprintf(fid,['%d' fmtstr '\n'],[iset out]');
+    if f13In.att_setnodes{i} == 0
+        fprintf(fid,'0\n');
+    else
+        fprintf(fid,'%d\n',length(f13In.att_setnodes{i}));
+        fmtstr=repmat(' %f',[1 f13In.att_numdefvals(i)]);
+        iset=f13In.att_setnodes{i};
+        out=f13In.atts{i}(iset,:);
+        fprintf(fid,['%d' fmtstr '\n'],[iset out]');
+    end
     
 end
 

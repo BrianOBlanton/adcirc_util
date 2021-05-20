@@ -3,6 +3,8 @@ function ReturnThisZeta=InterpTpxoToAdcircBoundaryAP(fgs,varargin)
 % InterpTpxoToAdcircBoundaryAP(FemGridStruct,TpxoModelFile,...)
 % ca=InterpTpxoToAdcircBoundaryAP(fgs,TpxoModelFileUrl,varargin)
 
+% Constits = {'m2','s2','n2','k2','k1','o1','p1','q1','mm','mf'};
+
 TpxoModelFileUrl='http://tds.renci.org:8080/thredds/dodsC/DataLayers/Tides/TPXO/h_tpxo7.2.nc';
 
 %% extract model zeta 
@@ -18,8 +20,10 @@ temp=temp(:,:);
 for i=1:length(temp)
    tpxo_constits{i}=deblank(temp(i,:));
 end
-x=zeta{'lon_z'};x=x(:,:);
-y=zeta{'lat_z'};y=y(:,:);
+x=zeta{'lon_z'};
+x=x(:,:);
+y=zeta{'lat_z'};
+y=y(:,:);
 x=x';
 y=y';
 
@@ -90,9 +94,11 @@ for i=1:length(Constits)
    
    k=find(strcmp(Constits{i},tpxo_constits));
 
-   GlobalZetaAmplitude=squeeze(zeta{'ha'}(k,:,:))';
+   temp=zeta{'ha'};
+   GlobalZetaAmplitude=squeeze(temp(k,:,:))';
    
-   GlobalZetaPhase=squeeze(zeta{'hp'}(k,:,:))'*pi/180;
+   temp=zeta{'hp'};
+   GlobalZetaPhase=squeeze(temp(k,:,:))'*pi/180;
    
    iding=find(abs(GlobalZetaAmplitude)==0);
    GlobalZetaAmplitude(iding)=NaN;

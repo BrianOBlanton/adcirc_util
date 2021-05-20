@@ -114,7 +114,8 @@ off=0;
 Q=Q(:);
 
 % get indices of nodes within viewing window defined by X,Y
-filt=find(x>=X(1)-dx&x<=X(2)+dx&y>=Y(1)-dy&y<=Y(2)+dy);
+%filt=find(x>=X(1)-dx & x<=X(2)+dx & y>=Y(1)-dy & y<=Y(2)+dy);
+filt=find(x>=X(1) & x<=X(2) & y>=Y(1) & y<=Y(2));
 
 % determine if viewing window is zoomed-in
 % enough for node numbers to be meaningful

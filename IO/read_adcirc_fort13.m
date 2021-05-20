@@ -27,22 +27,23 @@ end
 %D.atts=NaN*ones(D.nn,TotalNumberOfColumns);
 for i=1:D.natts
 
-   ThisNumberOfColumns=D.att_numdefvals(i);
    
    an=strip(fgets(fid));
    non_def_vals=fscanf(fid,'%d',1);
    fgets(fid);
-   
+   j=find(strcmp(D.att_names',an));
+   ThisNumberOfColumns=D.att_numdefvals(j);
+
    fprintf('Reading %d values for %s from %s\n',non_def_vals,an,fname)
    
-   temp1=repmat(D.att_defvals{i}',[D.nn 1]);
+   temp1=repmat(D.att_defvals{j}',[D.nn 1]);
    fmtstr=repmat('%f ',[1 ThisNumberOfColumns]);
    fmtstr=['%d ' fmtstr];
    
    temp2=fscanf(fid,fmtstr,[ThisNumberOfColumns+1 non_def_vals])';
    temp1(temp2(:,1),:)=temp2(:,2:end);
-   D.atts{i}=temp1;
-   D.att_setnodes{i}=temp2(:,1);
+   D.atts{j}=temp1;
+   D.att_setnodes{j}=temp2(:,1);
    
 end
 

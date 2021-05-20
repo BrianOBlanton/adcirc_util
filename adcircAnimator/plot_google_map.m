@@ -532,7 +532,7 @@ if nargout <= 1 % plot map
     h_tmp = image(lonVect([1 end]),latVect([1 end]),zeros(2),'Visible','off', 'Parent', axHandle, 'CDataMapping', 'scaled');
     set(h_tmp,'tag','gmap')
    
-    %uistack(h,'bottom') % move map to bottom (so it doesn't hide previously drawn annotations)
+    uistack(h,'bottom') % move map to bottom (so it doesn't hide previously drawn annotations)
     axis(axHandle, curAxis) % restore original zoom
     if nargout == 1
         varargout{1} = h;

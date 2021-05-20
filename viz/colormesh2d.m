@@ -105,17 +105,20 @@ Q=Q(:);
 % delete previous colorsurf objects
 delete(findobj(ax,'Type','patch','Tag','colorsurf'))
 
-z=ones(size(x));
+%z=ones(size(x));
 try 
     mm=gcm; %#ok<NASGU>
 %    disp('map')
     %hp=patchesm('faces',e,'vertices',[y x z],'facevertexcdata',Q,'EdgeColor','none',...
     %         'FaceColor','interp','Tag','colorsurf');
-    hp=patchm(ax,'XData',y,'YData',x,'ZData',z,'CData',Q,'Tag','colorsurf');
+    %hp=patchm(ax,'XData',y,'YData',x,'ZData',z,'CData',Q,'Tag','colorsurf');
+    hp=patchm(ax,'XData',y,'YData',x,'CData',Q,'Tag','colorsurf');
 
 catch
 %   disp('plain')
-    hp=patch(ax,'XData',x,'YData',y,'ZData',z,'faces',e,'CData',Q, 'EdgeColor','none',...
+    %hp=patch(ax,'XData',x,'YData',y,'ZData',z,'faces',e,'CData',Q, 'EdgeColor','none',...
+    %         'FaceColor','interp','Tag','colorsurf');
+    hp=patch(ax,'XData',x,'YData',y,'faces',e,'CData',Q, 'EdgeColor','none',...
              'FaceColor','interp','Tag','colorsurf');
      
 end

@@ -116,7 +116,8 @@ yt=yt(:);
 zt=zt(:);
 
 % DRAW GRID
-hel=line(ax,xt,yt,zt,'Color','k',varargin{:},'Tag','elements');
+%hel=line(ax,xt,yt,zt,'Color','k',varargin{:},'Tag','elements');
+hel=line(ax,xt,yt,'Color','k',varargin{:},'Tag','elements');
 
 
 
