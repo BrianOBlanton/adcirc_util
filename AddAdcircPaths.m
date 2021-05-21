@@ -12,4 +12,5 @@ addpath([ADCPTH '/tides'])
 addpath([ADCPTH '/owi'])   
 addpath([ADCPTH '/adcircAnimator'])   
 
-
+% add javapath for jts
+javaaddpath([ADCPTH '/java/jts-1.9.jar']);
