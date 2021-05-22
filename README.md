@@ -1,9 +1,8 @@
 # adcirc_util
 Draft public matlab codes for dealing with ADCIRC 
 
-
 Github Repository of MATLAB utility routines for the model ADCIRC.
-26 Mar 2015
+21 May 2021
 
 matlab   - MATLAB functions to contour, plot, etc triangular finite element model output (ADCIRC).
            Add <INSTALL_DIR>/adcirc_util/matlab to the MATLAB function path  
@@ -18,7 +17,7 @@ To add ADCIRC paths to the MATLAB MATLABPATH variable in the user's matlab/start
 
 global ADCIRC
 ADCIRC='<INSTALL_DIR>/adcirc_util';
-AddAdcircPaths
+AddAdcircPaths(ADCIRC)
 
 
 
