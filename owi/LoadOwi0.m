@@ -1,6 +1,7 @@
 function D=LoadOwi0(FileName,Stride,IterEnd,NoHeader)
 %LOADOWI0
-% D=LoadOwi0(FileName,Stride);
+% D=LoadOwi0(FileName,Stride,IterEnd,NoHeader);
+%
 
 Debug=0;
 
@@ -10,8 +11,8 @@ end
 
 [~,~,Type]=fileparts(FileName);
 Type=Type(2:end);
-if ~any(strcmpi(Type,{'221','222','223','224','pre','wnd','win'}))
-   error('WND/PRE file extension (%s) must be 221|222|223|224|win|wnd|pre.',Type)
+if ~any(strcmpi(Type,{'221','222','223','224','225','226','pre','wnd','win'}))
+   error('WND/PRE file extension (%s) must be 221|222|223|224|225|226|win|wnd|pre.',Type)
 end
 fid=fopen(FileName,'r');
 
@@ -51,7 +52,7 @@ while ~feof(fid)
    
    u=fscanf(fid,'%f',[iLong,iLat]);  
    
-   if any(strcmpi(Type,{'222','224','wnd','win'}))
+   if any(strcmpi(Type,{'222','224','226','wnd','win'}))
      if Debug>0
         fprintf('Scanning [%d x %d] "%s" values at time=%s\n',iLong,iLat,Type,datestr(ctime,0))
      end
@@ -70,7 +71,7 @@ while ~feof(fid)
       D(j).DY=A(4);
       D(j).SWLat=A(5);
       D(j).SWLon=A(6);
-      if any(strcmp(Type,{'221','223','pre'}))
+      if any(strcmp(Type,{'221','223','225','pre'}))
          D(j).Pre=u;
       else
          D(j).Win.u=u;
@@ -79,7 +80,7 @@ while ~feof(fid)
       if Debug>1
          fprintf('   Min,Max u = %f %f\n',min(u(:)),max(u(:)))
       end
-      if any(strcmpi(Type,{'222','224','wnd','win'}))
+      if any(strcmpi(Type,{'222','224','226','wnd','win'}))
          D(j).Win.v=v;
          if Debug>1
             fprintf('   Min,Max v = %f %f\n',min(u(:)),max(u(:)))

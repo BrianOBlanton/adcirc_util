@@ -15,17 +15,22 @@ function h=PlotOwi(OwiStruct,i,varargin)
 %     
 %     BasinVectorColor='r';
 %     RegionVectorColor='b';
-%     
+%     LocalVectorColor='g';
+%   
 %     BasinVectorStride=10;
 %     RegionVectorStride=10;
+%     LocalVectorStride=10;
 %     
 %     BasinVectorScaleFac=50;
-%     RegionVectorScaleFac=20;
+%     RegionVectorScaleFac=50;
+%     LocalVectorScaleFac=50;
 %     
 %     BasinPressureDraw=true;
 %     BasinVectorDraw=true;
 %     RegionPressureDraw=true;
 %     RegionVectorDraw=true;
+%     LocalPressureDraw=true;
+%     LocalVectorDraw=true;
 %
 
 % Default propertyname values
@@ -37,17 +42,23 @@ ColorMap=jet(32);
 
 BasinVectorColor='k';
 RegionVectorColor='b';
+LocalVectorColor='k';
+
 
 BasinVectorStride=10;
 RegionVectorStride=10;
+LocalVectorStride=10;
 
 BasinVectorScaleFac=50;
-RegionVectorScaleFac=20;
+RegionVectorScaleFac=50;
+LocalVectorScaleFac=50;
 
 BasinPressureDraw=true;
 BasinVectorDraw=true;
 RegionPressureDraw=true;
 RegionVectorDraw=true;
+LocalPressureDraw=true;
+LocalVectorDraw=true;
 
 AxisLims=[];
 
@@ -91,6 +102,21 @@ while k<length(varargin)
     case 'regionvectorcolor'
       RegionVectorColor=varargin{k+1};
       varargin([k k+1])=[];
+    case 'localpressuredraw'
+      LocalPressureDraw=varargin{k+1};
+      varargin([k k+1])=[];
+    case 'localvectordraw'
+      LocalVectorDraw=varargin{k+1};
+      varargin([k k+1])=[];
+    case 'localvectorstride'
+      LocalVectorStride=varargin{k+1};
+      varargin([k k+1])=[];
+    case 'localvectorscalefac'
+      LocalVectorScaleFac=varargin{k+1};
+      varargin([k k+1])=[];
+    case 'localvectorcolor'
+      LocalVectorColor=varargin{k+1};
+      varargin([k k+1])=[];
     case 'axislims'
       AxisLims=varargin{k+1};
       varargin([k k+1])=[];
@@ -123,6 +149,10 @@ if ContourSpeed
         if ~isfield(OwiStruct.Region,'WinSpd')
             error('ContourSpeed is true, but Region does not contain WinSpd field.')
         end
+    elseif isfield(OwiStruct,'Local')
+        if ~isfield(OwiStruct.Local,'WinSpd')
+            error('ContourSpeed is true, but Local does not contain WinSpd field.')
+        end
     end
 end
 
@@ -138,7 +168,14 @@ end
 if ~isfield(OwiStruct.Region,'WinU')
     RegionVectorDraw=false;
 end
-    
+ 
+if ~isfield(OwiStruct.Local,'Pre')
+    LocalPressureDraw=false;
+end
+if ~isfield(OwiStruct.Local,'WinU')
+    LocalVectorDraw=false;
+end
+
 % [BasinPressureDraw BasinVectorDraw  RegionPressureDraw RegionVectorDraw]
 
 if isempty(AxisLims)
@@ -170,6 +207,7 @@ end
 
 %[BasinPressureDraw BasinVectorDraw RegionPressureDraw RegionVectorDraw]
 %[minX maxX minY maxY]
+bndlines={'LineWidth',1,'Color','k'};
 
 if (BasinPressureDraw || BasinVectorDraw)
     if isfield(OwiStruct,'Basin')
@@ -183,11 +221,6 @@ if (BasinPressureDraw || BasinVectorDraw)
         x=SWLon+(0:iLong-1)*DX;
         y=SWLat+(0:iLat-1)*DY;
         [Xb,Yb]=meshgrid(x,y);
-        
-        hlb(1)=line(Xb(1,:),Yb(1,:));
-        hlb(2)=line(Xb(end,:),Yb(end,:));
-        hlb(3)=line(Xb(:,1),Yb(:,1));
-        hlb(4)=line(Xb(:,end),Yb(:,end));
         
         hpb=[];
         hvb=[];
@@ -204,7 +237,8 @@ if (BasinPressureDraw || BasinVectorDraw)
             set(gca,'CLim',[ColorMin ColorMax])
         end
         
-       axis([minX maxX minY maxY])
+        axis('equal')
+        axis([minX maxX minY maxY])
         
         if BasinVectorDraw
             u=OwiStruct.Basin.WinU{i};
@@ -216,6 +250,11 @@ if (BasinPressureDraw || BasinVectorDraw)
                 'Color',BasinVectorColor,...
                 'ScaleLabel','no scale');
         end
+        
+        hlb(1)=line(Xb(1,:),Yb(1,:),bndlines{:});
+        hlb(2)=line(Xb(end,:),Yb(end,:),bndlines{:});
+        hlb(3)=line(Xb(:,1),Yb(:,1),bndlines{:});
+        hlb(4)=line(Xb(:,end),Yb(:,end),bndlines{:});
         
         h=[h; hpb; hvb];
         title(string(datetime(datevec(OwiStruct.Basin.time(i)))))
@@ -237,10 +276,7 @@ if (RegionPressureDraw || RegionVectorDraw)
         u=OwiStruct.Region.WinU{i};
         v=OwiStruct.Region.WinV{i};
         
-        hlr(1)=line(Xr(1,:),Yr(1,:));
-        hlr(2)=line(Xr(end,:),Yr(end,:));
-        hlr(3)=line(Xr(:,1),Yr(:,1));
-        hlr(4)=line(Xr(:,end),Yr(:,end));
+
         
         hpr=[];hvr=[];
         
@@ -263,9 +299,64 @@ if (RegionPressureDraw || RegionVectorDraw)
                 'ScaleFac',RegionVectorScaleFac,...
                 'Color',RegionVectorColor);
         end
+        
+        
+        hlr(1)=line(Xr(1,:),Yr(1,:),bndlines{:});
+        hlr(2)=line(Xr(end,:),Yr(end,:),bndlines{:});
+        hlr(3)=line(Xr(:,1),Yr(:,1),bndlines{:});
+        hlr(4)=line(Xr(:,end),Yr(:,end),bndlines{:});
+        
         h=[h; hpr; hvr];
         
     end   % end if Region
 end
 
 
+if (LocalPressureDraw || LocalVectorDraw)
+    if isfield(OwiStruct,'Local')
+        
+        SWLon=OwiStruct.Local.SWLon(i);
+        SWLat=OwiStruct.Local.SWLat(i);
+        iLong=OwiStruct.Local.iLong(i);
+        iLat=OwiStruct.Local.iLat(i);
+        DX=OwiStruct.Local.DX(i);
+        DY=OwiStruct.Local.DY(i);
+        x=SWLon+(0:iLong-1)*DX;
+        y=SWLat+(0:iLat-1)*DY;
+        [Xl,Yl]=meshgrid(x,y);
+        u=OwiStruct.Local.WinU{i};
+        v=OwiStruct.Local.WinV{i};
+        
+        
+        hpr=[];hvr=[];
+        
+        if LocalPressureDraw
+            if ~ishold
+                hold on
+            end
+            p=OwiStruct.Local.Pre{i};
+            hpr=pcolor(Xl,Yl,p);
+            shading flat
+            colormap(ColorMap)
+
+            set(gca,'CLim',[ColorMin ColorMax])
+        end
+        
+        if LocalVectorDraw
+            hvr=vecplot(Xl,Yl,u,v,...
+                'ScaleLabel','no scale',...
+                'Stride',LocalVectorStride,...
+                'ScaleFac',LocalVectorScaleFac,...
+                'Color',LocalVectorColor);
+        end
+        
+        hlr(1)=line(Xl(1,:),Yl(1,:),bndlines{:});
+        hlr(2)=line(Xl(end,:),Yl(end,:),bndlines{:});
+        hlr(3)=line(Xl(:,1),Yl(:,1),bndlines{:});
+        hlr(4)=line(Xl(:,end),Yl(:,end),bndlines{:});
+  
+
+        h=[h; hpr; hvr];
+        
+    end   % end if Local
+end
