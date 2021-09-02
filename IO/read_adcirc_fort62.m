@@ -73,6 +73,7 @@ header=fgets(fid);
 
 % NTRSPE, NSTAE, DT*NSPOOLE, NSPOOLE, IRTYPE 
 data=fscanf(fid,'%d %d %f %d %d',[5])';
+fgets(fid);
 
 NTRSPE=data(1);
 NSTAE=data(2);
@@ -83,13 +84,14 @@ u=NaN*ones(NTRSPE,NSTAE);
 v=NaN*ones(NTRSPE,NSTAE);
 t=NaN*ones(NTRSPE,1);
 
-
 for ii=1:NTRSPE
+   if feof(fid),break,end
    temp=fscanf(fid,'%f %d',[1 2]);
    t(ii)=temp(1);
    data=fscanf(fid,'%d %f %f',[3 NSTAE]);
    u(ii,:)=data(2,:);
    v(ii,:)=data(3,:);
+   fgets(fid);
 end
 
 D.u=u;

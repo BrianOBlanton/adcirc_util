@@ -78,6 +78,7 @@ if ~isempty(BasinWinFileName) && exist(BasinWinFileName,'file')
       owi.Basin.WinU{i}=u;
       owi.Basin.WinV{i}=v;
       spd=abs(u+sqrt(-1)*v);
+      owi.Basin.WinSpd{i}=spd;
       maxspd=max(maxspd,spd');
    end
    if ~isfield(owi.Basin,'XGrid')
@@ -139,6 +140,8 @@ if ~isempty(RegionWinFileName) && exist(RegionWinFileName,'file')
       owi.Region.WinU{i}=temp(i).Win.u';
       owi.Region.WinV{i}=temp(i).Win.v';
       spd=abs(u+sqrt(-1)*v);
+      owi.Region.WinSpd{i}=spd;
+
       maxspd=max(maxspd,spd');
       
       if FillRegionGrid

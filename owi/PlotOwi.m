@@ -2,34 +2,40 @@ function h=PlotOwi(OwiStruct,i,varargin)
 %
 % h=PlotOwi(OwiStruct,index,p1,v1,...)
 %
-% PV args/defaults:
+% OwiStruct - reguired, as loaded using LoadOwi
+% index - required, time index to draw
 %
-% ColorMin=980;  
-% ColorMax=1030;  
-% ColorMap=jet(32);  
-% 
-% BasinVectorColor='r';
-% RegionVectorColor='b';
-% 
-% BasinVectorStride=10;
-% RegionVectorStride=10;
-% 
-% BasinVectorScaleFac=50;
-% RegionVectorScaleFac=20;
-% 
-% BasinPressureDraw=true;
-% BasinVectorDraw=true;
-% RegionPressureDraw=true;
-% RegionVectorDraw=true;
+% Optional PV args/defaults:
+%
+%     ContourSpeed=false;
+%     
+%     ColorMin=980;  
+%     ColorMax=1030;  
+%     ColorMap=jet(32);  
+%     
+%     BasinVectorColor='r';
+%     RegionVectorColor='b';
+%     
+%     BasinVectorStride=10;
+%     RegionVectorStride=10;
+%     
+%     BasinVectorScaleFac=50;
+%     RegionVectorScaleFac=20;
+%     
+%     BasinPressureDraw=true;
+%     BasinVectorDraw=true;
+%     RegionPressureDraw=true;
+%     RegionVectorDraw=true;
 %
 
 % Default propertyname values
 
+ContourSpeed=false;
 ColorMin=980;  
 ColorMax=1030;  
 ColorMap=jet(32);  
 
-BasinVectorColor='r';
+BasinVectorColor='k';
 RegionVectorColor='b';
 
 BasinVectorStride=10;
@@ -50,6 +56,11 @@ AxisLims=[];
 k=1;
 while k<length(varargin)
   switch lower(varargin{k})
+    case 'contourspeed'
+      ContourSpeed=varargin{k+1};
+      varargin([k k+1])=[];    
+      ColorMin=0;
+      ColorMax=50;
     case 'basinpressuredraw'
       BasinPressureDraw=varargin{k+1};
       varargin([k k+1])=[];
@@ -89,6 +100,9 @@ while k<length(varargin)
     case 'colormax'
       ColorMax=varargin{k+1};
       varargin([k k+1])=[];
+    case 'colormap'
+      ColorMap=varargin{k+1};
+      varargin([k k+1])=[];
     otherwise
       k=k+2;
   end
@@ -99,6 +113,18 @@ if length(varargin)<2
 end
 
 h=[];
+
+if ContourSpeed
+    if isfield(OwiStruct,'Basin')
+        if ~isfield(OwiStruct.Basin,'WinSpd')
+            error('ContourSpeed is true, but Basin does not contain WinSpd field.')
+        end
+    elseif isfield(OwiStruct,'Region')
+        if ~isfield(OwiStruct.Region,'WinSpd')
+            error('ContourSpeed is true, but Region does not contain WinSpd field.')
+        end
+    end
+end
 
 if ~isfield(OwiStruct.Basin,'Pre')
     BasinPressureDraw=false;
@@ -112,7 +138,7 @@ end
 if ~isfield(OwiStruct.Region,'WinU')
     RegionVectorDraw=false;
 end
-
+    
 % [BasinPressureDraw BasinVectorDraw  RegionPressureDraw RegionVectorDraw]
 
 if isempty(AxisLims)
@@ -167,9 +193,14 @@ if (BasinPressureDraw || BasinVectorDraw)
         hvb=[];
         
         if BasinPressureDraw
-            p=OwiStruct.Basin.Pre{i};
+            if ContourSpeed
+                p=OwiStruct.Basin.WinSpd{i};
+            else
+                p=OwiStruct.Basin.Pre{i};
+            end
             hpb=pcolor(Xb,Yb,p);
             shading flat
+            colormap(ColorMap)
             set(gca,'CLim',[ColorMin ColorMax])
         end
         
@@ -181,12 +212,13 @@ if (BasinPressureDraw || BasinVectorDraw)
             hvb=vecplot(Xb,Yb,u,v,...
                 'Stride',BasinVectorStride,...
                 'ScaleFac',BasinVectorScaleFac,...
+                'ScaleType','fixed',...
                 'Color',BasinVectorColor,...
                 'ScaleLabel','no scale');
         end
         
         h=[h; hpb; hvb];
-        
+        title(string(datetime(datevec(OwiStruct.Basin.time(i)))))
     end   % end if Basin
 end
 
@@ -219,6 +251,8 @@ if (RegionPressureDraw || RegionVectorDraw)
             p=OwiStruct.Region.Pre{i};
             hpr=pcolor(Xr,Yr,p);
             shading flat
+            colormap(ColorMap)
+
             set(gca,'CLim',[ColorMin ColorMax])
         end
         

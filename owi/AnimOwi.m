@@ -205,9 +205,8 @@ if BasinPressureDraw || RegionPressureDraw
     colormap(ColorMap)
     hcb=colorbar;
     mainax=gca;
-    axes(hcb)
-    ylabel('Atmospheric Pressure [millibars]')
-    axes(mainax)
+    hcb.Label.String='Atmospheric Pressure [millibars]';
+    %axes(mainax)
 end
 
 set(gcf,'Renderer','opengl')
