@@ -17,8 +17,8 @@ if iscell(FileNamePrefix)
     BasinWinFileName=FileNamePrefix{2};
     RegionPreFileName=FileNamePrefix{3};
     RegionWinFileName=FileNamePrefix{4};
-    LocalPreFileName=FileNamePrefix{3};
-    LocalWinFileName=FileNamePrefix{4};
+    LocalPreFileName=FileNamePrefix{5};
+    LocalWinFileName=FileNamePrefix{6};
 else
     BasinPreFileName=[FileNamePrefix '.221'];
     BasinWinFileName=[FileNamePrefix '.222'];
