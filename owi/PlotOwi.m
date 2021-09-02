@@ -44,7 +44,6 @@ BasinVectorColor='k';
 RegionVectorColor='b';
 LocalVectorColor='k';
 
-
 BasinVectorStride=10;
 RegionVectorStride=10;
 LocalVectorStride=10;
@@ -53,12 +52,19 @@ BasinVectorScaleFac=50;
 RegionVectorScaleFac=50;
 LocalVectorScaleFac=50;
 
+BasinVectorScaleLabel='m/s';
+RegionVectorScaleLabel='m/s';
+LocalVectorScaleLabel='m/s';
+
 BasinPressureDraw=true;
 BasinVectorDraw=true;
 RegionPressureDraw=true;
 RegionVectorDraw=true;
 LocalPressureDraw=true;
 LocalVectorDraw=true;
+
+ScaleXor=[];
+ScaleYor=[];
 
 AxisLims=[];
 
@@ -87,6 +93,9 @@ while k<length(varargin)
     case 'basinvectorcolor'
       BasinVectorColor=varargin{k+1};
       varargin([k k+1])=[];
+    case 'basinvectorscalelabel'
+      BasinVectorScaleLabel=varargin{k+1};
+      varargin([k k+1])=[];
     case 'regionpressuredraw'
       RegionPressureDraw=varargin{k+1};
       varargin([k k+1])=[];
@@ -102,6 +111,9 @@ while k<length(varargin)
     case 'regionvectorcolor'
       RegionVectorColor=varargin{k+1};
       varargin([k k+1])=[];
+    case 'regionvectorscalelabel'
+      RegionVectorScaleLabel=varargin{k+1};
+      varargin([k k+1])=[];
     case 'localpressuredraw'
       LocalPressureDraw=varargin{k+1};
       varargin([k k+1])=[];
@@ -113,6 +125,9 @@ while k<length(varargin)
       varargin([k k+1])=[];
     case 'localvectorscalefac'
       LocalVectorScaleFac=varargin{k+1};
+      varargin([k k+1])=[];
+    case 'localvectorscalelabel'
+      LocalVectorScaleLabel=varargin{k+1};
       varargin([k k+1])=[];
     case 'localvectorcolor'
       LocalVectorColor=varargin{k+1};
@@ -128,6 +143,12 @@ while k<length(varargin)
       varargin([k k+1])=[];
     case 'colormap'
       ColorMap=varargin{k+1};
+      varargin([k k+1])=[];
+    case 'scalexor'
+      ScaleXor=varargin{k+1};
+      varargin([k k+1])=[];
+    case 'scaleyor'
+      ScaleYor=varargin{k+1};
       varargin([k k+1])=[];
     otherwise
       k=k+2;
@@ -168,7 +189,6 @@ end
 if ~isfield(OwiStruct.Region,'WinU')
     RegionVectorDraw=false;
 end
- 
 if ~isfield(OwiStruct.Local,'Pre')
     LocalPressureDraw=false;
 end
@@ -208,6 +228,7 @@ end
 %[BasinPressureDraw BasinVectorDraw RegionPressureDraw RegionVectorDraw]
 %[minX maxX minY maxY]
 bndlines={'LineWidth',1,'Color','k'};
+ScaleAlreadyDrawn=false;
 
 if (BasinPressureDraw || BasinVectorDraw)
     if isfield(OwiStruct,'Basin')
@@ -247,8 +268,11 @@ if (BasinPressureDraw || BasinVectorDraw)
                 'Stride',BasinVectorStride,...
                 'ScaleFac',BasinVectorScaleFac,...
                 'ScaleType','fixed',...
+                'ScaleXor',ScaleXor,'ScaleYor',ScaleYor,...
                 'Color',BasinVectorColor,...
-                'ScaleLabel','no scale');
+                'ScaleLabel',BasinVectorScaleLabel);
+            ScaleAlreadyDrawn=true;
+            
         end
         
         hlb(1)=line(Xb(1,:),Yb(1,:),bndlines{:});
@@ -276,8 +300,6 @@ if (RegionPressureDraw || RegionVectorDraw)
         u=OwiStruct.Region.WinU{i};
         v=OwiStruct.Region.WinV{i};
         
-
-        
         hpr=[];hvr=[];
         
         if RegionPressureDraw
@@ -293,9 +315,15 @@ if (RegionPressureDraw || RegionVectorDraw)
         end
         
         if RegionVectorDraw
+            if ScaleAlreadyDrawn
+                ScaleXor=[];
+                ScaleYor=[];
+                RegionVectorScaleLabel='no scale';
+            end
             hvr=vecplot(Xr,Yr,u,v,...
-                'ScaleLabel','no scale',...
+                'ScaleLabel',RegionVectorScaleLabel,...
                 'Stride',RegionVectorStride,...
+                'ScaleXor',ScaleXor,'ScaleYor',ScaleYor,...
                 'ScaleFac',RegionVectorScaleFac,...
                 'Color',RegionVectorColor);
         end
@@ -327,7 +355,6 @@ if (LocalPressureDraw || LocalVectorDraw)
         u=OwiStruct.Local.WinU{i};
         v=OwiStruct.Local.WinV{i};
         
-        
         hpr=[];hvr=[];
         
         if LocalPressureDraw
@@ -343,9 +370,15 @@ if (LocalPressureDraw || LocalVectorDraw)
         end
         
         if LocalVectorDraw
+            if ScaleAlreadyDrawn 
+                ScaleXor=[];
+                ScaleYor=[];
+                LocalVectorScaleLabel='no scale';
+            end
             hvr=vecplot(Xl,Yl,u,v,...
-                'ScaleLabel','no scale',...
+                'ScaleLabel',LocalVectorScaleLabel,...
                 'Stride',LocalVectorStride,...
+                'ScaleXor',ScaleXor,'ScaleYor',ScaleYor,...
                 'ScaleFac',LocalVectorScaleFac,...
                 'Color',LocalVectorColor);
         end

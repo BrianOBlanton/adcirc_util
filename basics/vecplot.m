@@ -309,7 +309,6 @@ if nargout==1,retval=[hp; scaletext; ht1(:); scaleaxes];end
 % 
 
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%  PRIVATE FUNCTION TO DRAW VECTOR SCALE   %%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -326,86 +325,86 @@ if (isempty(ScaleXor) || isempty(ScaleYor)) && strcmp(ScaleType,'fixed')
 end 
 
 switch lower(ScaleType)
-   case 'fixed'
-      switch VecType
-	 case 'arrow'
-	    ht1=drawvec(ScaleXor,ScaleYor,pct10,0.,varargin{:});
-	 case 'stick'
-	    ht1=drawstick(ScaleXor,ScaleYor,pct10,0.,varargin{:});
-      end
-
-      set(ht1,'Tag','scalearrow');
-      sctext=[num2str(ScaleFac) ScaleLabel];
-      scaletext=text((ScaleXor+ScaleXor+pct10)/2,ScaleYor-(Y2-Y1)*(.05),sctext);
-      set(scaletext,'HorizontalAlignment','center');
-      set(scaletext,'VerticalAlignment','middle');
-      set(scaletext,'Tag','scaletext');
-      set(gcf,'Pointer',ptr);
-      scale_axes=[];
-
-   case 'floating'
-      mainax=ax;
-      % Draw vector scale
-      data_axis=axis;
-      xdif=data_axis(2)-data_axis(1);
-      ydif=data_axis(4)-data_axis(3);
-      dx1=data_axis(1)+xdif*.8;
-      dx2=data_axis(2);
-      dy1=data_axis(3);
-      dy2=data_axis(3)+ydif*.1;
-      
-      %cur_units=get(ax,'Units');
-      set(ax,'Units','normalized');
-      axnorm=get(ax,'Position');
-
-      if isempty(ScaleXor)
-         xstart=0;
-	 ystart=0;
-      else
-         xtemp=(ScaleXor-data_axis(1))/xdif;
-         ytemp=(ScaleYor-data_axis(3))/ydif;
-	 oldfigunits=get(gcf,'Units');
-	 set(gcf,'Units','pixels');
-	 figpixunits=get(gcf,'Position');
-	 set(gcf,'Units',oldfigunits);
-	 oldaxesunits=get(ax,'Units');
-	 set(ax,'Units','pixels');
-	 axespixunits=get(ax,'Position');
-	 set(ax,'Units',oldaxesunits);
-	 
-	 xstart=(xtemp*axespixunits(3)+axespixunits(1))/figpixunits(3);
-	 ystart=(ytemp*axespixunits(4)+axespixunits(2))/figpixunits(4);
-	 
-      end
-      
-      dx=axnorm(3)*.2;
-      dy=axnorm(4)*.1;
-      scale_axes=axes('Units','normalized','Position',[xstart ystart dx dy]);
-      %scale_axes=axes('Units','normalized','Position',[0 0 dx dy]);
-      axis([dx1 dx2 dy1 dy2])
-      sc_or_x=dx1+(dx2-dx1)/10;
-      switch VecType
-	 case 'arrow'
-            ht1=drawvec(sc_or_x,(dy1+dy2)/2.,pct10,0.,'Axes',ax,varargin{:});
-	 case 'stick'
-            ht1=drawstick(sc_or_x,(dy1+dy2)/2.,pct10,0.,varargin{:});
-      end
-
-      set(ht1,'Tag','scalearrow');
-      sctext=[num2str(ScaleFac) ScaleLabel];
-      scaletext=text((dx1+dx2)/2,dy1+(dy2-dy1)/8,sctext);
-      set(scaletext,'HorizontalAlignment','center');
-      set(scaletext,'VerticalAlignment','middle');
-      set(scaletext,'Tag','scaletext');
-      drawnow
-      set(scale_axes,'Visible','on')
-      set(scale_axes,'XTick',[],'YTick',[])
-      set(scale_axes,'Tag','vecscaleaxes');
-      set(scale_axes,'ButtonDownFcn','movescaleaxes(1)');
-      set(scale_axes,'Color',(get(mainax,'Color')))
-      axes(mainax)
-   otherwise
-      error('Invalid ScaleType Property Value in VECPLOT.')
+    case 'fixed'
+        switch VecType
+            case 'arrow'
+                ht1=drawvec(ScaleXor,ScaleYor,pct10,0.,'Linewidth',2,varargin{:});
+            case 'stick'
+                ht1=drawstick(ScaleXor,ScaleYor,pct10,0.,'Linewidth',2,varargin{:});
+        end
+        
+        set(ht1,'Tag','scalearrow');
+        sctext=[num2str(ScaleFac) ScaleLabel];
+        scaletext=text((ScaleXor+ScaleXor+pct10)/2,ScaleYor-(Y2-Y1)*(.05),sctext);
+        set(scaletext,'HorizontalAlignment','center');
+        set(scaletext,'VerticalAlignment','middle');
+        set(scaletext,'Tag','scaletext');
+        set(gcf,'Pointer',ptr);
+        scale_axes=[];
+        
+    case 'floating'
+        mainax=ax;
+        % Draw vector scale
+        data_axis=axis;
+        xdif=data_axis(2)-data_axis(1);
+        ydif=data_axis(4)-data_axis(3);
+        dx1=data_axis(1)+xdif*.8;
+        dx2=data_axis(2);
+        dy1=data_axis(3);
+        dy2=data_axis(3)+ydif*.1;
+        
+        %cur_units=get(ax,'Units');
+        set(ax,'Units','normalized');
+        axnorm=get(ax,'Position');
+        
+        if isempty(ScaleXor)
+            xstart=0;
+            ystart=0;
+        else
+            xtemp=(ScaleXor-data_axis(1))/xdif;
+            ytemp=(ScaleYor-data_axis(3))/ydif;
+            oldfigunits=get(gcf,'Units');
+            set(gcf,'Units','pixels');
+            figpixunits=get(gcf,'Position');
+            set(gcf,'Units',oldfigunits);
+            oldaxesunits=get(ax,'Units');
+            set(ax,'Units','pixels');
+            axespixunits=get(ax,'Position');
+            set(ax,'Units',oldaxesunits);
+            
+            xstart=(xtemp*axespixunits(3)+axespixunits(1))/figpixunits(3);
+            ystart=(ytemp*axespixunits(4)+axespixunits(2))/figpixunits(4);
+            
+        end
+        
+        dx=axnorm(3)*.2;
+        dy=axnorm(4)*.1;
+        scale_axes=axes('Units','normalized','Position',[xstart ystart dx dy]);
+        %scale_axes=axes('Units','normalized','Position',[0 0 dx dy]);
+        axis([dx1 dx2 dy1 dy2])
+        sc_or_x=dx1+(dx2-dx1)/10;
+        switch VecType
+            case 'arrow'
+                ht1=drawvec(sc_or_x,(dy1+dy2)/2.,pct10,0.,'Axes',ax,'Linewidth',2,varargin{:});
+            case 'stick'
+                ht1=drawstick(sc_or_x,(dy1+dy2)/2.,pct10,0.,'Linewidth',2,varargin{:});
+        end
+        
+        set(ht1,'Tag','scalearrow');
+        sctext=[num2str(ScaleFac) ScaleLabel];
+        scaletext=text((dx1+dx2)/2,dy1+(dy2-dy1)/8,sctext);
+        set(scaletext,'HorizontalAlignment','center');
+        set(scaletext,'VerticalAlignment','middle');
+        set(scaletext,'Tag','scaletext');
+        drawnow
+        set(scale_axes,'Visible','on')
+        set(scale_axes,'XTick',[],'YTick',[])
+        set(scale_axes,'Tag','vecscaleaxes');
+        set(scale_axes,'ButtonDownFcn','movescaleaxes(1)');
+        set(scale_axes,'Color',(get(mainax,'Color')))
+        axes(mainax)
+    otherwise
+        error('Invalid ScaleType Property Value in VECPLOT.')
 end
 
 
