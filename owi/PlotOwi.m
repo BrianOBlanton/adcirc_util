@@ -7,6 +7,8 @@ function h=PlotOwi(OwiStruct,i,varargin)
 %
 % Optional PV args/defaults:
 %
+%     DrawScale=false;
+%
 %     ContourSpeed=false;
 %     
 %     ColorMin=980;  
@@ -35,13 +37,15 @@ function h=PlotOwi(OwiStruct,i,varargin)
 
 % Default propertyname values
 
+DrawScale=false;
+
 ContourSpeed=false;
 ColorMin=980;  
 ColorMax=1030;  
 ColorMap=jet(32);  
 
 BasinVectorColor='k';
-RegionVectorColor='b';
+RegionVectorColor='k';
 LocalVectorColor='k';
 
 BasinVectorStride=10;
@@ -150,6 +154,9 @@ while k<length(varargin)
     case 'scaleyor'
       ScaleYor=varargin{k+1};
       varargin([k k+1])=[];
+    case 'drawscale'
+      DrawScale=varargin{k+1};
+      varargin([k k+1])=[];
     otherwise
       k=k+2;
   end
@@ -228,7 +235,11 @@ end
 %[BasinPressureDraw BasinVectorDraw RegionPressureDraw RegionVectorDraw]
 %[minX maxX minY maxY]
 bndlines={'LineWidth',1,'Color','k'};
-ScaleAlreadyDrawn=false;
+if ~DrawScale && isempty(ScaleXor)
+    ScaleAlreadyDrawn=true;
+else
+    ScaleAlreadyDrawn=false;
+end
 
 if (BasinPressureDraw || BasinVectorDraw)
     if isfield(OwiStruct,'Basin')
@@ -262,6 +273,14 @@ if (BasinPressureDraw || BasinVectorDraw)
         axis([minX maxX minY maxY])
         
         if BasinVectorDraw
+            
+            if ScaleAlreadyDrawn
+                ScaleXor=[];
+                ScaleYor=[];
+                BasinVectorScaleLabel='no scale';
+            end
+            
+            
             u=OwiStruct.Basin.WinU{i};
             v=OwiStruct.Basin.WinV{i};
             hvb=vecplot(Xb,Yb,u,v,...
