@@ -1,8 +1,16 @@
 % MakeRegAdcGrid - class to generate a rectangular ADCIRC grid
 % from "OWI" grid parameters {'iLat','iLon', 'dx','dy','SWLat','SWLon'}.
 %                 
+% Methods: 
+%   MakeRegAdcGrid - Instance the class and add coordinates and ADCIRC grid
+%                    parts
+%   expand_coords  - expand the grid parameters into 2-d lon, lat arrays
+%   make_adc_grid  - add element and boundary lists to grid
+%   write_grid     - write grid to fort.14 file, currently named "fakegrid.grd"
+%   show_grid      - make a simple plot of the simple grid
+%
 % Usage: 
-%   Instace the class:  
+%   Instance the class and add grid components:  
 %       g=MakeRegAdcGrid() returns a default small grid with 
 %           iLat: 10, iLon: 10, dx: 10, dy: 10, SWLat: 0, SWLon: 0
 %
@@ -19,13 +27,11 @@
 %           defined by the 6 grid parameters.  Order is assumed
 %           to be correct. 
 %
-% Methods: 
-%   MakeRegAdcGrid - Instance the class and add coordinates and ADCIRC grid
-%                    parts
-%   expand_coords  - expand the grid parameters into 2-d lon, lat arrays
-%   make_adc_grid  - add element and boundary lists to grid
-%   write_grid     - write grid to fort.14 file, currently named "fakegrid.grd"
-%   show_grid      - make a simple plot of the simple grid
+%    Once a grid is "built", write it to disk with 
+%    	g.write_grid
+% 
+%    Viz the simple grid with: 
+%		g.show_grid
 %
 
 classdef MakeRegAdcGrid
@@ -130,7 +136,11 @@ classdef MakeRegAdcGrid
             
         end
         
-        function write_grid(obj)
+        function write_grid(obj, name)
+            
+            if exist('name','var')
+                obj.Grid.name=name;
+            end
             
             fgs2fort14(obj.Grid)
             
