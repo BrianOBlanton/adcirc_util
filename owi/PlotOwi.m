@@ -34,6 +34,9 @@ function h=PlotOwi(OwiStruct,i,varargin)
 %     LocalPressureDraw=true;
 %     LocalVectorDraw=true;
 %
+%     ScaleXor=[];
+%     ScaleYor=[];
+%     AxisLims=[];
 
 % Default propertyname values
 
