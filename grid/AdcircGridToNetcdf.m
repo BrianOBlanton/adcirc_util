@@ -67,6 +67,9 @@ while k<length(varargin)
   end
 end
 
+if ~ strcmp(f_filename(end-1:end),'nc') 
+    f_filename=[f_filename '.nc'];
+end
 
 f = netcdf.create(f_filename, 'WRITE');
 GlobalId=netcdf.getConstant('GLOBAL');
@@ -95,30 +98,36 @@ nb=size(fem_grid_struct.bnd,1);
 nbi=4;
 DimNod=netcdf.defDim(f,'node',nn);
 DimEle=netcdf.defDim(f,'nele',ne);
-DimFac=netcdf.defDim(f,'nface',nf);
+DimFac=netcdf.defDim(f,'nvertex',nf);
 DimNbd=netcdf.defDim(f,'nbd',nb);
 DimNbi=netcdf.defDim(f,'nbi',nbi);
-DimChr=netcdf.defDim(f,'charlen',132);
 
 % variables
-VarLon = netcdf.defVar(f,'lon','double',DimNod);
-    netcdf.putAtt(f,VarLon,'long_name','Longitude');
-    netcdf.putAtt(f,VarLon,'units','degrees_east');
-    netcdf.putAtt(f,VarLon,'standard_name','Longitude');
-    netcdf.putAtt(f,VarLon,'axis','X');
+VarLon = netcdf.defVar(f,'x','double',DimNod);
+         netcdf.putAtt(f,VarLon, 'long_name',     'longitude');
+         netcdf.putAtt(f,VarLon, 'units',         'degrees_east');
+         netcdf.putAtt(f,VarLon, 'standard_name', 'longitude');
+         netcdf.putAtt(f,VarLon, 'axis',          'X');
+         netcdf.putAtt(f,VarLon, 'location',      'node');
+         netcdf.putAtt(f,VarLon, 'positive',      'east');
 
-VarLat = netcdf.defVar(f,'lat','double',DimNod);
-    netcdf.putAtt(f,VarLat,'long_name','Latitude');
-    netcdf.putAtt(f,VarLat,'units','degrees_north');
-    netcdf.putAtt(f,VarLat,'standard_name','Latitude');
-    netcdf.putAtt(f,VarLat,'axis','Y'); 
-   
+VarLat = netcdf.defVar(f,'y','double',DimNod);
+         netcdf.putAtt(f,VarLat, 'long_name',     'latitude');
+         netcdf.putAtt(f,VarLat, 'units',         'degrees_north');
+         netcdf.putAtt(f,VarLat, 'standard_name', 'latitude');
+         netcdf.putAtt(f,VarLat, 'axis',          'Y'); 
+         netcdf.putAtt(f,VarLat, 'location',      'node');
+         netcdf.putAtt(f,VarLat, 'positive',      'north');
+
 VarDep = netcdf.defVar(f,'depth','double',DimNod);
-    netcdf.putAtt(f,VarDep,'long_name','Bathymetry');
-    netcdf.putAtt(f,VarDep,'units','meters');
-    netcdf.putAtt(f,VarDep,'standard_name','depth');
-    netcdf.putAtt(f,VarDep,'axis','Y'); 
-    netcdf.putAtt(f,VarDep,'grid','tri_grid'); 
+         netcdf.putAtt(f,VarDep, 'long_name',     'distance below geoid');
+         netcdf.putAtt(f,VarDep, 'units',         'm');
+         netcdf.putAtt(f,VarDep, 'standard_name', 'depth below geoid');
+         netcdf.putAtt(f,VarDep, 'axis',          'Z'); 
+         netcdf.putAtt(f,VarDep, 'coordinates',   'time y x');
+         netcdf.putAtt(f,VarDep, 'location',      'node');
+
+    %netcdf.putAtt(f,VarDep,'grid','tri_grid'); 
 
 % f{'tri_grid'}=ncchar('charlen');
 %   f{'tri_grid'}.domain_name=fem_grid_struct.name;
@@ -127,9 +136,8 @@ VarDep = netcdf.defVar(f,'depth','double',DimNod);
 %   f{'tri_grid'}.Boundary_Segment_Node_List = 'bnd' ;
 %   f{'tri_grid'}.Index_start='1';
 %   f{'tri_grid'}.grid_type='Triangular';
-% 
 
-VarEle = netcdf.defVar(f,'ele','double',[DimEle DimFac]);
+VarEle = netcdf.defVar(f,'ele','int',[DimEle DimFac]);
 netcdf.putAtt(f,VarEle,'long_name','Horizontal_Triangular_Element_Incidence_List');
 
 % f{'ele'}=ncint('nele','nface');

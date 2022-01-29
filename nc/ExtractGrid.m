@@ -37,7 +37,7 @@ else
         if verbose, fprintf('****** Got it.\n');end
         TheGrid.x=NcTBHandle.data(temp);
     else
-        error('\nNo zonal variable found with standard_name = {longitude,x_coordinate}')
+        error('No zonal variable found with standard_name = {longitude,x_coordinate}')
     end
 end
 
@@ -51,7 +51,7 @@ else
         if verbose, fprintf('****** Got it.\n');end
         TheGrid.y=NcTBHandle.data(temp);
     else
-        error('\nNo meridional variable found with standard_name = {latitude,y_coordinate}')
+        error('No meridional variable found with standard_name = {latitude,y_coordinate}')
     end
 end
 

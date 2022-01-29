@@ -23,7 +23,7 @@ else
    dpath=[dpath '/'];
 end
 
-dpath
+%dpath
 
 g=[];
 
