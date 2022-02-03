@@ -27,9 +27,9 @@ for i=1:m
         e=com.vividsolutions.jts.geom.Envelope(p);
         l=strtree.query(e);
 
-        if l.size==0
+        if l.size>0
             %fprintf('no potential elements found for %f, %f\n',px,py);
-        else
+  %      else
             
 %             v=NaN*ones(l.size,1);
 %             for k=0:l.size-1
