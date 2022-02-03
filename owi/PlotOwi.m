@@ -15,12 +15,12 @@ function h=PlotOwi(OwiStruct,i,varargin)
 %     ColorMax=1030;  
 %     ColorMap=jet(32);  
 %     
-%     BasinVectorColor='r';
-%     RegionVectorColor='b';
-%     LocalVectorColor='g';
+%     BasinVectorColor='k';
+%     RegionVectorColor='k';
+%     LocalVectorColor='k';
 %   
-%     BasinVectorStride=10;
-%     RegionVectorStride=10;
+%     BasinVectorStride=1;
+%     RegionVectorStride=3;
 %     LocalVectorStride=10;
 %     
 %     BasinVectorScaleFac=50;
@@ -48,8 +48,9 @@ BasinVectorColor='k';
 RegionVectorColor='k';
 LocalVectorColor='k';
 
-BasinVectorStride=10;
-RegionVectorStride=10;
+%BasinVectorStride=1;    %for OWI basin grid
+BasinVectorStride=7;    %for COAMPS basin grid
+RegionVectorStride=3;
 LocalVectorStride=10;
 
 BasinVectorScaleFac=50;
@@ -253,9 +254,10 @@ if (BasinPressureDraw || BasinVectorDraw)
         x=SWLon+(0:iLong-1)*DX;
         y=SWLat+(0:iLat-1)*DY;
         [Xb,Yb]=meshgrid(x,y);
+        u=OwiStruct.Basin.WinU{i};
+        v=OwiStruct.Basin.WinV{i};
         
-        hpb=[];
-        hvb=[];
+        hpb=[];hvb=[];
         
         if BasinPressureDraw
             if ContourSpeed
@@ -264,25 +266,21 @@ if (BasinPressureDraw || BasinVectorDraw)
                 p=OwiStruct.Basin.Pre{i};
             end
             hpb=pcolor(Xb,Yb,p);
-            shading flat
+%            shading flat
+             shading interp
             colormap(ColorMap)
             set(gca,'CLim',[ColorMin ColorMax])
         end
         
         axis('equal')
         axis([minX maxX minY maxY])
-        
+       
         if BasinVectorDraw
-            
             if ScaleAlreadyDrawn
                 ScaleXor=[];
                 ScaleYor=[];
                 BasinVectorScaleLabel='no scale';
             end
-            
-            
-            u=OwiStruct.Basin.WinU{i};
-            v=OwiStruct.Basin.WinV{i};
             hvb=vecplot(Xb,Yb,u,v,...
                 'Stride',BasinVectorStride,...
                 'ScaleFac',BasinVectorScaleFac,...
@@ -291,14 +289,12 @@ if (BasinPressureDraw || BasinVectorDraw)
                 'Color',BasinVectorColor,...
                 'ScaleLabel',BasinVectorScaleLabel);
             ScaleAlreadyDrawn=true;
-            
         end
         
         hlb(1)=line(Xb(1,:),Yb(1,:),bndlines{:});
         hlb(2)=line(Xb(end,:),Yb(end,:),bndlines{:});
         hlb(3)=line(Xb(:,1),Yb(:,1),bndlines{:});
         hlb(4)=line(Xb(:,end),Yb(:,end),bndlines{:});
-        
         h=[h; hpb; hvb];
         title(string(datetime(datevec(OwiStruct.Basin.time(i)))))
     end   % end if Basin
@@ -320,18 +316,22 @@ if (RegionPressureDraw || RegionVectorDraw)
         v=OwiStruct.Region.WinV{i};
         
         hpr=[];hvr=[];
-        
+   
         if RegionPressureDraw
             if ~ishold
                 hold on
             end
-            p=OwiStruct.Region.Pre{i};
+            if ContourSpeed
+                p=OwiStruct.Region.WinSpd{i};
+            else
+                p=OwiStruct.Region.Pre{i};
+            end
             hpr=pcolor(Xr,Yr,p);
-            shading flat
+%           shading flat
+            shading interp
             colormap(ColorMap)
-
             set(gca,'CLim',[ColorMin ColorMax])
-        end
+        end                   
         
         if RegionVectorDraw
             if ScaleAlreadyDrawn
@@ -346,14 +346,12 @@ if (RegionPressureDraw || RegionVectorDraw)
                 'ScaleFac',RegionVectorScaleFac,...
                 'Color',RegionVectorColor);
         end
-        
-        
-        hlr(1)=line(Xr(1,:),Yr(1,:),bndlines{:});
-        hlr(2)=line(Xr(end,:),Yr(end,:),bndlines{:});
-        hlr(3)=line(Xr(:,1),Yr(:,1),bndlines{:});
-        hlr(4)=line(Xr(:,end),Yr(:,end),bndlines{:});
-        
-        h=[h; hpr; hvr];
+                
+%        hlr(1)=line(Xr(1,:),Yr(1,:),bndlines{:});
+%        hlr(2)=line(Xr(end,:),Yr(end,:),bndlines{:});
+%        hlr(3)=line(Xr(:,1),Yr(:,1),bndlines{:});
+%        hlr(4)=line(Xr(:,end),Yr(:,end),bndlines{:});
+%        h=[h; hpr; hvr];
         
     end   % end if Region
 end
@@ -375,18 +373,22 @@ if (LocalPressureDraw || LocalVectorDraw)
         v=OwiStruct.Local.WinV{i};
         
         hpr=[];hvr=[];
-        
+
         if LocalPressureDraw
             if ~ishold
                 hold on
+            end                   
+            if ContourSpeed
+                p=OwiStruct.Local.WinSpd{i};
+            else
+                p=OwiStruct.Local.Pre{i};
             end
-            p=OwiStruct.Local.Pre{i};
             hpr=pcolor(Xl,Yl,p);
-            shading flat
+%           shading flat
+            shading interp
             colormap(ColorMap)
-
             set(gca,'CLim',[ColorMin ColorMax])
-        end
+        end                   
         
         if LocalVectorDraw
             if ScaleAlreadyDrawn 
@@ -402,13 +404,11 @@ if (LocalPressureDraw || LocalVectorDraw)
                 'Color',LocalVectorColor);
         end
         
-        hlr(1)=line(Xl(1,:),Yl(1,:),bndlines{:});
-        hlr(2)=line(Xl(end,:),Yl(end,:),bndlines{:});
-        hlr(3)=line(Xl(:,1),Yl(:,1),bndlines{:});
-        hlr(4)=line(Xl(:,end),Yl(:,end),bndlines{:});
-  
-
-        h=[h; hpr; hvr];
+%        hlr(1)=line(Xl(1,:),Yl(1,:),bndlines{:});
+%        hlr(2)=line(Xl(end,:),Yl(end,:),bndlines{:});
+%        hlr(3)=line(Xl(:,1),Yl(:,1),bndlines{:});
+%        hlr(4)=line(Xl(:,end),Yl(:,end),bndlines{:});
+%        h=[h; hpr; hvr];
         
     end   % end if Local
 end
