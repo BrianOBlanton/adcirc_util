@@ -1,0 +1,117 @@
+<deployment-project plugin="plugin.apptool" plugin-version="1.0">
+  <configuration build-checksum="3343555209" file="/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/adcircAnimator/ADCIRC_Animator_V1.1_1.prj" location="/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/adcircAnimator" name="ADCIRC_Animator_V1.1_1" target="target.mlapps" target-name="Package App">
+    <param.appname>ADCIRC_Animator_V1.1_1</param.appname>
+    <param.authnamewatermark>Brian Blanton</param.authnamewatermark>
+    <param.email>bblanton@renci.org</param.email>
+    <param.company>Renaissance Computing Institute</param.company>
+    <param.icon />
+    <param.icons />
+    <param.summary>MATLAB App to viz basic ADCIRC output netCDF files</param.summary>
+    <param.description />
+    <param.screenshot>/private/var/folders/s9/8765fz9n3xd2jn8jj_1p41mw0000gn/T/tp123a59a2_11d8_4a90_8c3e_acd0a2e3525a.png</param.screenshot>
+    <param.version>1.1</param.version>
+    <param.products.name />
+    <param.products.id />
+    <param.products.version />
+    <param.platforms>
+      <item>maci64</item>
+    </param.platforms>
+    <param.output>${PROJECT_ROOT}</param.output>
+    <param.guid>139d248a-6690-4581-b856-7336ee725a86</param.guid>
+    <unset>
+      <param.icon />
+      <param.icons />
+      <param.description />
+      <param.products.name />
+      <param.products.id />
+      <param.products.version />
+      <param.output />
+    </unset>
+    <fileset.main>
+      <file>${PROJECT_ROOT}/adcircAnimator.mlapp</file>
+    </fileset.main>
+    <fileset.depfun>
+      <file>${PROJECT_ROOT}/Left_64.png</file>
+      <file>${PROJECT_ROOT}/Right_64.png</file>
+      <file>${PROJECT_ROOT}/plot_google_map.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/basics/drawstick.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/basics/drawvec.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/basics/numscal.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/basics/vecplot.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/AdcircCppForward.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/attach_elem_centroids.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/belint.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/detbndy.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/el_areas.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/findelem.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/is_valid_struct.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/grid/is_valid_struct2.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/mex/contmex5.mexmaci64</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/mex/findelemex5.mexmaci64</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/mex/findelemex52.mexmaci64</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/nc/ExtractGrid.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/viz/colormesh2d.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/viz/drawelems.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/viz/lcontour.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/viz/numelems.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/viz/numnodes.m</file>
+      <file>/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/viz/plotbnd.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/cfdataset.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/ncdataset.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/ncgeodataset.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/ncgeovariable.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/ncvariable.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/interp/av2.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/interp/complex_ongrid.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/misc/indexing.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/misc/near.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/misc/near_lonlat.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/misc/sw_dist.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/misc/utc2sdn.m</file>
+      <file>/Users/bblanton/GitHub/nctoolbox/cdm/utilities/misc/value4key.m</file>
+      <file>/Users/bblanton/GitHub/plot_google_map/makescale.m</file>
+      <file>/Users/bblanton/MATSVN/LocalMatlab/ColorBars/cpt2mat.m</file>
+      <file>/Users/bblanton/MATSVN/LocalMatlab/misc/GetCurrentPoint.m</file>
+      <file>/Users/bblanton/MATSVN/LocalMatlab/misc/range.m</file>
+      <file>/Users/bblanton/matlab/api_key.mat</file>
+    </fileset.depfun>
+    <fileset.resources />
+    <fileset.package />
+    <build-deliverables>
+      <file location="/Users/bblanton/GitHub/BrianOBlanton/adcirc_util" name="adcircAnimator" optional="false">/Users/bblanton/GitHub/BrianOBlanton/adcirc_util/adcircAnimator</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>/Applications/MATLAB_R2020b.app</root>
+      <toolboxes>
+        <toolbox name="matlabcoder" />
+        <toolbox name="neuralnetwork" />
+      </toolboxes>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <neuralnetwork>
+          <enabled>true</enabled>
+        </neuralnetwork>
+      </toolbox>
+    </matlab>
+    <platform>
+      <unix>true</unix>
+      <mac>true</mac>
+      <windows>false</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.16</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>maci64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>
