@@ -3,9 +3,8 @@ function  retval=vecplot(xin,yin,uin,vin,varargin)
 % VECPLOT draws vectors on the current axes, given 
 % vector origins (x,y) and vector magnitudes (u,v).
 %
-% VECPLOT scales the magnitude of 
-% (u,v) by the magnitude of max(abs(u,v)) and then 
-% forces a vector of magnitude sc to be 10% of the x data
+% VECPLOT scales the magnitude of (u,v) by the magnitude of max(abs(u,v)) 
+% and then sets a vector of magnitude sc to be 10% of the x data
 % range.  By default, sc = 1., so that a 1 m/s vector will
 % be scaled to 10% of the x data range.  If sc=.5, then
 % a vector magnitude of 50 cm/s  will be scaled to 10% of the 
@@ -82,7 +81,7 @@ if length(uin)~=length(vin) || length(xin)~=length(yin) || length(xin)~=length(u
   error(err3)
 end
 
-% Default propertyname values
+% Default property names/values
 MinThresh=0.;
 MaxThresh=Inf;
 ScaleLabel='m/s';
