@@ -3,6 +3,7 @@ function WriteOwi(D,filename)
 %
 %  original code for Basin and Region domains by B Blanton
 %  additional code for an additional Local domain by R Luettich  2/9/2022
+%  fixed bug in 1st header line in regional, local files  RL     2/14/2022
 %
 % WriteOwi(Owi,filename)
 % 
@@ -123,14 +124,14 @@ t1=datestr(bt0,30);
 t1([9 14 15])=[];
 t2=datestr(bt1,30);
 t2([9 14 15])=[];
-header=sprintf('Oceanweather WIN/PRE Format                        %12s     %12s',t1,t2);
+header1=sprintf('Oceanweather WIN/PRE Format                        %12s     %12s',t1,t2);
 
 % write out Basin grid
 fprintf('Writing Basin files:  ')
 fidw=fopen(BasinWinFile,'w');
 fidp=fopen(BasinPreFile,'w');
-fprintf(fidw,'%s\n',header);
-fprintf(fidp,'%s\n',header);
+fprintf(fidw,'%s\n',header1);
+fprintf(fidp,'%s\n',header1);
 
 for i=1:length(D.Basin.time)
     
@@ -138,7 +139,7 @@ for i=1:length(D.Basin.time)
    t([9 14 15])=[];
    header=sprintf(time_string,D.Basin.iLat(i),D.Basin.iLong(i),...
        D.Basin.DX(i),D.Basin.DY(i),D.Basin.SWLat(i),D.Basin.SWLon(i),t);
-   fprintf('%s\n',header);
+   %fprintf('%s\n',header);
    
    out=D.Basin.Pre{i};
    fprintf(fidp,'%s\n',header);   
@@ -168,8 +169,8 @@ if Region
     fprintf('Writing Region files:  ')
     fidw=fopen(RegionWinFile,'w');
     fidp=fopen(RegionPreFile,'w');
-    fprintf(fidw,'%s\n',header);
-    fprintf(fidp,'%s\n',header);
+    fprintf(fidw,'%s\n',header1);
+    fprintf(fidp,'%s\n',header1);
     
     for i=1:length(D.Region.time)
         
@@ -177,7 +178,7 @@ if Region
         t([9 14 15])=[];
         header=sprintf(time_string,D.Region.iLat(i),D.Region.iLong(i),...
             D.Region.DX(i),D.Region.DY(i),D.Region.SWLat(i),D.Region.SWLon(i),t);
-        fprintf('%s\n',header);
+        %fprintf('%s\n',header);
         
         out=D.Region.Pre{i};
         fprintf(fidp,'%s\n',header);
@@ -208,8 +209,8 @@ if Local
     fprintf('Writing Local files:  ')
     fidw=fopen(LocalWinFile,'w');
     fidp=fopen(LocalPreFile,'w');
-    fprintf(fidw,'%s\n',header);
-    fprintf(fidp,'%s\n',header);
+    fprintf(fidw,'%s\n',header1);
+    fprintf(fidp,'%s\n',header1);
     
     for i=1:length(D.Local.time)
         
@@ -217,7 +218,7 @@ if Local
         t([9 14 15])=[];
         header=sprintf(time_string,D.Local.iLat(i),D.Local.iLong(i),...
             D.Local.DX(i),D.Local.DY(i),D.Local.SWLat(i),D.Local.SWLon(i),t);
-        fprintf('%s\n',header);
+        %fprintf('%s\n',header);
         
         out=D.Local.Pre{i};
         fprintf(fidp,'%s\n',header);
