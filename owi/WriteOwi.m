@@ -2,8 +2,9 @@ function WriteOwi(D,filename)
 %WriteOwi - output OWI-formatted wind/pressure files from an OwiStruct 
 %
 %  original code for Basin and Region domains by B Blanton
-%  additional code for an additional Local domain by R Luettich  2/9/2022
-%  fixed bug in 1st header line in regional, local files  RL     2/14/2022
+%  additional code for an additional Local domain by R Luettich    2/9/2022
+%  fixed bug in 1st header line in regional, local files       RL 2/14/2022
+%  fixed bug (eliminate minutes) in 1st header line, all files RL 2/28/2022
 %
 % WriteOwi(Owi,filename)
 % 
@@ -15,7 +16,7 @@ function WriteOwi(D,filename)
 %                      To specify the filename for each OWI file, pass in a 
 %                      cell with 6 values.  E.g.:
 %                      {'hur_Basin.pre','hur_Basin.win','hur_Region.pre',
-%                       'hur_Region.win','hur_Local.win','hur_Local.pre'}
+%                       'hur_Region.win','hur_Local.pre','hur_Local.win'}
 %
 
 flds={'time','iLat','iLong', 'DX','DY','SWLat','SWLon',...
@@ -121,10 +122,10 @@ if Local
 end
 
 t1=datestr(bt0,30);
-t1([9 14 15])=[];
+t1([9 12 13 14 15])=[];
 t2=datestr(bt1,30);
-t2([9 14 15])=[];
-header1=sprintf('Oceanweather WIN/PRE Format                        %12s     %12s',t1,t2);
+t2([9 12 13 14 15])=[];
+header1=sprintf('Oceanweather WIN/PRE Format                            %10s     %10s',t1,t2);
 
 % write out Basin grid
 fprintf('Writing Basin files:  ')
