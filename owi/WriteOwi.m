@@ -4,7 +4,7 @@ function WriteOwi(D,filename)
 %  original code for Basin and Region domains by B Blanton
 %  additional code for an additional Local domain by R Luettich    2/9/2022
 %  fixed bug in 1st header line in regional, local files       RL 2/14/2022
-%  fixed bug (eliminate minutes) in 1st header line, all files RL 2/28/2022
+%  eliminated minutes in 1st header line, all files RL 2/28/2022
 %
 % WriteOwi(Owi,filename)
 % 
