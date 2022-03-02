@@ -9,7 +9,7 @@ function WriteOwi(D,filename)
 % 
 % INPUT:    D        - an OwiStruct .  See OwiStruct for details.
 %           filename - prefix for file set.  
-%                      If empty, WriteOwi writes to fort.22{1,2,3,4,5,6} as needed. 
+%                      If empty, WriteOwi writes to fort.2{21,22,23,24,17,18} as needed. 
 %                      If a string, WriteOwi appends "win", "pre", "_Basin",  
 %                      "_Region", "_Local" as needed.
 %                      To specify the filename for each OWI file, pass in a 
@@ -42,7 +42,7 @@ end
 
 Local=true;
 if ~isfield(D,'Local') || isempty(D.Local)
-    fprintf('No local specified.  So no 225,226 files.\n')
+    fprintf('No local specified.  So no 217,218 files.\n')
     Local=false;
 else
     if ~all(isfield(D.Local,flds))
@@ -56,16 +56,16 @@ if ~exist('filename')
    % exit if fort.22{1,2,3,4,5,6} files already exist.  Will NOT overwrite...
    if  any([exist([filename '.221']) exist([filename '.222'])  ...
             exist([filename '.223']) exist([filename '.224'])  ...
-            exist([filename '.225']) exist([filename '.226'])])
-       str={'At least one fort.22{1,2,3,4,5,6} file exists and I cowardly refuse to overwrite.'};
+            exist([filename '.217']) exist([filename '.218'])])
+       str={'At least one fort.22{1,2,3,4} or fort.21{7,8} file exists and I cowardly refuse to overwrite.'};
        error(str{:});
    end
-   BasinPreFile='fort.221'; 
-   BasinWinFile='fort.222';
+   BasinPreFile ='fort.221'; 
+   BasinWinFile ='fort.222';
    RegionPreFile='fort.223'; 
    RegionWinFile='fort.224';
-   LocalPreFile='fort.225'; 
-   LocalWinFile='fort.226';
+   LocalPreFile ='fort.217'; 
+   LocalWinFile ='fort.218';
 else
     if ischar(filename)
         BasinPreFile=[filename '_Basin.pre'];
