@@ -92,7 +92,11 @@ plotbnd(g)
 %shading flat
 %set_height(h,1)
 %[hst,axx]=stamp_right(datestr(t(i)));
-%axis('equal')
+axis('equal')
 %axis('tight')
+if ~isnan(p.AxisLims)
+   axis(p.AxisLims) 
+end
+
 title(p.Title,'FontSize',14,'Interpreter','none')
 drawnow
