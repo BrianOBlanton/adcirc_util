@@ -13,6 +13,7 @@ addpath([ADCPTH '/misc'])
 addpath([ADCPTH '/tides'])   
 addpath([ADCPTH '/owi'])   
 addpath([ADCPTH '/adcircAnimator'])   
+addpath([ADCPTH '/extern'])   
 addpath([ADCPTH '/extern/parseargs'])   
 
 % add javapath for jts
