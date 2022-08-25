@@ -1,9 +1,10 @@
 function [h,g]=PlotMax63nc(varargin)
 % [h,g]=PlotMax63nc(varargin)
 %
-% Plot63nc draw a timestep of an ADCIRC 63 file in netCDF format
-% Required inputs: 
-% 
+% Plot63nc draw an ADCIRC maxele 63 netCDF file
+% Required inputs: None.  The default behavior expects a maxele.63.nc file
+%                  in the local directory.        
+%
 % P/V pairs:
 %     AxisLims        - plot axis limits, as in the axis command (def=grid lims)
 %     ColorMin        - min pressure to clip below (def=950)
@@ -27,7 +28,7 @@ p.ColorMax=NaN;
 p.ColorMap=jet(32);  
 p.SetUpAxes=true;
 p.AxesHandle=NaN;
-p.filename='maxele.63.nc';
+p.FileName='maxele.63.nc';
 p.NewFig=false;
 p.Grid='';
 
@@ -40,19 +41,19 @@ if nargin==0
 %   disp('Plot63nc(g,nc) OR:')
 %   disp('Plot63nc(fgs,nc,p1,v1,p2,v2,...)')
 %   return
-    if ~exist(p.filename,'file')
-        error('If no arguments, maxele.63.nc must locally exist.')
+    if ~exist(p.FileName,'file')
+        error('maxele.63.nc file not found.')
     end   
 end
 
 try 
-    nc=ncgeodataset(p.filename);
+    nc=ncgeodataset(p.FileName);
 catch
-    error('nc file %s not found.',p.filename);
+    error('nc file %s not found or failed to open.',p.FileName);
 end
 
 % get filename in case its not maxele
-[~,b,~]=fileparts(p.filename); 
+[~,b,~]=fileparts(p.FileName); 
 fvar=strtok(b,'.');
 
 if isempty(p.Grid)
@@ -76,7 +77,7 @@ colormap(p.ColorMap)
 colorbar
    
 if isempty(p.Title)
-    p.Title=sprintf('%s',p.filename);
+    p.Title=sprintf('%s',p.FileName);
 end
 
 zz=nc{AdcUtil.MaxVarMapping.(fvar)}(:)';

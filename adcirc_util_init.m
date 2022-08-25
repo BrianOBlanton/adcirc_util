@@ -3,7 +3,7 @@ echo off
 
 AdcUtil.MaxVarMapping.maxele='zeta_max';
 AdcUtil.MaxVarMapping.maxvel='vel_max';
-AdcUtil.MaxVarMapping.maxwvel={'u-wind','v-wind'};
+AdcUtil.MaxVarMapping.maxwvel='wind_max';
 AdcUtil.MaxVarMapping.initiallydry='initiallydry';
 AdcUtil.MaxVarMapping.maxinundepth='inun_max';
 
