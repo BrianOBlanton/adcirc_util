@@ -89,7 +89,8 @@ for i=1:ncomp
    PERNAMES{i}=fscanf(fid,'%s',[1]);
 end
 
-nnodes=fscanf(fid,'%d',1);
+nnodes=15;
+fscanf(fid,'%d',1);
 
 UA=NaN*ones(nnodes,ncomp);
 UG=NaN*ones(nnodes,ncomp);
@@ -100,10 +101,10 @@ for i=1:nnodes
    n=fscanf(fid,'%d',1);
    for j=1:ncomp
       temp=fscanf(fid,'%f %f %f %f',[1 4]);
-      UA(n,j)=temp(1);
-      UG(n,j)=temp(2);
-      VA(n,j)=temp(3);
-      VG(n,j)=temp(4);
+      UA(i,j)=temp(1);
+      UG(i,j)=temp(2);
+      VA(i,j)=temp(3);
+      VG(i,j)=temp(4);
    end
 end
 

@@ -125,12 +125,15 @@ phi=NaN*ones(length(j),3);
 
 % Extract local information
 n3=fem_grid_struct.e(j(inan),:);
+
 x=fem_grid_struct.x(n3);
 if length(xp)==1,x=x';end
 x1=x(:,1);x2=x(:,2);x3=x(:,3);
+
 y=fem_grid_struct.y(n3);
 if length(xp)==1,y=y';end
 y1=y(:,1);y2=y(:,2);y3=y(:,3);
+
 area=fem_grid_struct.ar(j(inan));
 
 xptemp=xp(inan);

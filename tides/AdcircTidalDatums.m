@@ -29,6 +29,7 @@ AdcircHaStruct.FREQ(idxz0)=[];
 
 %           'M2' 'S2' 'N2' 'K2' 'O1' 'K1' 'P1' 'Q1'
 UseTheseConstits={'M2' 'S2' 'N2' 'K2' 'O1' 'K1' 'P1' 'Q1'};
+%UseTheseConstits={'M2' 'S2' 'N2' 'O1' 'K1' 'Q1'};
 [~,TheseFreqs]=ismember(UseTheseConstits,AdcircHaStruct.PERNAMES);
 %TheseFreqs=[2:23];
 %TheseFreqs

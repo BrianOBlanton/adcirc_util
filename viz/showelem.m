@@ -27,8 +27,6 @@ if ~is_valid_struct(fem_grid_struct)
    error('    fem_grid_struct to SHOWELEM invalid.')
 end
 
-
-
 if ~exist('ie')
    ie=findelem(fem_grid_struct);
 end
@@ -49,7 +47,7 @@ ye=[y(e(ie,1)) y(e(ie,2)) y(e(ie,3)) y(e(ie,1))];
 patch(xe,ye,'r');
 hline(yc(1));
 vline(xc(1));
-text(xc,yc,num2str(ie,6),'Color','k','HorizontalAlignment','Center','FontWeight','bold');
+text(xc,yc,int2str(ie),'Color','k','HorizontalAlignment','Center','FontWeight','bold');
    
 
 delete(findobj(0,'Type','figure','Tag','Element Info Fig'));

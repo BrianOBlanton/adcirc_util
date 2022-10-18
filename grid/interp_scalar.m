@@ -74,7 +74,7 @@ B=fem_grid_struct.B;
 if isempty(x)
    disp('Click on a point ...');
    waitforbuttonpress;
-   Pt=gcp;
+   Pt=GetCurrentPoint;
    x=Pt(2);y=Pt(4);
    line(x,y,'LineStyle','none','Marker','+')
    j=[];

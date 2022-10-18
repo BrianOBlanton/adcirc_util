@@ -1,6 +1,6 @@
 function AddAdcircPaths(ADCPTH)
-addpath(genpath([ADCPTH]))
-return
+%addpath(genpath([ADCPTH]))
+%return
 
 addpath([ADCPTH '/basics'])
 addpath([ADCPTH '/owi'])

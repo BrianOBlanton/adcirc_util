@@ -9,14 +9,12 @@ if ~exist(FileName,'file')
    error('%s does not exist.',FileName)
 end
 
-
 f_out=[FileName '.nc'];
 if exist(f_out,'file')
     error([f_out ' already exists. Terminal.'])
 end
 
-
-[pathstr,name,Type]=fileparts(FileName);
+[~,~,Type]=fileparts(FileName);
 Type=Type(2:end);
 if ~any(strcmpi(Type,{'221','222','223','224','pre','wnd','win'}))
    error('WND/PRE file extension (%s) must be 221|222|223|224|win|wnd|pre.',Type)
@@ -67,20 +65,20 @@ while ~feof(fid)
 
         if any(strcmpi(Type,{'222','224','wnd','win'})) 
         
-            nccreate(f_out,'windx','Dimensions',{'y' 'x' 'time'},'Format','netcdf4', 'ChunkSize',  [iLong iLat 1]);
+            nccreate(f_out,'windx','Dimensions',{'y' 'x' 'time'},'Format','netcdf4'); % , 'ChunkSize',  [iLong iLat 1]);
                 ncwriteatt(f_out,'windx','long_name','e/w wind velocity');
                 ncwriteatt(f_out,'windx','standard_name','eastward_wind');
                 ncwriteatt(f_out,'windx','units','m/s');
                 ncwriteatt(f_out,'windx','positive','east');
 
-            nccreate(f_out,'windy','Dimensions',{'y' 'x' 'time'},'Format','netcdf4', 'ChunkSize',  [iLong iLat 1]);
+            nccreate(f_out,'windy','Dimensions',{'y' 'x' 'time'},'Format','netcdf4'); % , 'ChunkSize',  [iLong iLat 1]);
                 ncwriteatt(f_out,'windy','long_name','n/s wind velocity');
                 ncwriteatt(f_out,'windy','standard_name','northward_wind');
                 ncwriteatt(f_out,'windy','units','m/s');
                 ncwriteatt(f_out,'windy','positive','north');
             
         else
-           nccreate(f_out,'pressure','Dimensions',{'y' 'x' 'time'},'Format','netcdf4', 'ChunkSize',  [iLong iLat 1]);
+           nccreate(f_out,'pressure','Dimensions',{'y' 'x' 'time'},'Format','netcdf4'); % , 'ChunkSize',  [iLong iLat 1]);
                 ncwriteatt(f_out,'pressure','long_name','air pressure at sea level');
                 ncwriteatt(f_out,'pressure','standard_name','air_pressure_at_sea_level');
                 ncwriteatt(f_out,'pressure','units','meters of water');
@@ -97,7 +95,6 @@ while ~feof(fid)
     end
    
     if Debug
-        t=Type;
         if any(strcmpi(Type,{'222','224','wnd','win'})) 
             t='windx';
             fprintf('Scanning [%d x %d] %s values at time=%s\n',iLong,iLat,t,datestr(ctime,0))

@@ -6,9 +6,7 @@ j=NaN*ones(m,n);
 if ~exist('TOL')
     TOL=1e-2;
 end
-
 strtree=fgs.strtree;
-
 %%
 %tic;
 for i=1:m
@@ -29,8 +27,7 @@ for i=1:m
 
         if l.size>0
             %fprintf('no potential elements found for %f, %f\n',px,py);
-  %      else
-            
+%        else
 %             v=NaN*ones(l.size,1);
 %             for k=0:l.size-1
 %                 v(k+1)=l.get(k);
@@ -44,7 +41,6 @@ for i=1:m
 %                j(i,ii)=v(idx(1));
                 jtemp(ii)=v(idx(1));
             end
-
         end
     end
     j(i,:)=jtemp;
