@@ -6,4 +6,3 @@ elseif any(ismember(nc.variables,'time'))
 else
     error('Time variable not found in nc.')
 end
-
