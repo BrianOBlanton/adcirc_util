@@ -95,7 +95,9 @@ if nargin==3
 end
             
 [nrowQ,ncolQ]=size(Q);
-if ncolQ>1,error(err4);end
+if ncolQ>1
+    error('Scalar to colorize must be 1-D.')
+end
 if nrowQ ~= length(x)
    error('length of scalar must be the same length as coordinate vectors')
 
