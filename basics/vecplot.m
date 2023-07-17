@@ -271,7 +271,7 @@ switch VecType
         end
         
         hp=drawvec(x,y,us,vs,'Axes',ax,varargin{:});
-        set(hp,'UserData',[xin yin uin vin]);
+        set(hp,'UserData',[xin(:) yin(:) uin(:) vin(:)]);
     case 'stick'
         hp=drawstick(x,y,us,vs,varargin{:});
         set(hp(1),'UserData',[xin yin uin vin]);
