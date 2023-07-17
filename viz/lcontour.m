@@ -116,12 +116,12 @@ end
 
 for kk=1:length(cval)
     if ch(kk)
-        %if ismap(ax)     
-        %    h(kk)=linem(ax,YY{kk},XX{kk});
-        %else
+        if ismap(ax)     
+            h(kk)=linem(YY{kk},XX{kk});
+        else
 %            h(kk)=line(ax,XX{kk},YY{kk},ones(size(XX{kk})));
             h(kk)=line(ax,XX{kk},YY{kk});
-        %end
+        end
         set(h(kk),'LineStyle','-',varargin{:},'UserData',cval(kk),'Tag','contour','Clipping','on')
         set(h(kk),'DisplayName',sprintf('%.2f',cval))
     end

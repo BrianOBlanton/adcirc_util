@@ -129,7 +129,7 @@ for i=1:fem_grid_struct.nland
 
    switch fem_grid_struct.ibtype(i)    % On ibtype
    
-   case {0, 1, 2, 10, 11, 12, 20, 21, 22, 30, 52} 
+   case {0, 1, 2, 10, 11, 12, 20, 21, 22, 30, 32, 52} 
        temp=NaN*ones(fem_grid_struct.nlandnodes(i),1);
        for j=1:fem_grid_struct.nlandnodes(i)
           temp(j)=fscanf(fid,'%d',1);
