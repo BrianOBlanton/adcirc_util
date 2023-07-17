@@ -10,7 +10,7 @@ function [lambda,phi] = AdcircCppInverse(x,y,lambda0, phi0)
 % Outputs:
 %   lambda  : longitude in degrees
 %   phi     : latitude in degrees
-
+%
 % Call as: [lambda,phi] = AdcircCppInverse(x,y,lambda0,phi0)
 
 r=6378206.4d0;

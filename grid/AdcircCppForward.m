@@ -11,7 +11,7 @@ function [x,y]=AdcircCppForward(lambda,phi,lambda0,phi0)
 %   x       : projected longitude (m)
 %   y       : projected latitude (m)
 %
-
+%
 % Call as: [x,y]=AdcircCppForward(lambda,phi,lambda0,phi0);
 
 % if range(lambda)<1
