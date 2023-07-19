@@ -24,7 +24,7 @@ To add ADCIRC paths to the MATLAB MATLABPATH variable in the user's matlab/start
 ## Basic commands
 
 ### Load a grid
-<pre>g=loadgrid('gridname');</pre>
+<pre>g=grd_to_opnml('gridname');</pre>
 
 or, using nctoolbox and a url to a ADCIRC netCDF "global" file: 
 <pre>
