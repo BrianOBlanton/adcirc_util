@@ -142,10 +142,10 @@ hel=line(ax,xt,yt,'Color','k',varargin{:},'Tag','elements');
 %hel=line(xt,yt,zt,varargin{:},'Tag','elements');
 %set(hel,'ApplicationData',zt);
 
-if (abs(MeshHeight)>eps)
-   nz=MeshHeight*ones(size(get(hel,'XData')));
-   set(hel,'ZData',nz)
-end
+% if (abs(MeshHeight)>eps)
+%    nz=MeshHeight*ones(size(get(hel,'XData')));
+%    set(hel,'ZData',nz)
+% end
 
 
 % if exist('plotfx')

@@ -12,7 +12,6 @@ function fem_grid_struct=grd_to_opnml(fort14name,verbose)
 % Call:   fem_grid_struct=grd_to_opnml(fort14name);
 %         fem_grid_struct=grd_to_opnml;
 
-
 if ~exist('verbose','var')
    verbose=false;
 end
