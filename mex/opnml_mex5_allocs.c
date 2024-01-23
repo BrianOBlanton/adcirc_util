@@ -203,7 +203,7 @@ void opnmlerror(char *error_text,char *routine_name,int line_number,int error_co
 	exit(error_code);
 } 
 
-void opnmlerror2(char *error_text,char *routine_name,int error_code)
+/* void opnmlerror2(char *error_text,char *routine_name,int error_code)
 {
    int i,line_number=0,nrow;
    nrow=sizeof(error_text)/sizeof(char *);
@@ -212,11 +212,12 @@ void opnmlerror2(char *error_text,char *routine_name,int error_code)
      fprintf(stderr,"%s",error_text[i]);
    
    fprintf(stderr,"Routine: %s\n",routine_name);
-   /*fprintf(stderr,"Line Number: %d\n",line_number);*/
+   fprintf(stderr,"Line Number: %d\n",line_number);
    fprintf(stderr,"INTERNAL ERROR CODE: %d\n\n",error_code);
    
    exit(error_code);
 } 
+*/ 
 
 void nrerror(char error_text[])
 /* Numerical Recipes standard error handler */
