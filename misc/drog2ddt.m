@@ -155,7 +155,8 @@ end
 j=findelem(fem_grid_struct,[xi yi]);
 
 % Allocate space for time history of positions
-tt=t1:dt:t2;tt=tt(1:idt:length(tt));
+tt=t1:dt:t2;
+tt=tt(1:idt:length(tt));
 xx=NaN*(ones(size(tt))'*ones(size(xi')))';
 yy=xx;
 uu=xx;
@@ -207,7 +208,9 @@ while time<t2
    end
    
    % Extract drogues currently in domain
-   jgood=j(igood);xgood=xnow(igood);ygood=ynow(igood);
+   jgood=j(igood);
+   xgood=xnow(igood);
+   ygood=ynow(igood);
    
    [xnext,ynext,jnext]=track(fem_grid_struct,jgood,xgood,ygood,V,timevec,time,dtsecs);
    j(igood)=jnext;
@@ -324,7 +327,7 @@ v2=V(it2).v;
 
 % Depending on the number of particles to track, the
 % interpolation to (x,y,t) is done one of two ways.
-% It is not ovvious, but the flop savings can be huge.
+% It is not obvious, but the flop savings can be huge.
 if length(j)>150
    % Interpolate in time first,...
    uu=tfac1*u2 + tfac2*u1;
