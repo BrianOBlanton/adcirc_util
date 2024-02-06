@@ -1,5 +1,5 @@
 function T = read_adcirc_nws20(filename, startRow, endRow)
-%IMPORTFILE1 Import numeric data from a text file as a matrix.
+%read_adcirc_nws20 Import numeric data from a text file as a matrix.
 %   T = read_adcirc_nws20(FILENAME) Reads data from text file
 %   FILENAME for the default selection.
 %
