@@ -27,14 +27,14 @@ end
 
 FrameBaseName='frame';
 ScriptToAdd='none';
-ImageResolution='-r200';
+ImageResolution='-r100';
 AxisLims=[];  
 Title={''};     
 IterStart=1; 
 IterStride=1;
 IterStop=-1;  
 ColorMin=NaN;  
-ColorMax=Inf;  
+ColorMax=NaN;  
 ColorMap=jet(32);  
 StartingTime=0;
 PlotDiff=false;
@@ -199,6 +199,7 @@ for i=IterStart:IterStride:IterStop
 
    fnamebase=sprintf('%s_%03d',FrameBaseName,i);
    fprintf('Printing %s\n',fnamebase)
-   print('-dpng',ImageResolution,sprintf('%s.png',fnamebase));
+   %print('-dpng',ImageResolution,sprintf('%s.png',fnamebase));
+   export_fig(sprintf('%s.png',fnamebase),'-png',ImageResolution);
    %eval(sprintf('!/usr/local/bin/convert %s.png %s.gif',fnamebase,fnamebase));
 end
