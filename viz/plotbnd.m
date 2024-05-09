@@ -60,11 +60,10 @@ Y=[y(ns) y(ne) NaN*ones(size(ns))]';
 X=X(:);
 Y=Y(:);
 
-try 
-    mm=gcm;
-    hboun=linem(Y,X,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
-catch
+if ~ismap(gca) 
     hboun=line(ax,X,Y,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+else
+    hboun=linem(Y,X,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
 end
 
 set(hboun,'ZData',2*ones(size(get(hboun,'XData'))))

@@ -115,6 +115,11 @@ xt=xt(:);
 yt=yt(:);
 zt=zt(:);
 
+if ismap(gca)
+    mstruct=gcm;
+    [xt,yt] = projfwd(mstruct,yt,xt);
+end
+
 % DRAW GRID
 %hel=line(ax,xt,yt,zt,'Color','k',varargin{:},'Tag','elements');
 hel=line(ax,xt,yt,'Color','k',varargin{:},'Tag','elements');

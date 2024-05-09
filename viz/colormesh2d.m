@@ -108,22 +108,26 @@ Q=Q(:);
 delete(findobj(ax,'Type','patch','Tag','colorsurf'))
 
 %z=ones(size(x));
-try 
-    mm=gcm; %#ok<NASGU>
-%    disp('map')
+
+if ismap(gca)
+    % Warning: 'polycon' is an alternative implementation of this projection. To use the standard version of this projection, create a map 
+    % projection structure and specify 'polyconstd' instead. 
+    mstruct=gcm;
+    [x,y] = projfwd(mstruct,y,x);
+end
+hp=patch(ax,'XData',x,'YData',y,'faces',e,'CData',Q, 'EdgeColor','none',...
+         'FaceColor','interp','Tag','colorsurf');
+
+%if ~ismap(gca) 
+    %hp=patch(ax,'XData',x,'YData',y,'ZData',z,'faces',e,'CData',Q, 'EdgeColor','none',...
+    %         'FaceColor','interp','Tag','colorsurf');
+%else
     %hp=patchesm('faces',e,'vertices',[y x z],'facevertexcdata',Q,'EdgeColor','none',...
     %         'FaceColor','interp','Tag','colorsurf');
     %hp=patchm(ax,'XData',y,'YData',x,'ZData',z,'CData',Q,'Tag','colorsurf');
-    hp=patchm(ax,'XData',y,'YData',x,'CData',Q,'Tag','colorsurf');
-
-catch
-%   disp('plain')
-    %hp=patch(ax,'XData',x,'YData',y,'ZData',z,'faces',e,'CData',Q, 'EdgeColor','none',...
-    %         'FaceColor','interp','Tag','colorsurf');
-    hp=patch(ax,'XData',x,'YData',y,'faces',e,'CData',Q, 'EdgeColor','none',...
-             'FaceColor','interp','Tag','colorsurf');
-     
-end
+    %hp=patchm(ax,'XData',y,'YData',x,'CData',Q,'Tag','colorsurf');
+%    hp=patchm(y,x,Q,'Tag','colorsurf');
+%end
 
 %dcm_obj = datacursormode(gcf);
 %set(dcm_obj,'UpdateFcn',{@myupdatefcn,Q,fem_grid_struct})
