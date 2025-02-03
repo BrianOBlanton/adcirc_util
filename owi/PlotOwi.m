@@ -45,7 +45,7 @@ DrawScale=false;
 ContourSpeed=false;
 ColorMin=980;  
 ColorMax=1030;  
-ColorMap=jet(32);  
+ColorMap=flipud(jet(32));  
 
 BasinVectorColor='k';
 RegionVectorColor='k';

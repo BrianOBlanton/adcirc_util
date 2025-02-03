@@ -140,7 +140,13 @@ T.INITIALS = rawCellColumns(:, 11);
 T.DIR = cell2mat(rawNumericColumns(:, 14));
 T.SPEED = cell2mat(rawNumericColumns(:, 15));
 T.STORMNAME = rawCellColumns(:, 12);
-T.DEPTH = cell2mat(rawNumericColumns(:, 16));
+
+if isempty(cell2mat(rawNumericColumns(:, 16)))
+    T.DEPTH=NaN(height(T),1);
+else
+    T.DEPTH = cell2mat(rawNumericColumns(:, 16));
+end
+
 T.SEAS = cell2mat(rawNumericColumns(:, 17));
 T.SEASCODE = cell2mat(rawNumericColumns(:, 18));
 T.SEAS1 = cell2mat(rawNumericColumns(:, 19));

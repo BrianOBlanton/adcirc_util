@@ -19,8 +19,9 @@ function WriteOwi(D,filename)
 %                       'hur_Region.win','hur_Local.pre','hur_Local.win'}
 %
 
-flds={'time','iLat','iLong', 'DX','DY','SWLat','SWLon',...
-     'XGrid','YGrid','Pre','WinU', 'WinV'};
+flds={'time','iLat','iLong',...
+      'DX','DY','SWLat','SWLon',...
+       'XGrid','YGrid','Pre','WinU', 'WinV'};
  
 % check for required fields
 if ~isfield(D,'Basin')
@@ -128,7 +129,7 @@ t2([9 12 13 14 15])=[];
 header1=sprintf('Oceanweather WIN/PRE Format                            %10s     %10s',t1,t2);
 
 % write out Basin grid
-fprintf('Writing Basin files:  ')
+fprintf('Writing Basin files:  \n')
 fidw=fopen(BasinWinFile,'w');
 fidp=fopen(BasinPreFile,'w');
 fprintf(fidw,'%s\n',header1);
@@ -167,7 +168,7 @@ fprintf('Done..\n')
 
 % write out Region grid
 if Region
-    fprintf('Writing Region files:  ')
+    fprintf('Writing Region files:  \n')
     fidw=fopen(RegionWinFile,'w');
     fidp=fopen(RegionPreFile,'w');
     fprintf(fidw,'%s\n',header1);
@@ -207,7 +208,7 @@ end
 
 % write out Local grid
 if Local
-    fprintf('Writing Local files:  ')
+    fprintf('Writing Local files:  \n')
     fidw=fopen(LocalWinFile,'w');
     fidp=fopen(LocalPreFile,'w');
     fprintf(fidw,'%s\n',header1);
