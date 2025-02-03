@@ -1,5 +1,8 @@
 function err=Owi2NetCdf(FileName)
-% err=Owi2NetCdf(FileName)
+% Owi2NetCdf writes OWI win or pre file into netCDF for nws14.  
+% Can't (yet) write a single nc file with both wind and pressure.
+% If merged is needed, use nco's ncks
+% err=Owi2NetCdf(<FileName>.221|222|223|224|win|wnd|pre)
 
 err=0;
 
@@ -49,46 +52,52 @@ while ~feof(fid)
             ncwriteatt(f_out,'time','long_name','model time');
             ncwriteatt(f_out,'time','standard_name','time');
             ncwriteatt(f_out,'time','units',sprintf('seconds since %s',datestr(ctime,'yyyy-mm-dd HH:MM:SS')));
-            ncwriteatt(f_out,'time','start_index',1);
+            ncwriteatt(f_out,'time','calendar','gregorian');
+            %ncwriteatt(f_out,'time','start_index',1);
 
-        nccreate(f_out,'x','Dimensions',{'x', iLong},'Format','netcdf4');
-            ncwriteatt(f_out,'x','long_name','longitude');
-            ncwriteatt(f_out,'x','standard_name','longitude');
-            ncwriteatt(f_out,'x','units','degrees_east');
-            ncwriteatt(f_out,'x','positive','east');
+        nccreate(f_out,'longitude','Dimensions',{'longitude', iLong},'Format','netcdf4');
+            ncwriteatt(f_out,'longitude','long_name','longitude');
+            ncwriteatt(f_out,'longitude','standard_name','longitude');
+            ncwriteatt(f_out,'longitude','units','degrees_east');
+            ncwriteatt(f_out,'longitude','positive','east');
+            ncwriteatt(f_out,'longitude','axis','X');
 
-        nccreate(f_out,'y','Dimensions',{'y', iLat},'Format','netcdf4');
-            ncwriteatt(f_out,'y','long_name','latitude');
-            ncwriteatt(f_out,'y','standard_name','latitude');
-            ncwriteatt(f_out,'y','units','degrees_north');
-            ncwriteatt(f_out,'y','positive','north');
+        nccreate(f_out,'latitude','Dimensions',{'latitude', iLat},'Format','netcdf4');
+            ncwriteatt(f_out,'latitude','long_name','latitude');
+            ncwriteatt(f_out,'latitude','standard_name','latitude');
+            ncwriteatt(f_out,'latitude','units','degrees_north');
+            ncwriteatt(f_out,'latitude','positive','north');
+            ncwriteatt(f_out,'latitude','axis','Y');
 
         if any(strcmpi(Type,{'222','224','wnd','win'})) 
         
-            nccreate(f_out,'windx','Dimensions',{'y' 'x' 'time'},'Format','netcdf4'); % , 'ChunkSize',  [iLong iLat 1]);
-                ncwriteatt(f_out,'windx','long_name','e/w wind velocity');
-                ncwriteatt(f_out,'windx','standard_name','eastward_wind');
-                ncwriteatt(f_out,'windx','units','m/s');
-                ncwriteatt(f_out,'windx','positive','east');
+            nccreate(f_out,'u10','Dimensions',{'longitude' 'latitude' 'time'},'Format','netcdf4','ChunkSize',[iLong iLat 1]);
+                ncwriteatt(f_out,'u10','long_name','10 meter U wind component');
+                ncwriteatt(f_out,'u10','standard_name','eastward_wind');
+                ncwriteatt(f_out,'u10','units','m/s');
+                ncwriteatt(f_out,'u10','positive','east');
+                ncwriteatt(f_out,'u10','coordinates','longitude latitude time');
 
-            nccreate(f_out,'windy','Dimensions',{'y' 'x' 'time'},'Format','netcdf4'); % , 'ChunkSize',  [iLong iLat 1]);
-                ncwriteatt(f_out,'windy','long_name','n/s wind velocity');
-                ncwriteatt(f_out,'windy','standard_name','northward_wind');
-                ncwriteatt(f_out,'windy','units','m/s');
-                ncwriteatt(f_out,'windy','positive','north');
+            nccreate(f_out,'v10','Dimensions',{'longitude' 'latitude' 'time'},'Format','netcdf4','ChunkSize',[iLong iLat 1]);
+                ncwriteatt(f_out,'v10','long_name','10 meter V wind component');
+                ncwriteatt(f_out,'v10','standard_name','northward_wind');
+                ncwriteatt(f_out,'v10','units','m/s');
+                ncwriteatt(f_out,'v10','positive','north');
+                ncwriteatt(f_out,'v10','coordinates','longitude latitude time');
             
         else
-           nccreate(f_out,'pressure','Dimensions',{'y' 'x' 'time'},'Format','netcdf4'); % , 'ChunkSize',  [iLong iLat 1]);
-                ncwriteatt(f_out,'pressure','long_name','air pressure at sea level');
-                ncwriteatt(f_out,'pressure','standard_name','air_pressure_at_sea_level');
-                ncwriteatt(f_out,'pressure','units','meters of water');
-                ncwriteatt(f_out,'pressure','positive','east');
+           nccreate(f_out,'msl','Dimensions',{'longitude' 'latitude' 'time'},'Format','netcdf4','ChunkSize',[iLong iLat 1]);
+                ncwriteatt(f_out,'msl','long_name','Mean sea level pressure');
+                ncwriteatt(f_out,'msl','standard_name','air_pressure_at_mean_sea_level');
+                ncwriteatt(f_out,'msl','units','Pa');
+                ncwriteatt(f_out,'msl','positive','east');
+                ncwriteatt(f_out,'msl','coordinates','longitude latitude time');
         end
            
         x=A(6)+(0:iLong-1)*A(3);
         y=A(5)+(0:iLat-1)*A(4);
-        ncwrite(f_out,'x', x); 
-        ncwrite(f_out,'y', y);
+        ncwrite(f_out,'longitude', x); 
+        ncwrite(f_out,'latitude', y);
         
         starttime=ctime;
         
@@ -96,7 +105,7 @@ while ~feof(fid)
    
     if Debug
         if any(strcmpi(Type,{'222','224','wnd','win'})) 
-            t='windx';
+            t='u10';
             fprintf('Scanning [%d x %d] %s values at time=%s\n',iLong,iLat,t,datestr(ctime,0))
         end
     end
@@ -104,7 +113,7 @@ while ~feof(fid)
 
     if any(strcmpi(Type,{'222','224','wnd','win'}))
         if Debug
-            fprintf('Scanning [%d x %d] windy values at time=%s\n',iLong,iLat,datestr(ctime,0))
+            fprintf('Scanning [%d x %d] v10 values at time=%s\n',iLong,iLat,datestr(ctime,0))
         end
         v=fscanf(fid,'%f',[iLong,iLat]);
     end
@@ -113,12 +122,13 @@ while ~feof(fid)
     if Debug, fprintf('Flushing data to nc file at t=%d ... ',t);end
 
     ncwrite(f_out,'time',  t, k);
-    
+   
     if any(strcmpi(Type,{'222','224','wnd','win'})) 
-        ncwrite(f_out,'windx', u, [1 1 k]); 
-        ncwrite(f_out,'windy', v, [1 1 k]); 
+        ncwrite(f_out,'u10', u, [1 1 k]); 
+        ncwrite(f_out,'v10', v, [1 1 k]); 
     else
-        ncwrite(f_out,'pressure', u, [1 1 k]); 
+        % convert mb to Pa
+        ncwrite(f_out,'msl', u*100, [1 1 k]); 
     end
     if Debug, fprintf('done.\n');end
 
@@ -130,23 +140,19 @@ while ~feof(fid)
             fprintf('   Min,Max v = %f %f\n',min(v(:)),max(v(:)))
         end
     end
+
     fgetl(fid);
+    
     if Debug
         fprintf('\n'); 
     end
+
 end
 
 fclose(fid);
-
-
    
-   
-
 %% nc test
 % delete myncclassic.nc
 % nccreate('myncclassic.nc','peaks','Dimensions',{'r' 200 'c' 200 't' Inf},'Format','netcdf4');
 % ncwrite('myncclassic.nc','peaks', peaks(200),[1 1 1]);
 % ncdisp('myncclassic.nc');
-         
-
-
