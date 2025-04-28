@@ -83,22 +83,22 @@ z=fem_grid_struct.z;
 
 % eliminate elements outside of current view; if element centroids are
 % attached to grid struct
-if isempty(TheseElems)
-    if isfield(fem_grid_struct,'xecen')
-        axx=axis(ax);
-        dx=axx(2)-axx(1);
-        dy=axx(4)-axx(3);
-        ikeep=fem_grid_struct.xecen>axx(1)-dx & ...
-              fem_grid_struct.xecen<axx(2)+dx & ...
-              fem_grid_struct.yecen>axx(3)-dy & ...
-              fem_grid_struct.yecen<axx(4)+dy;
-        if ~all(ikeep==0)
-            elems=elems(ikeep,:);
-        end
-    end
-else
-    elems=elems(TheseElems,:);
-end
+% if isempty(TheseElems)
+%     if isfield(fem_grid_struct,'xecen')
+%         axx=axis(ax);
+%         dx=axx(2)-axx(1);
+%         dy=axx(4)-axx(3);
+%         ikeep=fem_grid_struct.xecen>axx(1)-dx & ...
+%               fem_grid_struct.xecen<axx(2)+dx & ...
+%               fem_grid_struct.yecen>axx(3)-dy & ...
+%               fem_grid_struct.yecen<axx(4)+dy;
+%         if ~all(ikeep==0)
+%             elems=elems(ikeep,:);
+%         end
+%     end
+% else
+%     elems=elems(TheseElems,:);
+% end
 
 % COPY FIRST COLUMN TO LAST TO CLOSE ELEMENTS
 edges=[elems(:,[1 2]); elems(:,[2 3]) ; elems(:,[3 1])];
@@ -115,14 +115,25 @@ xt=xt(:);
 yt=yt(:);
 zt=zt(:);
 
-if ismap(gca)
-    mstruct=gcm;
-    [xt,yt] = projfwd(mstruct,yt,xt);
-end
+% if ismap(gca)
+%     mstruct=gcm;
+%     [xt,yt] = projfwd(mstruct,yt,xt);
+% end
 
 % DRAW GRID
+
+if ismap(gca) 
+    hel=linem(yt,xt,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+elseif strcmp(get(gca,'Type'),'mapaxes')
+    hel=line(ax,yt,xt,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+elseif strcmp(get(gca,'Type'),'geoaxes')
+    hel=line(ax,yt,xt,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+else
+    hel=line(ax,xt,yt,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+end
+
 %hel=line(ax,xt,yt,zt,'Color','k',varargin{:},'Tag','elements');
-hel=line(ax,xt,yt,'Color','k',varargin{:},'Tag','elements');
+%hel=line(ax,xt,yt,'Color','k',varargin{:},'Tag','elements');
 
 
 

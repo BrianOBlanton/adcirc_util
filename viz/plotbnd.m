@@ -60,10 +60,14 @@ Y=[y(ns) y(ne) NaN*ones(size(ns))]';
 X=X(:);
 Y=Y(:);
 
-if ~ismap(gca) 
-    hboun=line(ax,X,Y,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
-else
+if ismap(gca) 
     hboun=linem(Y,X,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+elseif strcmp(get(gca,'Type'),'mapaxes')
+    hboun=line(ax,Y,X,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+elseif strcmp(get(gca,'Type'),'geoaxes')
+    hboun=line(ax,Y,X,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+else
+    hboun=line(ax,X,Y,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
 end
 
 set(hboun,'ZData',2*ones(size(get(hboun,'XData'))))
