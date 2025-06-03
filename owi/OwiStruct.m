@@ -4,7 +4,7 @@ function OwiStruct
 %           Basin: [1x1 struct]
 %                   time: [1xNT double]   % Time vector
 %                   iLat: [1xNT double]   % Number of latitude points
-%                  iLong: [1xNT double]   % Number of latitude points
+%                  iLong: [1xNT double]   % Number of longitude points
 %                     DX: [1xNT double]   % Longitude delta
 %                     DY: [1xNT double]   % Latitude delta
 %                  SWLat: [1xNT double]   % Latitude of southwest corner of grid

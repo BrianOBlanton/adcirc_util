@@ -104,6 +104,7 @@ fgets(fid);
 if verbose, fprintf('%d ... ',fem_grid_struct.nland),end
 if verbose, fprintf('\n'),end 
 
+n64=0;
 n24=0;
 n23=0;
 %n0=0;
@@ -138,24 +139,30 @@ for i=1:fem_grid_struct.nland
       fem_grid_struct.ln{i}=temp;
 
    case {3, 13, 23}          % Exterior Boundary 
-      n23=n23+1;
-      temp=fscanf(fid,'%d %f %f',[3 fem_grid_struct.nlandnodes(i)])';
-      n23nodes=n23nodes+fem_grid_struct.nlandnodes(i);
-      fem_grid_struct.ln{i}=temp(:,1);
+       n23=n23+1;
+       temp=fscanf(fid,'%d %f %f',[3 fem_grid_struct.nlandnodes(i)])';
+       n23nodes=n23nodes+fem_grid_struct.nlandnodes(i);
+       fem_grid_struct.ln{i}=temp(:,1);
      
-   case {4, 24}          % Node pairs for weirs
-      n24=n24+1;
-      temp=fscanf(fid,'%d %d %f %f %f',[5 fem_grid_struct.nlandnodes(i)])';
-      n24pairs=n24pairs+fem_grid_struct.nlandnodes(i);
-      fem_grid_struct.ln{i}=temp(:,1:2);
-      fem_grid_struct.weirheights{i}=temp(:,3);
+   case {4, 24, 64}          % Node pairs for weirs
+       n24=n24+1;
+       temp=fscanf(fid,'%d %d %f %f %f',[5 fem_grid_struct.nlandnodes(i)])';
+       n24pairs=n24pairs+fem_grid_struct.nlandnodes(i);
+       fem_grid_struct.ln{i}=temp(:,1:2);
+       fem_grid_struct.weirheights{i}=temp(:,3);
       
+   % case {64}
+   %     fprintf('Processing "64" ...\n')
+   %     n64=n64+1;
+   %     temp=fscanf(fid,'%d %d %f %f %f',[5 fem_grid_struct.nlandnodes(i)])';
+
+
    otherwise
-      fprintf('Encountered a boundary type (%d) not coded, on segment %d.\n',temp(2),i)
-      if temp(2)>100
-          fprintf('Boundary type (%d) exceeds allowable range. Terminal.\n',temp(2));
-          error('Last Node String: %s',nodeStrings{i-1})
-      end
+       fprintf('Encountered a boundary type (%d) not coded, on segment %d.\n',temp(2),i)
+       if temp(2)>100
+           fprintf('Boundary type (%d) exceeds allowable range. Terminal.\n',temp(2));
+           error('Last Node String: %s',nodeStrings{i-1})
+       end
    end
 end
 
