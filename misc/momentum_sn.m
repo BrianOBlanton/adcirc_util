@@ -3,11 +3,22 @@
 %  Script to compute momentum balances from ADCIRC output in streamwise,
 %  normal (s,n) coordinates
 %
+%  The sign convention used follows the right hand rule, i.e., the positive 
+%  n direction is 90 deg to left of s.  Centrifugal accleration is positive
+%  when curvature is concave to the left of the flow direction and negative
+%  when curvature is concave to the right of the flow direction.
+%
+%  -g dzeta/dn and -g dzeta/ds are assumed to be on the RHS of their 
+%  corresponding momentum equations.  All other terms are moved to the LHS 
+%  of their momentum equations to emphasize the fact that these terms add 
+%  together to produce the elevation gradients
+% 
 % Requires nctoolbox and adcirc_util libraries
 %
 %                     2/8/2022   - Rick Luettich
 %                                   Brian Blanton
 %                                   Matt Bilskie
+%                    9/28/2022   - Matt Bilskie found a bug in CPP projection
 % 
 % 30 Jan 2022, orig, RL
 % 01 Feb 2022, added url option, some error checking, BB
@@ -15,11 +26,22 @@
 % 05 Feb 2022, cleaned up code, corrected bugs in Bernoulli accel & dalpha/dt
 % 06 Feb 2022, added time step inc as input, modified plots to work for 
 %                                                    multiple time steps  
-% 08 Feb 2022, added reading nodal attributes from fort.13, and inclusion of  
+% 08 Feb 2022, added reading nodal attritsr_numbutes from fort.13, and inclusion of  
 %                    spatially varying Mannings n in bottom stress calc.
+% 09 Sept 2022, bug fix by Matt Bilskie on conversion from lon,lat to m?
+% 18 Dec 2022, Matt's bug fix implemented and the sign of the terms
+%                    adjusted as described above; plot surface elevation
+% 19 Dec 2022, added water velocity vectors and wind velocity vectors; 
+%                    revised multi-panel figure to 4x4
 %
 
-function momentum_sn(ts0,ts1,tsinc,url)
+function momentum_sn(ts0,ts1,tsinc,url,varargin)
+%function [g, times, dusdt, bernaccel, gdzetads, botfric, gdatmospresds,...
+%    radstressgrads, LatStrgrads, totalmombals, ...
+%    usdalphadt, centaccel, coraccel, gdzetadn, gdatmospresdn,...
+%    windstressn, windstresss radstressgradn, LatStrgradn, totalmombaln  ...
+%    twodprimcont] = momentum_sn(ts0,ts1,tsinc,url)
+
 echo momentum_sn off
 
 % ts0 - first timestep in ADCIRC output array to analyze
@@ -44,8 +66,9 @@ echo momentum_sn off
 %         step, tsinc=2 plot every other time step). 
 %
 % url - allows input files to be accessed across the network, e.g., from a
-%       THREDDS server.  If not specified, this defaults to the current
-%       MATLAB directory or the MATLAB path
+%       THREDDS server.  If using current MATLAB directory use '.'
+%
+% vargin - panel or animation
 %
 % needed constants.  Note phi0, lamda0, Manningn_def, Cfric_base,
 % Cdrag_cap, ELSM, SmagMax, SmagMin are run dependent and should be modified
@@ -55,6 +78,7 @@ grav=9.81;
 rhow=1000.;          %kg/m^3
 rhoa=1.15;           %kg/m^3
 rhoa_o_rhow=rhoa/rhow;
+atm_background=(1013*100)/(grav*rhow);       %background atm pressure in m H2O
 REarth=6378206.4;    %Radius of the Earth (m) used in CPP spherical coord transformation
                      % hard coded into CPP conversion functions
 omega = 7.29212e-5;  % Rate of earth rotation (1/s)
@@ -81,6 +105,23 @@ end
 %end
 if ~exist('url')
     url='./';
+end
+
+panel=false;
+animation=false;
+
+k=1;
+while k<length(varargin)+1
+  switch lower(varargin{k})
+    case 'panel'   
+      panel=true;
+      varargin([k])=[];    
+    case 'animation'
+      animation=true;
+      varargin([k])=[];
+    otherwise
+      k=k+1;
+  end
 end
 
 % use nctoolbox to read in ADCIRC netCDF files
@@ -155,14 +196,21 @@ fprintf('Extracting grid info... ')
 g=ExtractGrid1(nc63);
 fprintf(' Done...\n')
 
-% Multiply CPP Correction factor cos(phi)/cos(phi0) to B_cart terms to
+% Multiply CPP Correction factor cos(phi0)/cos(phi) to B_cart terms to
 % correct x-derivatives
 e=g.e;
 A_cart=g.A_cart;
-B_cart=g.B_cart.*cos(deg2rad(g.y(e)))/cos(deg2rad(phi0));
+B_cart=g.B_cart.*cos(deg2rad(phi0))./cos(deg2rad(g.y(e)));
+% B_cart=g.B_cart.*cos(deg2rad(g.y(e)))/cos(deg2rad(phi0)); % error pointed out by Matt B.
 
 % Set up a nodal table that lists the elements connected to each node.
 % this is done using ComputeNodeElementAdjacency icne(:,maxelenei+1:end)=[];
+
+% icne - matrix of size [NN x maxconnections] where maxconnections is
+%                 the maximum number of elements that contain any node.
+%       The elements that connect to a node
+% c    - number of elements associated with each node ([NN x 1])
+
 fprintf('Computing node/element table for grid ... ')
 [icne, c]=ComputeNodeElementAdjacency(g);
 maxelenei=max(c);
@@ -278,9 +326,8 @@ for i=ts0:tsinc:ts1
    wins_n=sqrt(winx_n.*winx_n+winy_n.*winy_n);        %calculate wind speed
    Cdrag_n=0.001*(0.75+0.067*wins_n);                 %calculate wind drag coeff using the Garratt drag law
    Cdrag_n=min(Cdrag_n,Cdrag_cap);                    %apply specified upper limit 
-   windstressx_n= rhoa_o_rhow*Cdrag_n.*((wins_n.*winx_n)./H_n);  %compute x-direction wind stress
-   windstressy_n= rhoa_o_rhow*Cdrag_n.*((wins_n.*winy_n)./H_n);  %compute y-direction wind stress
-   
+   windstressx_n= rhoa_o_rhow*Cdrag_n.*((wins_n.*winx_n)./H_n);  %compute x-direction wind stress 
+   windstressy_n= rhoa_o_rhow*Cdrag_n.*((wins_n.*winy_n)./H_n);  %compute y-direction wind stress 
    % compute elemental values of cartesian spatial gradient times element 
    % area of zeta, H, ubar, vbar, apre
    ardzetadx_cart=(zeta_e(:,1).*B_cart(:,1)+zeta_e(:,2).*B_cart(:,2)+zeta_e(:,3).*B_cart(:,3))/2;
@@ -404,371 +451,978 @@ for i=ts0:tsinc:ts1
    dalpha_n=dalpha_n+2*pi*dalpha_n_index;
    usdalphadt(ii,:)=(us(ii,:).*dalpha_n)/(2*delts); %centered difference
    
-   bernaccel(ii,:)=(ubar_n.*dubardx_cart_n+vbar_n.*dubardy_cart_n).*cosalpha_n + (ubar_n.*dvbardx_cart_n+vbar_n.*dvbardy_cart_n).*sinalpha_n;
-   centaccel(ii,:)=(ubar_n.*dvbardx_cart_n+vbar_n.*dvbardy_cart_n).*cosalpha_n - (ubar_n.*dubardx_cart_n+vbar_n.*dubardy_cart_n).*sinalpha_n;
-   coraccel(ii,:)=Corf_n.*us(ii,:)';
-   gdzetads(ii,:)=grav*(dzetadx_cart_n.*cosalpha_n+dzetady_cart_n.*sinalpha_n);
-   gdzetadn(ii,:)=grav*(dzetady_cart_n.*cosalpha_n-dzetadx_cart_n.*sinalpha_n);
-   gdatmospresds(ii,:)=grav*(dapredx_cart_n.*cosalpha_n+dapredy_cart_n.*sinalpha_n);
-   gdatmospresdn(ii,:)=grav*(dapredy_cart_n.*cosalpha_n-dapredx_cart_n.*sinalpha_n);
-   botfric(ii,:)=(Cfric_n.*uss_n)./H_n;
-   windstresss(ii,:)=windstressx_n.*cosalpha_n+windstressy_n.*sinalpha_n;
-   windstressn(ii,:)=windstressy_n.*cosalpha_n-windstressx_n.*sinalpha_n;
-   radstressgrads(ii,:)=radstressgradx_n.*cosalpha_n+radstressgrady_n.*sinalpha_n;
-   radstressgradn(ii,:)=radstressgrady_n.*cosalpha_n-radstressgradx_n.*sinalpha_n;
-   LatStrgrads(ii,:)=LatStrgradx_n.*cosalpha_n+LatStrgrady_n.*sinalpha_n;
-   LatStrgradn(ii,:)=LatStrgrady_n.*cosalpha_n-LatStrgradx_n.*sinalpha_n;
+   bernaccel(ii,:)=(ubar_n.*dubardx_cart_n+vbar_n.*dubardy_cart_n).*cosalpha_n + (ubar_n.*dvbardx_cart_n+vbar_n.*dvbardy_cart_n).*sinalpha_n;  %LHS of mom eq
+   centaccel(ii,:)=(ubar_n.*dvbardx_cart_n+vbar_n.*dvbardy_cart_n).*cosalpha_n - (ubar_n.*dubardx_cart_n+vbar_n.*dubardy_cart_n).*sinalpha_n;  %LHS of mom eq
+   coraccel(ii,:)=Corf_n.*us(ii,:)';                                                   %LHS of mom eq
+   gdzetads(ii,:)=-grav*(dzetadx_cart_n.*cosalpha_n+dzetady_cart_n.*sinalpha_n);       %RHS of mom eq
+   gdzetadn(ii,:)=-grav*(dzetady_cart_n.*cosalpha_n-dzetadx_cart_n.*sinalpha_n);       %RHS of mom eq
+   gdatmospresds(ii,:)=grav*(dapredx_cart_n.*cosalpha_n+dapredy_cart_n.*sinalpha_n);   %LHS of mom eq
+   gdatmospresdn(ii,:)=grav*(dapredy_cart_n.*cosalpha_n-dapredx_cart_n.*sinalpha_n);   %LHS of mom eq
+   botfric(ii,:)=(Cfric_n.*uss_n)./H_n;                                                %LHS of mom eq
+   windstresss(ii,:)=-(windstressx_n.*cosalpha_n+windstressy_n.*sinalpha_n);           %LHS of mom eq
+   windstressn(ii,:)=-(windstressy_n.*cosalpha_n-windstressx_n.*sinalpha_n);           %LHS of mom eq
+   radstressgrads(ii,:)=-(radstressgradx_n.*cosalpha_n+radstressgrady_n.*sinalpha_n);  %LHS of mom eq
+   radstressgradn(ii,:)=-(radstressgrady_n.*cosalpha_n-radstressgradx_n.*sinalpha_n);  %LHS of mom eq
+   LatStrgrads(ii,:)=-(LatStrgradx_n.*cosalpha_n+LatStrgrady_n.*sinalpha_n);           %LSH of mom eq
+   LatStrgradn(ii,:)=-(LatStrgrady_n.*cosalpha_n-LatStrgradx_n.*sinalpha_n);           %LSH of mom eq
    Rs(ii,:)=(uss_n./centaccel(ii,:)')';
    centovercor(ii,:)=centaccel(ii,:)./coraccel(ii,:);
-   totalmombals(ii,:)=dusdt(ii,:)+bernaccel(ii,:)+gdzetads(ii,:)+botfric(ii,:)+gdatmospresds(ii,:)-windstresss(ii,:)-radstressgrads(ii,:)-LatStrgrads(ii,:);
-   totalmombaln(ii,:)=usdalphadt(ii,:)+centaccel(ii,:)+coraccel(ii,:)+gdzetadn(ii,:)+gdatmospresdn(ii,:)-windstressn(ii,:)-radstressgradn(ii,:)-LatStrgradn(ii,:);
+   totalmombals(ii,:)=dusdt(ii,:)+bernaccel(ii,:)-gdzetads(ii,:)+botfric(ii,:)+gdatmospresds(ii,:)+windstresss(ii,:)+radstressgrads(ii,:)+LatStrgrads(ii,:);
+   totalmombaln(ii,:)=usdalphadt(ii,:)+centaccel(ii,:)+coraccel(ii,:)-gdzetadn(ii,:)+gdatmospresdn(ii,:)+windstressn(ii,:)+radstressgradn(ii,:)+LatStrgradn(ii,:);
    alpha(ii,:)=rad2deg(alpha(ii,:));
+   zetap(ii,:)=zeta_n;
+   ubarp(ii,:)=ubar_n;
+   vbarp(ii,:)=vbar_n;
+   usbarp(ii,:)=us_mag_n;
+   winxp(ii,:)=winx_n;
+   winyp(ii,:)=winy_n;
+   winsp(ii,:)=wins_n;
+   aprep(ii,:)=apre_n-atm_background;
 end
 fprintf(' Done.\n')
 
-%plot mosaic of terms
-% there are 25 figs
+% set up for plots
 
-AxisLims=[ -86 -84.6 29.0 30.4];    %plot extents
+%xmin=-85.9;       %H. Michael
+%xmax=-84.7;       %H. Michael
+%ymin=29.1;        %H. Michael
+%ymax=30.3;        %H. Michael
+%xmin=-85.0;       %H. Ian outer zoom
+%xmax=-80.0;       %H. Ian outer zoom
+%ymin=25.0;        %H. Ian outer zoom
+%ymax=30.0;        %H. Ian outer zoom
+xmin=-82.5;       %H. Ian inner zoom
+xmax=-81.7;       %H. Ian inner zoom
+ymin=26.1;        %H. Ian inner zoom
+ymax=26.9;        %H. Ian inner zoom
 
-titles={
-    'us dalpha/dt (m/s^2)'
-    'Centrifugal Acceleration (m/s^2)'
-    'Coriolis Acceleration (m/s^2)'
-    'abs(Centrifugal/Coriolis)'
-    'g dzeta/dn (m/s^2)'
-    'wind stress/H n (m/s^2)'
-    'g datmospres/dn (m/s^2)'
-    'lateral stress grad/H n (m/s^2)'
-    'wave radiation stress grad/H n (m/s^2)'
-    'total n mom bal (m/s^2)'
-    'Radius of curvature (km)'
-    'dus/dt (m/s^2)'
-    'Bernoulli Acceleration (m/s^2)'
-    'Bottom Stress/H (m/s^2)'
-    'g dzeta/ds (m/s^2)'
-    'wind stress/H s (m/s^2)'
-    'g datmospres/ds (m/s^2)'
-    'lateral stress grad/H s (m/s^2)'
-    'wave radiation stress grad/H s (m/s^2)'
-    'total s mom bal (m/s^2) '
-    'us streamwise vel (m/s)'
-    'alpha (deg cw from North)'
-    'SmagEv1 (m^2/s)'
-    'SmagEv2 (m^2/s)'
-    'mass conservation error (m)'
-    };
+AxisLims=[ xmin xmax ymin ymax];    %plot extents
 
-plotcommands={
-    'colormesh2d(g,usdalphadt(tsa_num,:));'
-    'colormesh2d(g,centaccel(tsa_num,:));'
-    'colormesh2d(g,coraccel(tsa_num,:));'
-    'colormesh2d(g,centovercor(tsa_num,:));'
-    'colormesh2d(g,gdzetadn(tsa_num,:));'
-    'colormesh2d(g,windstressn(tsa_num,:));'
-    'colormesh2d(g,gdatmospresdn(tsa_num,:));'
-    'colormesh2d(g,LatStrgradn(tsa_num,:));'
-    'colormesh2d(g,radstressgradn(tsa_num,:));'
-    'colormesh2d(g,totalmombaln(tsa_num,:));'
-    'colormesh2d(g,Rs(tsa_num,:)/1000);'
-    'colormesh2d(g,dusdt(tsa_num,:));'
-    'colormesh2d(g,bernaccel(tsa_num,:));'
-    'colormesh2d(g,botfric(tsa_num,:));'
-    'colormesh2d(g,gdzetads(tsa_num,:));'
-    'colormesh2d(g,windstresss(tsa_num,:));'
-    'colormesh2d(g,gdatmospresds(tsa_num,:));'
-    'colormesh2d(g,LatStrgrads(tsa_num,:));'
-    'colormesh2d(g,radstressgrads(tsa_num,:));'
-    'colormesh2d(g,totalmombals(tsa_num,:));'
-    'colormesh2d(g,us(tsa_num,:));'
-    'colormesh2d(g,alpha(tsa_num,:));'
-    'colormesh2d(g,SmagEv1_n_t(tsa_num,:));'
-    'colormesh2d(g,SmagEv2_n_t(tsa_num,:));'
-    'colormesh2d(g,twodprimcont(:));'
-    };
+% create a rectangular grids for vector plotting for wind and water velocity
+% create a mask to zero out any values that lie outside the ADCIRC domain
 
-fignum=0;
+fprintf('setting up rectangular grid points to plot velocity vectors...');
 
-for it=ts0:tsinc:ts1
-    
-    fignum=fignum+1;
-    fig=figure(fignum);     
-    tiledLayout=tiledlayout(5,5);
-    tsa_num=(it-ts0)/tsinc+1;
+%delx=0.1;   %H. Michael
+%dely=0.1;   %H. Michael
+%delx=0.5;   %H. Ian outer zoom
+%dely=0.5;   %H. Ian outer zoom
+delx=0.08;   %H. Ian inner zoom
+dely=0.08;   %H. Ian inner zoom
 
-    fprintf('Creating mosaic figure # %5d (%5d)\n',tsa_num,it);
-   
-    set(gcf,'WindowState','maximized')
-    
-    for axnum=1:length(plotcommands)
-        
-        nti=nexttile(axnum);        
-        nti.XTickLabels={};
-        nti.YTickLabels={};
-        
-        eval(plotcommands{axnum})
-        axis('equal')
-        axis(AxisLims)
-
-        colormap(jet(20))
-
-        switch axnum
-            case 2                       %centrifugal accel
-                caxis([-0.0005 0.0005])
-            case 3                       %Coriolis accel
-                caxis([-0.0005 0.0005])
-            case 4                       %ratio of centrifugal to coriolis accel
-                caxis([0 3])              
-            case 8                        %lateral stress grad - n
-                caxis([-0.000001 0.000001])
-            case 10                       %n-momentum balance
-                caxis([-0.0002 0.0002])
-            case 11                       %radius of curviture
-                caxis([-100 100])
-            case 18                        %lateral stress grad - s
-                caxis([-0.000001 0.000001])
-            case 20                       %s-momentum blanace
-                caxis([-.0002 0.0002])   
-            case 21                       %us
-                caxis([-4 4])            
-            case 22                       %alpha
-                caxis([-180 180])            
-            case {23, 24}                 %Smag EV
-                caxis([0 100])
-            case 25                       %mass conservation
-                caxis([-0.5 0.5])
-            otherwise
-                caxis([-0.001 0.001])
-        end
-
-        title([int2str(axnum) ': ' titles{axnum} ]) %  ' ' times_str(tsa_num,:)]);
-        sgtitle(datestr(times(it)),'FontSize',24) 
-        colorbar('EastOutside')
-
-    end
-
-   saveas(fig,sprintf('sn.%02d.png',it))
-%  exportgraphics(fig, sprintf('sn.%02d.png',it), 'Resolution', 144);
-
+[xR,yR]=meshgrid(xmin:delx:xmax, ymin:dely:ymax);   % create regular grid to interpolate onto
+XV=g.x(g.e);
+YV=g.y(g.e);
+IN = inpolygon(xR,yR,XV(1,:),YV(1,:));        %do once to initialize the IN matrix
+for i=2:g.ne
+   IN = IN + inpolygon(xR,yR,XV(i,:),YV(i,:));
 end
+fprintf(' Done.\n')
 
+%   wmaxmag=100;       %H. Michael
+%   wnumpoints=25;    %H. Michael
+%   vmaxmag=4;        %H. Michael
+%   vnumpoints=20;    %H. Michael
+%   wmaxmag=75;       %H. Ian outer zoom
+%   wnumpoints=50;    %H. Ian outer zoom
+%   vmaxmag=2;        %H. Ian outer zoom
+%   vnumpoints=50;    %H. Ian outer zoom
+   wmaxmag=100;       %H. Ian inner zoom
+   wnumpoints=50;     %H. Ian inner zoom
+   vmaxmag=4;         %H. Ian inner zoom
+   vnumpoints=20;     %H. Ian inner zoom
+
+if panel
+
+   titles1={
+       'wind velocity (m/s)'
+      'atmospheric pressure deficit (m H2O)'
+       'water velocity (m/s)'
+       'elevation (m) NAVD88'
+       '-g dzeta/dn (m/s^2)'
+       'us dalpha/dt (m/s^2)'
+       'Centrifugal Acceleration (m/s^2)'
+       'Coriolis Acceleration (m/s^2)'
+       'wind stress/H n (m/s^2)'
+       'g datmospres/dn (m/s^2)'
+       'wave radiation stress grad/H n (m/s^2)'
+       'lateral stress grad/H n (m/s^2)'
+       'total n mom bal (m/s^2)'
+       'abs(Centrifugal/Coriolis)'
+       'Radius of curvature (km)'
+       'alpha (deg cw from North)'
+       };
+   titles2={
+       'wind velocity (m/s)'
+       'atmospheric pressure deficit (m H2O)'
+       'water velocity (m/s)'
+       'elevation (m) NAVD88'
+       '-g dzeta/ds (m/s^2)'
+       'dus/dt (m/s^2)'
+       'Bernoulli Acceleration (m/s^2)'
+       'Bottom Stress/H (m/s^2)'
+       'wind stress/H s (m/s^2)'
+       'g datmospres/ds (m/s^2)'
+       'wave radiation stress grad/H s (m/s^2)'
+       'lateral stress grad/H s (m/s^2)'
+       'total s mom bal (m/s^2) '
+       'SmagEv1 (m^2/s)'
+       'SmagEv2 (m^2/s)'
+       'mass conservation error (m)'
+       };
+
+   plotcommands1={
+      ['colormesh2d(g,winsp(tsa_num,:)''); hold; ' ...
+       'curvvec(xR,yR,windxR,windyR,''color'',''k'',''minmag'',0,''maxmag'',wmaxmag,''numpoints'',wnumpoints,''thin'',1);']    
+      ['colormesh2d(g,aprep(tsa_num,:)''); hold; ' ...
+       'curvvec(xR,yR,windxR,windyR,''color'',''k'',''minmag'',0,''maxmag'',wmaxmag,''numpoints'',wnumpoints,''thin'',1);'] 
+      ['colormesh2d(g,usbarp(tsa_num,:)''); hold; ' ...
+       'curvvec(xR,yR,ubarR,vbarR,''color'',''k'',''minmag'',0,''maxmag'',vmaxmag,''numpoints'',vnumpoints,''thin'',1);']
+       'colormesh2d(g,zetap(tsa_num,:)'');'
+       'colormesh2d(g,gdzetadn(tsa_num,:)'');'
+       'colormesh2d(g,usdalphadt(tsa_num,:)'');'
+       'colormesh2d(g,centaccel(tsa_num,:)'');'
+       'colormesh2d(g,coraccel(tsa_num,:)'');'
+       'colormesh2d(g,windstressn(tsa_num,:)'');'
+       'colormesh2d(g,gdatmospresdn(tsa_num,:)'');'
+       'colormesh2d(g,radstressgradn(tsa_num,:)'');'
+       'colormesh2d(g,LatStrgradn(tsa_num,:)'');'
+       'colormesh2d(g,totalmombaln(tsa_num,:)'');'
+       'colormesh2d(g,centovercor(tsa_num,:)'');'
+       'colormesh2d(g,Rs(tsa_num,:)''/1000);'
+       'colormesh2d(g,alpha(tsa_num,:)'');'
+       };
+   plotcommands2={
+       ['colormesh2d(g,winsp(tsa_num,:)''); hold; ' ...
+       'curvvec(xR,yR,windxR,windyR,''color'',''k'',''minmag'',0,''maxmag'',wmaxmag,''numpoints'',wnumpoints,''thin'',1);']
+       ['colormesh2d(g,aprep(tsa_num,:)''); hold; ' ...
+       'curvvec(xR,yR,windxR,windyR,''color'',''k'',''minmag'',0,''maxmag'',wmaxmag,''numpoints'',wnumpoints,''thin'',1);'] 
+       ['colormesh2d(g,usbarp(tsa_num,:)''); hold; ' ...
+       'curvvec(xR,yR,ubarR,vbarR,''color'',''k'',''minmag'',0,''maxmag'',vmaxmag,''numpoints'',vnumpoints,''thin'',1);']
+       'colormesh2d(g,zetap(tsa_num,:)'');'
+       'colormesh2d(g,gdzetads(tsa_num,:)'');'
+       'colormesh2d(g,dusdt(tsa_num,:)'');'
+       'colormesh2d(g,bernaccel(tsa_num,:));'
+       'colormesh2d(g,botfric(tsa_num,:)'');'
+       'colormesh2d(g,windstresss(tsa_num,:)'');'
+       'colormesh2d(g,gdatmospresds(tsa_num,:)'');'
+       'colormesh2d(g,radstressgrads(tsa_num,:)'');'
+       'colormesh2d(g,LatStrgrads(tsa_num,:)'');'
+       'colormesh2d(g,totalmombals(tsa_num,:)'');'
+       'colormesh2d(g,SmagEv1_n_t(tsa_num,:)'');'
+       'colormesh2d(g,SmagEv2_n_t(tsa_num,:)'');'
+       'colormesh2d(g,twodprimcont(:)'');'
+       };
+
+   fignum=0;
+
+   for it=ts0:tsinc:ts1
+  
+       tsa_num=(it-ts0)/tsinc+1;
     
-% plot individual terms
+       windxR=griddata(g.x,g.y,winxp(tsa_num,:),xR,yR).*IN;
+       windyR=griddata(g.x,g.y,winyp(tsa_num,:),xR,yR).*IN;
+       ubarR=griddata(g.x,g.y,ubarp(tsa_num,:),xR,yR).*IN;
+       vbarR=griddata(g.x,g.y,vbarp(tsa_num,:),xR,yR).*IN;
 
-fignum=99;
+       fprintf('Creating part 1 mosaic figure # %5d (%5d)\n',tsa_num,it);
+       close('all')
 
-for it=ts0:tsinc:ts1
-   tsa_num=(it-ts0)/tsinc+1;
-   tsr_num=it;   
+       fignum=fignum+1;
+       fig=figure(fignum);     
+       tiledLayout=tiledlayout(4,4);
 
-   fprintf('Creating individual term figures # %5d (%5d)\n',tsa_num,it);
+       set(gcf,'WindowState','maximized')
+    
+       for axnum=1:length(plotcommands1)
+           nti=nexttile(axnum);        
+           nti.XTickLabels={};
+           nti.YTickLabels={};
+        
+           eval(plotcommands1{axnum})
+           axis('equal')
+           axis(AxisLims)
+           colormap(jet(20))
+           switch axnum
+               case 1                       %wind speed (m/s)
+%                   caxis([0 70])            %H. Michael     
+                   caxis([0 60])            %H. Ian
+               case 2                       %atm press deficit (m H2O)
+%                   caxis([-1 0])            %H. Michael
+                   caxis([-0.8 0])          %H. Ian
+               case 3                       %water speed (m/s)
+%                   caxis([0 3])             %H. Michael
+                   caxis([0 2.5])           %H. Ian            
+               case 4                       %elevation
+%                   caxis([-1 4])            %H. Michael
+                   caxis([-1 3])            %H. Ian
+%               case 5                       %-g dzeta/dn
+%               case 6                       % us dalpha/dt
+%               case 7                       % centrifugal accel
+%                   caxis([-0.0005 0.0005])
+%               case 8                       % Coriolis accel
+%                   caxis([-0.0005 0.0005])
+%               case 9                       % wind stress n
+%               case 10                      % atm press grad n
+%               case 11                      % rad stress n
+               case 12                      % lat stress n
+                   caxis([-0.000001 0.000001])
+               case 13                      %n-momentum balance
+                   caxis([-0.0002 0.0002])
+               case 14                      %ratio of centrifugal to coriolis accel
+                   caxis([0 3])              
+               case 15                      %radius of curviture
+                   caxis([-100 100])
+               case 16                       %alpha
+                   caxis([-180 180]) 
+               otherwise
+                   caxis([-0.001 0.001])
+           end
 
-   nametime=datestr(times(tsr_num),'DDmmmYYYY hhMMSS_');
+           title([int2str(axnum) ': ' titles1{axnum} ])
+           sgtitle(datestr(times(it)),'FontSize',24) 
+           colorbar('EastOutside')
+       end
+       saveas(fig,sprintf('sn_part1.%02d.png',it))
+%      exportgraphics(fig, sprintf('sn.%02d.png',it), 'Resolution', 144);
 
-   fignum=fignum+1;
-   fig=figure(fignum);     %centrifugal acceleration
-   axis(AxisLims);    %set plot extents
-   colormesh2d(g,centaccel(tsa_num,:));
-   colormap(jet(20))
-   caxis([-0.0005 0.0005])
-   colorbar
-   title(['Centrifugal Acceleration (m/s^2) ' times_str(tsr_num,:)]);
-   saveas(fig,[nametime 'n_centrifugalaccel.png'])
+       fignum=fignum+1;
+       fig=figure(fignum);     
+       tiledLayout=tiledlayout(4,4);
+       fprintf('Creating part 2 mosaic figure # %5d (%5d)\n',tsa_num,it);
+       set(gcf,'WindowState','maximized')
+    
+       for axnum=1:length(plotcommands2)
+           nti=nexttile(axnum);        
+           nti.XTickLabels={};
+           nti.YTickLabels={};
+        
+           eval(plotcommands2{axnum})
+           axis('equal')
+           axis(AxisLims)
+           colormap(jet(20))
+           switch axnum
+               case 1                       %wind speed (m/s)
+%                   caxis([0 70])            %H. Michael     
+                   caxis([0 60])            %H. Ian
+               case 2                       %atm press deficit (m H2O)
+%                   caxis([-1 0])            %H. Michael
+                   caxis([-0.8 0])          %H. Ian
+               case 3                       %water speed (m/s)
+%                   caxis([0 3])             %H. Michael
+                   caxis([0 2.5])           %H. Ian            
+               case 4                       %elevation
+%                   caxis([-1 4])            %H. Michael
+                   caxis([-1 3])            %H. Ian
+%               case 5                       %-g dzeta/dn
+%               case 6                       % dus/dt
+%               case 7                       % bernulli acceleration
+%               case 8                       % bottom friction
+%               case 9                       % wind stress s
+%               case 10                      % atm press grad s
+%               case 11                      % rad stress s
+               case 12                      % lat stress s
+                   caxis([-0.000001 0.000001])
+               case 13                      % s-momentum balance
+                   caxis([-0.0002 0.0002])
+               case {14, 15}                 %Smag EV
+                   caxis([0 100])
+               case 16                       %mass conservation
+                   caxis([-0.5 0.5])
+               otherwise
+                   caxis([-0.001 0.001])
+           end
+
+           title([int2str(axnum) ': ' titles2{axnum} ])
+           sgtitle(datestr(times(it)),'FontSize',24) 
+           colorbar('EastOutside')
+       end
+       saveas(fig,sprintf('sn_part2.%02d.png',it))
+%      exportgraphics(fig, sprintf('sn.%02d.png',it), 'Resolution', 144);
+
+   end
+end                   %end of plot panel
+    
+% plot animations of individual terms
+elevation=false;
+velocity=false;
+centrifugal=false;
+corriolis=false;
+centocorr=false;
+dzetadn=false;
+wstressn=false;
+rstressn=false;
+dpresdn=false;
+mombaln=false;
+dzetads=false;
+bernoulli=false;
+bstress=false;
+wstresss=false;
+rstresss=false;
+dpresds=false;
+mombals=false;
+
+if animation
+   elevation=true;
+%   velocity=true;
+   centrifugal=true;
+   corriolis=true;
+   centocorr=true;
+   dzetadn=true;
+   wstressn=true;
+   rstressn=true;
+   dpresdn=true;
+   mombaln=true;
+   dzetads=true;
+   bernoulli=true;
+   bstress=true;
+   wstresss=true;
+   rstresss=true;
+   dpresds=true;
+   mombals=true;
+
+   fignum=99;
+   for it=ts0:tsinc:ts1
+   
+      tsa_num=(it-ts0)/tsinc+1;
+      tsr_num=it;   
+
+      fprintf('Creating individual term figures # %5d (%5d)\n',tsa_num,it);
+      close('all')
+      nametime=datestr(times(tsr_num),'DDmmmYYYY hhMMSS_');
+      
+      if elevation
+
+         fignum=fignum+1;
+         fig=figure(fignum);  
+         axis(AxisLims);            
+         colormesh2d(g,zetap(tsa_num,:)');
+         colormap(jet(20))
+         caxis([-1 4])
+         colorbar
+         title(['elevation (m) NAVD88 ' times_str(tsr_num,:)]);
+         nameroot = 'elevation';
+%        saveas(fig,[nametime nameroot '.png'])
+   
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            e4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            e4.FrameRate=2;   %2 frames / second
+            e4.Quality=100;
+            open(e4);
+         end
+         writeVideo(e4,frames);
+      end
+   
+      if velocity
+         fignum=fignum+1;
+         fig=figure(fignum);     %along stream velocity (m/s)
+         axis(AxisLims);    %set plot extents
+
+         ubarR=griddata(g.x,g.y,ubarp(tsa_num,:)',xR,yR).*IN;
+         vbarR=griddata(g.x,g.y,vbarp(tsa_num,:)',xR,yR).*IN;
+         ubarR(isnan(ubarR))=0;
+         vbarR(isnan(vbarR))=0;
+         
+         colormesh2d(g,us(tsa_num,:)');
+         hold;
+         curvvec(xR,yR,ubarR,vbarR,'color','k','minmag',0,'maxmag',vmaxmag,'numpoints',vnumpoints,'thin',1);
+         colormap(jet(20))
+         clim([0 3])
+         colorbar
+         title(['us along stream vel (m/s) ' times_str(tsr_num,:)]);
+
+         nameroot = 'velocity';         
+%        saveas(fig,[nametime 'alongstreamvel.png'])
+
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            v4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            v4.FrameRate=2;   %2 frames / second
+            v4.Quality=100;
+            open(v4);
+         end
+         writeVideo(v4,frames);
+      end 
+
+      if centrifugal
+
+         fignum=fignum+1;
+         fig=figure(fignum);     %centrifugal acceleration
+         axis(AxisLims);    %set plot extents
+         colormesh2d(g,centaccel(tsa_num,:)');
+         colormap(jet(20))
+         caxis([-0.001 0.001])
+         colorbar
+         title(['Centrifugal Acceleration (m/s^2) ' times_str(tsr_num,:)]);
+         nameroot = 'cent_accel';
+%        saveas(fig,[nametime 'n_centrifugalaccel.png'])
  
-   fignum=fignum+1;
-   fig=figure(fignum);     %Coriolis acceleration
-   axis(AxisLims);    %set plot extents
-   colormesh2d(g,coraccel(tsa_num,:));
-   colormap(jet(20))
-   caxis([-0.0005 0.0005])
-   colorbar
-   title(['Coriolis Acceleration (m/s^2) ' times_str(tsr_num,:)]);
-   saveas(fig,[nametime 'n_coriolisaccel.png'])
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            cn4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            cn4.FrameRate=2;   %2 frames / second
+            cn4.Quality=100;
+            open(cn4);
+         end
+         writeVideo(cn4,frames);
+      end
+
+      if corriolis
+
+         fignum=fignum+1;
+         fig=figure(fignum);     %Coriolis acceleration
+         axis(AxisLims);    %set plot extents
+         colormesh2d(g,coraccel(tsa_num,:)');
+         colormap(jet(20))
+         caxis([-0.001 0.001])
+         colorbar
+         title(['Coriolis Acceleration (m/s^2) ' times_str(tsr_num,:)]);
+         nameroot = 'corriolis_accel';
+%        saveas(fig,[nametime 'n_coriolisaccel.png'])
+
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            cr4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            cr4.FrameRate=2;   %2 frames / second
+            cr4.Quality=100;
+            open(cr4);
+         end
+         writeVideo(cr4,frames);
+      end
+
+      if centocorr    %centrifugal / coriolis  
+
+         fignum=fignum+1;
+         fig=figure(fignum);     
+         axis(AxisLims);   
+         colormesh2d(g,abs(centovercor(tsa_num,:)'));
+         colormap(jet(20))
+         caxis([0 3])
+         colorbar
+         title(['abs(Centrifugal/Coriolis) ' times_str(tsr_num,:)]);
+         nameroot = 'centovercorr_accel';
+%        saveas(fig,[nametime 'n_centovercoraccel.png'])
  
-% fignum=fignum+1;
-% fig=figure(fignum);     %centrifugal / coriolis
-% axis(AxisLims);    %set plot extents
-% colormesh2d(g,abs(centovercor(tsa_num,:)));
-% colormap(jet(20))
-% caxis([0 3])
-% colorbar
-% title(['abs(Centrifugal/Coriolis) ' times_str(tsr_num,:)]);
-% saveas(fig,[nametime 'n_centovercoraccel.png'])
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            coc4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            coc4.FrameRate=2;   %2 frames / second
+            coc4.Quality=100;
+            open(coc4);
+         end
+         writeVideo(coc4,frames);
+      end
+
+      if dzetadn
+
+         fignum=fignum+1;
+         fig=figure(fignum);    
+         axis(AxisLims);    %set plot extents
+         colormesh2d(g,gdzetadn(tsa_num,:)');
+         colormap(jet(20))
+         caxis([-0.001 0.001])
+         colorbar
+         title(['-g dzeta/dn (m/s^2) ' times_str(tsr_num,:)]);
+         nameroot = 'gdzetadn';
+%        saveas(fig,[nametime 'n_gdzetadn.png'])
  
-   fignum=fignum+1;
-   fig=figure(fignum);     %g dzeta/dn
-   axis(AxisLims);    %set plot extents
-   colormesh2d(g,gdzetadn(tsa_num,:));
-   colormap(jet(20))
-   caxis([-0.001 0.001])
-   colorbar
-   title(['g dzeta/dn (m/s^2) ' times_str(tsr_num,:)]);
-   saveas(fig,[nametime 'n_gdzetadn.png'])
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            den4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            den4.FrameRate=2;   %2 frames / second
+            den4.Quality=100;
+            open(den4);
+         end
+         writeVideo(den4,frames);
+      end
+
+      if wstressn
+
+         fignum=fignum+1;
+         fig=figure(fignum);     %Surface winds stress/H in n direction
+         axis(AxisLims);    %set plot extents
+         colormesh2d(g,windstressn(tsa_num,:)');
+         colormap(jet(20))
+         caxis([-0.001 0.001])
+         colorbar
+         title(['wind stress/H n (m/s^2) ' times_str(tsr_num,:)]);
+         nameroot = 'windstressn';
+%        saveas(fig,[nametime 'n_windstressn.png'])
+
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            wn4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            wn4.FrameRate=2;   %2 frames / second
+            wn4.Quality=100;
+            open(wn4);
+         end
+         writeVideo(wn4,frames);
+      end
+
+      if rstressn
+
+         fignum=fignum+1;
+         fig=figure(fignum);     %wave radiation stress grad/H in n direction
+         axis(AxisLims);    %set plot extents
+         colormesh2d(g,radstressgradn(tsa_num,:)');
+         colormap(jet(20))
+         caxis([-0.001 0.001])
+         colorbar
+         title(['wave radiation stress/H n (m/s^2) ' times_str(tsr_num,:)]);
+         nameroot = 'radstressn';
+%        saveas(fig,[nametime 'n_waveradstressgrad.png'])
+  
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            rn4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            rn4.FrameRate=2;   %2 frames / second
+            rn4.Quality=100;
+            open(rn4);
+         end
+         writeVideo(rn4,frames);
+      end
+
+      if dpresdn
+
+         fignum=fignum+1;
+         figure(fignum);     %g datmospres/dn
+         axis(AxisLims);    %set plot extents
+         colormesh2d(g,gdatmospresdn(tsa_num,:)');
+         colormap(jet(20))
+         caxis([-0.001 0.001])
+         colorbar
+         title(['g datmospres/dn (m/s^2) ' times_str(tsr_num,:)]);
+         nameroot = 'dpresdn';
+%         saveas(fig,[nametime 'n_gdatmospresdn.png'])
+
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            dpn4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            dpn4.FrameRate=2;   %2 frames / second
+            dpn4.Quality=100;
+            open(dpn4);
+         end
+         writeVideo(dpn4,frames);
+      end
+
+      if mombaln
+    
+         fignum=fignum+1;
+         fig=figure(fignum);  
+         axis(AxisLims);    %set plot extents
+         colormesh2d(g,totalmombaln(tsa_num,:)');
+         colormap(jet(20))
+         caxis([-0.0002 0.0002])
+         colorbar
+         title(['total n mom bal (m/s^2) ' times_str(tsr_num,:)]);
+         nameroot = 'mombaln';
+%       saveas(fig,[nametime 'n_totalmombal.png'])
+
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            mbn4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            mbn4.FrameRate=2;   %2 frames / second
+            mbn4.Quality=100;
+            open(mbn4);
+         end
+         writeVideo(mbn4,frames);
+      end
+
+    if dzetads
+
+         fignum=fignum+1;
+         fig=figure(fignum);
+         axis(AxisLims);    %set plot extents
+         colormesh2d(g,gdzetads(tsa_num,:)');
+         colormap(jet(20))
+         caxis([-0.001 0.001])
+         colorbar
+         title(['-g dzeta/ds (m/s^2) ' times_str(tsr_num,:)]);
+         nameroot = 'gdzetads';
+%         saveas(fig,[nametime 's_gdzetads.png'])
+
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            des4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            des4.FrameRate=2;   %2 frames / second
+            des4.Quality=100;
+            open(des4);
+         end
+         writeVideo(des4,frames);
+      end 
+
+      if bernoulli
+
+         fignum=fignum+1;
+         fig=figure(fignum);     %bernoulli acceleration
+         axis(AxisLims);    %set plot extents
+         colormesh2d(g,bernaccel(tsa_num,:)');
+         colormap(jet(20))
+         caxis([-0.001 0.001])
+         colorbar
+         title(['Bernoulli Acceleration (m/s^2) ' times_str(tsr_num,:)]);
+         nameroot = 'bernoulli_accel';
+%         saveas(fig,[nametime 's_bernoulliaccel.png'])
+
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            ber4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            ber4.FrameRate=2;   %2 frames / second
+            ber4.Quality=100;
+            open(ber4);
+         end
+         writeVideo(ber4,frames);
+      end 
+
+      if bstress
+
+         fignum=fignum+1;
+         fig=figure(fignum);  
+         axis(AxisLims);    %set plot extents
+         colormesh2d(g,botfric(tsa_num,:)');
+         colormap(jet(20))
+         caxis([-0.001 0.001])
+         colorbar
+         title(['Bottom Stress/H (m/s^2) ' times_str(tsr_num,:)]);
+         nameroot = 'botstress';
+%        saveas(fig,[nametime 's_bottomstress.png'])
+
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            bs4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            bs4.FrameRate=2;   %2 frames / second
+            bs4.Quality=100;
+            open(bs4);
+         end
+         writeVideo(bs4,frames);
+      end
+
+      if wstresss
  
-   fignum=fignum+1;
-   fig=figure(fignum);     %Surface winds stress/H in n direction
-   axis(AxisLims);    %set plot extents
-   colormesh2d(g,windstressn(tsa_num,:));
-   colormap(jet(20))
-   caxis([-0.001 0.001])
-   colorbar
-   title(['wind stress/H n (m/s^2) ' times_str(tsr_num,:)]);
-   saveas(fig,[nametime 'n_windstress.png'])
- 
-% fignum=fignum+1;
-% fig=figure(fignum);     %g datmospres/dn
-% axis(AxisLims);    %set plot extents
-% colormesh2d(g,gdatmospresdn(tsa_num,:));
-% colormap(jet(20))
-% caxis([-0.001 0.001])
-% colorbar
-% title(['g datmospres/dn (m/s^2) ' times_str(tsr_num,:)]);
-% saveas(fig,[nametime 'n_gdatmospresdn.png'])
- 
-% fignum=fignum+1;
-% fig=figure(fignum);    %lateral stress grads/H in n direction
-% axis(AxisLims);    %set plot extents
-% colormesh2d(g,LatStrgradn(tsa_num,:));
-% colormap(jet(20))
-% caxis([-0.001 0.001])
-% colorbar
-% title(['lateral stress grad/H n (m/s^2) ' times_str(tsr_num,:)]);
-% saveas(fig,[nametime 'n_laterstressgrad.png'])
- 
-% fignum=fignum+1;
-% fig=figure(fignum);     %wave radiation stress grad/H in n direction
-% axis(AxisLims);    %set plot extents
-% colormesh2d(g,radstressgradn(tsa_num,:));
-% colormap(jet(20))
-% caxis([-0.001 0.001])
-% colorbar
-% title(['wave radiation stress/H n (m/s^2) ' times_str(tsr_num,:)]);
-% saveas(fig,[nametime 'n_waveradstressgrad.png'])
- 
-   fignum=fignum+1;
-   fig=figure(fignum);     %total n momentum balance
-   axis(AxisLims);    %set plot extents
-   colormesh2d(g,totalmombaln(tsa_num,:));
-   colormap(jet(20))
-   caxis([-0.0002 0.0002])
-   colorbar
-   title(['total n mom bal (m/s^2) ' times_str(tsr_num,:)]);
-   saveas(fig,[nametime 'n_totalmombal.png'])
- 
-% fignum=fignum+1;
-% fig=figure(fignum);     %Radius of curvature
-% axis(AxisLims);    %set plot extents
-% colormesh2d(g,Rs(tsa_num,:)/1000);
-% colormap(jet(20))
-% caxis([-100 100])
-% colorbar
-% title(['Radius of curvature (km) ' times_str(tsr_num,:)]);
-% saveas(fig,[nametime 'RadiusCurvature.png'])
- 
+         fignum=fignum+1;
+         fig=figure(fignum);     %Surface winds stress/H in s direction
+         axis(AxisLims);    %set plot extents
+         colormesh2d(g,windstresss(tsa_num,:)');
+         colormap(jet(20))
+         caxis([-0.001 0.001])
+         colorbar
+         title(['wind stress/H s (m/s^2) ' times_str(tsr_num,:)]);
+         nameroot = 'windstresss';
+%         saveas(fig,[nametime 's_windstress.png'])
+
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            ws4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            ws4.FrameRate=2;   %2 frames / second
+            ws4.Quality=100;
+            open(ws4);
+         end
+         writeVideo(ws4,frames);
+      end
+
+      if rstresss
+
+         fignum=fignum+1;
+         fig=figure(fignum);     %wave radiation stress grad/H in s direction
+         axis(AxisLims);    %set plot extents
+         colormesh2d(g,radstressgrads(tsa_num,:)');
+         colormap(jet(20))
+         caxis([-0.001 0.001])
+         colorbar
+         title(['wave radiation stress grad/H s (m/s^2) ' times_str(tsr_num,:)]);
+         nameroot = 'radstresss';
+%         saveas(fig,[nametime 's_waveradstressgrad.png'])
+
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            rs4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            rs4.FrameRate=2;   %2 frames / second
+            rs4.Quality=100;
+            open(rs4);
+         end
+         writeVideo(rs4,frames);
+      end 
+
+      if dpresds
+          
+         fignum=fignum+1;
+         fig=figure(fignum);     %g datmospres/ds
+         axis(AxisLims);    %set plot extents
+         colormesh2d(g,gdatmospresds(tsa_num,:)');
+         colormap(jet(20))
+         caxis([-0.001 0.001])
+         colorbar
+         title(['g datmospres/ds (m/s^2) ' times_str(tsr_num,:)]);
+         nameroot = 'dpresds';
+%         saveas(fig,[nametime 's_gdatmospresds.png'])
+
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            dps4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            dps4.FrameRate=2;   %2 frames / second
+            dps4.Quality=100;
+            open(dps4);
+         end
+         writeVideo(dps4,frames);
+      end
+
+      if mombals
+
+        fignum=fignum+1;
+        fig=figure(fignum);     %total s momentum balance
+        axis(AxisLims);    %set plot extents
+        colormesh2d(g,totalmombals(tsa_num,:)');
+        colormap(jet(20))
+        caxis([-0.0002 0.0002])
+        colorbar
+        title(['total s mom bal (m/s^2)  ' times_str(tsr_num,:)]);
+        nameroot = 'mombals';
+%        saveas(fig,[nametime 'n_totalmombal.png'])
+
+         frames = getframe(fig);
+
+%        gif animation    
+         im = frame2im(frames); 
+         [A,maps] = rgb2ind(im,256);
+         if tsa_num == 1
+            imwrite(A,maps,[nameroot '.gif'],'gif','LoopCount',Inf,'DelayTime',0.5);
+         else
+            imwrite(A,maps,[nameroot '.gif'],'gif','WriteMode','append','DelayTime',0.5);
+         end
+
+%        MPEG-4 animation    
+         if tsa_num == 1
+            mbs4=VideoWriter([nameroot '.mp4'],'MPEG-4');
+            mbs4.FrameRate=2;   %2 frames / second
+            mb4.Quality=100;
+            open(mbs4);
+         end
+         writeVideo(mbs4,frames);
+      end
+
+
+
 % fignum=fignum+1;
 % fig=figure(fignum);    %d us / dt in s equation
 % axis(AxisLims);    %set plot extents
-% colormesh2d(g,dusdt(tsa_num,:));
+% colormesh2d(g,dusdt(tsa_num,:)');
 % colormap(jet(20))
 % caxis([-0.001 0.001])
 % colorbar
 % title([' dus/dt (m/s^2) ' times_str(tsr_num,:)]);
 % saveas(fig,[nametime 's_dusdt.png'])
- 
+
 % fignum=fignum+1;
-% fig=figure(fignum);     %bernoulli acceleration
+% fig=figure(fignum);    %lateral stress grads/H in n direction
 % axis(AxisLims);    %set plot extents
-% colormesh2d(g,bernaccel(tsa_num,:));
+% colormesh2d(g,LatStrgradn(tsa_num,:)');
 % colormap(jet(20))
 % caxis([-0.001 0.001])
 % colorbar
-% title(['Bernoulli Acceleration (m/s^2) ' times_str(tsr_num,:)]);
-% saveas(fig,[nametime 's_bernoulliaccel.png'])
- 
+% title(['lateral stress grad/H n (m/s^2) ' times_str(tsr_num,:)]);
+% saveas(fig,[nametime 'n_laterstressgrad.png'])
+
 % fignum=fignum+1;
-% fig=figure(fignum);     %Bottom friction
+% fig=figure(fignum);     %Radius of curvature
 % axis(AxisLims);    %set plot extents
-% colormesh2d(g,botfric(tsa_num,:));
+% colormesh2d(g,Rs(tsa_num,:)'/1000);
 % colormap(jet(20))
-% caxis([-0.001 0.001])
+% caxis([-100 100])
 % colorbar
-% title(['Bottom Stress/H (m/s^2) ' times_str(tsr_num,:)]);
-% saveas(fig,[nametime 's_bottomstress.png'])
- 
-% fignum=fignum+1;
-% fig=figure(fignum);    %g dzeta/ds
-% axis(AxisLims);    %set plot extents
-% colormesh2d(g,gdzetads(tsa_num,:));
-% colormap(jet(20))
-% caxis([-0.001 0.001])
-% colorbar
-% title(['g dzeta/ds (m/s^2) ' times_str(tsr_num,:)]);
-% saveas(fig,[nametime 's_gdzetads.png'])
- 
-% fignum=fignum+1;
-% fig=figure(fignum);     %Surface winds stress/H in s direction
-% axis(AxisLims);    %set plot extents
-% colormesh2d(g,windstresss(tsa_num,:));
-% colormap(jet(20))
-% caxis([-0.001 0.001])
-% colorbar
-% title(['wind stress/H s (m/s^2) ' times_str(tsr_num,:)]);
-% saveas(fig,[nametime 's_windstress.png'])
- 
-% fignum=fignum+1;
-% fig=figure(fignum);     %g datmospres/ds
-% axis(AxisLims);    %set plot extents
-% colormesh2d(g,gdatmospresds(tsa_num,:));
-% colormap(jet(20))
-% caxis([-0.001 0.001])
-% colorbar
-% title(['g datmospres/ds (m/s^2) ' times_str(tsr_num,:)]);
-% saveas(fig,[nametime 's_gdatmospresds.png'])
- 
+% title(['Radius of curvature (km) ' times_str(tsr_num,:)]);
+% saveas(fig,[nametime 'RadiusCurvature.png'])
+
 % fignum=fignum+1;
 % fig=figure(fignum);     %lateral stress gradient/H in s direction
 % axis(AxisLims);    %set plot extents
-% colormesh2d(g,LatStrgrads(tsa_num,:));
+% colormesh2d(g,LatStrgrads(tsa_num,:)');
 % colormap(jet(20))
 % caxis([-0.001 0.001])
 % colorbar
 % title(['lateral stress grad/H s (m/s^2) ' times_str(tsr_num,:)]);
 % saveas(fig,[nametime 's_laterstressgrad.png'])
- 
-% fignum=fignum+1;
-% fig=figure(fignum);     %wave radiation stress grad/H in s direction
-% axis(AxisLims);    %set plot extents
-% colormesh2d(g,radstressgrads(tsa_num,:));
-% colormap(jet(20))
-% caxis([-0.001 0.001])
-% colorbar
-% title(['wave radiation stress grad/H s (m/s^2) ' times_str(tsr_num,:)]);
-% saveas(fig,[nametime 's_waveradstressgrad.png'])
- 
-% fignum=fignum+1;
-% fig=figure(fignum);     %total s momentum balance
-% axis(AxisLims);    %set plot extents
-% colormesh2d(g,totalmombals(tsa_num,:));
-% colormap(jet(20))
-% caxis([-0.0002 0.0002])
-% colorbar
-% title(['total s mom bal (m/s^2)  ' times_str(tsr_num,:)]);
-% saveas(fig,[nametime 'n_totalmombal.png'])
- 
-   fignum=fignum+1;
-   fig=figure(fignum);     %along stream velocity (m/s)
-   axis(AxisLims);    %set plot extents
-   colormesh2d(g,us(tsa_num,:));
-   colormap(jet(20))
-   caxis([-4 4])
-   colorbar
-   title(['us along stream vel (m/s) ' times_str(tsr_num,:)]);
-   saveas(fig,[nametime 'alongstreamvel.png'])
- 
+
 % fignum=fignum+1;
 % fig=figure(fignum);     %along stream angle (deg cw from N)
 % axis(AxisLims);    %set plot extents
-% colormesh2d(g,alpha(tsa_num,:));
+% colormesh2d(g,alpha(tsa_num,:)');
 % colormap(jet(20))
 % caxis([-180 180])
 % colorbar
@@ -778,7 +1432,7 @@ for it=ts0:tsinc:ts1
 % fignum=fignum+1;
 % fig=figure(fignum);     %SmagEv1 (m/s)
 % axis(AxisLims);    %set plot extents
-% colormesh2d(g,SmagEv1_n);
+% colormesh2d(g,SmagEv1_n');
 % colormap(jet(20))
 % caxis([0 50])
 % colorbar
@@ -788,7 +1442,7 @@ for it=ts0:tsinc:ts1
 % fignum=fignum+1;
 % fig=figure(fignum);     %SmagEv2 (m/s)
 % axis(AxisLims);    %set plot extents
-% colormesh2d(g,SmagEv2_n);
+% colormesh2d(g,SmagEv2_n');
 % colormap(jet(20))
 % caxis([0 50])
 % colorbar
@@ -798,7 +1452,7 @@ for it=ts0:tsinc:ts1
 % fignum=fignum+1;
 % fig=figure(fignum); %2D Primitive Continuity
 % axis(AxisLims);    %set plot extents
-% colormesh2d(g,twodprimcont(:));
+% colormesh2d(g,twodprimcont(:)');
 % colormap(jet(20))
 % caxis([-0.5 0.5])
 % colorbar
@@ -808,14 +1462,13 @@ for it=ts0:tsinc:ts1
 % fignum=fignum+1;
 % fig=figure(fignum); %dudx + dvdy
 % axis(AxisLims);    %set plot extents
-% colormesh2d(g,dudxpdvdy(:));
+% colormesh2d(g,dudxpdvdy(:)');
 % colormap(jet(20))
 % caxis([-0.0001 0.0001])
 % colorbar
 % title(['du/dx + dv/dy (1/s) ' times_str(tsr_num,:)]);
 % saveas(fig,[nametime 'dudxpdvdy.png'])
 
-end
-
+   end
 end
 

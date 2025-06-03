@@ -1,10 +1,13 @@
 function WriteOwi(D,filename)
 %WriteOwi - output OWI-formatted wind/pressure files from an OwiStruct 
 %
-%  original code for Basin and Region domains by B Blanton
-%  additional code for an additional Local domain by R Luettich    2/9/2022
-%  fixed bug in 1st header line in regional, local files       RL 2/14/2022
-%  eliminated minutes in 1st header line, all files RL 2/28/2022
+%  original code for Basin and Region domains          B Blanton
+%  code for Local domain                               R Luettich    2/9/2022
+%  bug fix in 1st header line in Regional, Local files R Luettich 2/14/2022
+%  eliminated minutes in 1st header line, all files    R Luettich 2/28/2022
+%  eliminated extra digit to right of decimal pt in SWLon  R Luettich 1/29/2025
+%  eliminated blank line between time snaps when # output values 
+%                                   is divisible by 8  R Luettich 1/31/2025
 %
 % WriteOwi(Owi,filename)
 % 
@@ -19,11 +22,11 @@ function WriteOwi(D,filename)
 %                       'hur_Region.win','hur_Local.pre','hur_Local.win'}
 %
 
-flds={'time','iLat','iLong',...
-      'DX','DY','SWLat','SWLon',...
-       'XGrid','YGrid','Pre','WinU', 'WinV'};
+flds={'time','iLat','iLong', 'DX','DY','SWLat','SWLon',...
+     'XGrid','YGrid','Pre','WinU', 'WinV'};
  
 % check for required fields
+
 if ~isfield(D,'Basin')
     error('OwiStruct must have Basin grid defined.')
 else
@@ -51,6 +54,8 @@ else
         error('Input OwiStruct.Local is missing required fields.')
     end
 end
+
+% specify output file
 
 if ~exist('filename')
    filename='fort';
@@ -90,8 +95,11 @@ else
     end
 end
 
-%             1234567890
-time_string ='iLat=%4diLong=%4dDX=%6.4fDY=%6.4fSWLat=%8.5fSWLon=%8.4fDT=%12s';
+%  set up the output formats
+
+%time_string
+%='iLat=%4diLong=%4dDX=%6.4fDY=%6.4fSWLat=%8.5fSWLon=%8.4fDT=%12s'; %original
+time_string ='iLat=%4diLong=%4dDX=%6.4fDY=%6.4fSWLat=%8.5fSWLon=%8.3fDT=%12s';
 value_string=' %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f %9.4f\n';
 
 % set Basin times
@@ -128,17 +136,19 @@ t2=datestr(bt1,30);
 t2([9 12 13 14 15])=[];
 header1=sprintf('Oceanweather WIN/PRE Format                            %10s     %10s',t1,t2);
 
-% write out Basin grid
-fprintf('Writing Basin files:  \n')
+% write out Basin files
+fprintf('Writing Basin files:  ')
 fidw=fopen(BasinWinFile,'w');
 fidp=fopen(BasinPreFile,'w');
 fprintf(fidw,'%s\n',header1);
 fprintf(fidp,'%s\n',header1);
 
+nextline_Basin=mod(D.Basin.iLat(1)*D.Basin.iLong(1),8);
+
 for i=1:length(D.Basin.time)
     
-   t=datestr(D.Basin.time(i),30);
-   t([9 14 15])=[];
+   t=datestr(D.Basin.time(i),30);  % 30 stand for the format yyyymmddTHHMMSS
+   t([9 14 15])=[];                % elminate T and SS
    header=sprintf(time_string,D.Basin.iLat(i),D.Basin.iLong(i),...
        D.Basin.DX(i),D.Basin.DY(i),D.Basin.SWLat(i),D.Basin.SWLon(i),t);
    %fprintf('%s\n',header);
@@ -147,18 +157,24 @@ for i=1:length(D.Basin.time)
    fprintf(fidp,'%s\n',header);   
    %fprintf('   Min,Max pre = %f %f\n',min(out(:)),max(out(:)))
    fprintf(fidp,value_string,out');
-   fprintf(fidp,'\n');
+   if nextline_Basin~=0
+       fprintf(fidp,'\n');
+   end
    
    out=D.Basin.WinU{i};
    fprintf(fidw,'%s\n',header);
    %fprintf('   Min,Max u = %f %f\n',min(out(:)),max(out(:)))
    fprintf(fidw,value_string,out');
-   fprintf(fidw,'\n');
+   if nextline_Basin~=0
+       fprintf(fidw,'\n');
+   end
    
    out=D.Basin.WinV{i};
    %fprintf('   Min,Max v = %f %f\n',min(out(:)),max(out(:)))
    fprintf(fidw,value_string,out');
-   fprintf(fidw,'\n');
+   if nextline_Basin~=0   
+       fprintf(fidw,'\n');
+   end
   
 end
 
@@ -166,13 +182,15 @@ fclose(fidp);
 fclose(fidw);
 fprintf('Done..\n')
 
-% write out Region grid
+% write out Region files
 if Region
-    fprintf('Writing Region files:  \n')
+    fprintf('Writing Region files:  ')
     fidw=fopen(RegionWinFile,'w');
     fidp=fopen(RegionPreFile,'w');
     fprintf(fidw,'%s\n',header1);
     fprintf(fidp,'%s\n',header1);
+
+    nextline_Region=mod(D.Region.iLat(1)*D.Region.iLong(1),8);    
     
     for i=1:length(D.Region.time)
         
@@ -186,18 +204,24 @@ if Region
         fprintf(fidp,'%s\n',header);
         %fprintf('   Min,Max pre = %f %f\n',min(out(:)),max(out(:)))
         fprintf(fidp,value_string,out');
-        fprintf(fidp,'\n');
+        if nextline_Region~=0        
+            fprintf(fidp,'\n');
+        end
         
         out=D.Region.WinU{i};
         fprintf(fidw,'%s\n',header);
         %fprintf('   Min,Max u = %f %f\n',min(out(:)),max(out(:)))
         fprintf(fidw,value_string,out');
-        fprintf(fidw,'\n');
+        if nextline_Region~=0         
+            fprintf(fidw,'\n');
+        end
         
         out=D.Region.WinV{i};
         %fprintf('   Min,Max v = %f %f\n',min(out(:)),max(out(:)))
         fprintf(fidw,value_string,out');
-        fprintf(fidw,'\n');
+        if nextline_Region~=0         
+            fprintf(fidw,'\n');
+        end
         
     end
     
@@ -206,13 +230,15 @@ if Region
     fprintf('Done..\n')
 end
 
-% write out Local grid
+% write out Local files
 if Local
-    fprintf('Writing Local files:  \n')
+    fprintf('Writing Local files:  ')
     fidw=fopen(LocalWinFile,'w');
     fidp=fopen(LocalPreFile,'w');
     fprintf(fidw,'%s\n',header1);
     fprintf(fidp,'%s\n',header1);
+
+    nextline_Local=mod(D.Local.iLat(1)*D.Local.iLong(1),8);  
     
     for i=1:length(D.Local.time)
         
@@ -226,18 +252,24 @@ if Local
         fprintf(fidp,'%s\n',header);
         %fprintf('   Min,Max pre = %f %f\n',min(out(:)),max(out(:)))
         fprintf(fidp,value_string,out');
-        fprintf(fidp,'\n');
+        if nextline_Local~=0         
+            fprintf(fidp,'\n');
+        end
         
         out=D.Local.WinU{i};
         fprintf(fidw,'%s\n',header);
         %fprintf('   Min,Max u = %f %f\n',min(out(:)),max(out(:)))
         fprintf(fidw,value_string,out');
-        fprintf(fidw,'\n');
+        if nextline_Local~=0         
+            fprintf(fidw,'\n');
+        end
         
         out=D.Local.WinV{i};
         %fprintf('   Min,Max v = %f %f\n',min(out(:)),max(out(:)))
         fprintf(fidw,value_string,out');
-        fprintf(fidw,'\n');
+        if nextline_Local~=0 
+            fprintf(fidw,'\n');
+        end
         
     end
     
