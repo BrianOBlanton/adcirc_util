@@ -79,7 +79,7 @@ else
     x=fem_grid_struct.x_cart;
     y=fem_grid_struct.y_cart;
 end
-z=fem_grid_struct.z;
+% z=fem_grid_struct.z;
 
 % eliminate elements outside of current view; if element centroids are
 % attached to grid struct
@@ -105,15 +105,15 @@ edges=[elems(:,[1 2]); elems(:,[2 3]) ; elems(:,[3 1])];
 [m,~]=size(edges);
 xt=[x(edges) NaN*ones([m 1])];
 yt=[y(edges) NaN*ones([m 1])];
-zt=ones(size([z(edges) NaN*ones([m 1])]));
+% zt=ones(size([z(edges) NaN*ones([m 1])]));
 
 xt=xt';
 yt=yt';
-zt=zt';
+%zt=zt';
 
 xt=xt(:);
 yt=yt(:);
-zt=zt(:);
+%zt=zt(:);
 
 % if ismap(gca)
 %     mstruct=gcm;
@@ -123,13 +123,13 @@ zt=zt(:);
 % DRAW GRID
 
 if ismap(gca) 
-    hel=linem(yt,xt,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+    hel=linem(yt,xt,'Tag','elements','Color','k','LineStyle','-',varargin{:});
 elseif strcmp(get(gca,'Type'),'mapaxes')
-    hel=line(ax,yt,xt,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+    hel=line(ax,yt,xt,'Tag','elements','Color','k','LineStyle','-',varargin{:});
 elseif strcmp(get(gca,'Type'),'geoaxes')
-    hel=line(ax,yt,xt,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+    hel=line(ax,yt,xt,'Tag','elements','Color','k','LineStyle','-',varargin{:});
 else
-    hel=line(ax,xt,yt,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+    hel=line(ax,xt,yt,'Tag','elements','Color','k','LineStyle','-',varargin{:});
 end
 
 %hel=line(ax,xt,yt,zt,'Color','k',varargin{:},'Tag','elements');

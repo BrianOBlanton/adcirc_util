@@ -9,6 +9,11 @@ classdef nws13
         ax
     end
 
+    properties (Constant)
+        nest_vec_stride=5;
+        main_vec_stride=1;
+    end
+
     methods
 
         %class init
@@ -73,25 +78,40 @@ classdef nws13
 
             for j=2:length(obj.grids)
 
-                i=find(obj.grids(j).time==t);
+                i=find(obj.grids(j).time==t)
 
-                lon=squeeze(obj.grids(j).lon(i,:,:));
-                lat=squeeze(obj.grids(j).lat(i,:,:));
-                psfc=squeeze(obj.grids(j).PSFC(i,:,:));
+                if ~isempty(i)
 
-                pcolor(lon,lat,psfc)
+                    lon= squeeze(obj.grids(j).lon(i,1:obj.nest_vec_stride:end,1:obj.nest_vec_stride:end));
+                    lat= squeeze(obj.grids(j).lat(i,1:obj.nest_vec_stride:end,1:obj.nest_vec_stride:end)); 
+                    psl=squeeze(obj.grids(j).PSFC(i,1:obj.nest_vec_stride:end,1:obj.nest_vec_stride:end)); 
+                    u10= squeeze(obj.grids(j).U10(i,1:obj.nest_vec_stride:end,1:obj.nest_vec_stride:end)); 
+                    v10= squeeze(obj.grids(j).V10(i,1:obj.nest_vec_stride:end,1:obj.nest_vec_stride:end)); 
+                  
+                    pcolor(lon,lat,psl)
+                    hold on
+                    hv=vecplot(lon,lat,u10,v10,'ScaleFac',10,'ScaleLabel','no scale');
+%                    hv=quiver(lon,lat,u10,v10,10);
 
-                xb=[lon(1,:)'
-                    lon(:,end)
-                    lon(end,:)'
-                    flipud(lon(:,1))];
-                yb=[lat(1,:)'
-                    lat(:,end)
-                    lat(end,:)'
-                    flipud(lat(:,1))];
+                    hv.Color='k';
 
-                line(xb,yb,Color='k')
+                    xb=[lon(1,:)'
+                        lon(:,end)
+                        lon(end,:)'
+                        flipud(lon(:,1))];
+                    yb=[lat(1,:)'
+                        lat(:,end)
+                        lat(end,:)'
+                        flipud(lat(:,1))];
+    
+                    line(xb,yb,Color='k')
+                    text(xb(1),yb(1),string(j))
 
+                else
+
+                    fprintf('Nothing to draw for rank %d at time %s.\n',j,string(t))
+
+                end
             end
 
         end
@@ -101,8 +121,24 @@ classdef nws13
             i=find(obj.grids(1).time==t);
 
             hold on
-            pcolor(obj.grids(1).lon(:,:), obj.grids(1).lat(:,:), ...
+            pcolor(obj.grids(1).lon(:,:), ...
+                   obj.grids(1).lat(:,:), ...
                    squeeze(obj.grids(1).PSFC(i,:,:)))
+
+            % hv=quiver(obj.grids(1).lon(1:obj.main_vec_stride:end,1:obj.main_vec_stride:end),...
+            %           obj.grids(1).lat(1:obj.main_vec_stride:end,1:obj.main_vec_stride:end),...
+            %           squeeze(obj.grids(1).U10(i,1:obj.main_vec_stride:end,1:obj.main_vec_stride:end)),...
+            %           squeeze(obj.grids(1).V10(i,1:obj.main_vec_stride:end,1:obj.main_vec_stride:end)),10);
+            hv=vecplot(obj.grids(1).lon(1:obj.main_vec_stride:end,1:obj.main_vec_stride:end),...
+                      obj.grids(1).lat(1:obj.main_vec_stride:end,1:obj.main_vec_stride:end),...
+                      squeeze(obj.grids(1).U10(i,1:obj.main_vec_stride:end,1:obj.main_vec_stride:end)),...
+                      squeeze(obj.grids(1).V10(i,1:obj.main_vec_stride:end,1:obj.main_vec_stride:end)),...
+                      'ScaleFac',100,'ScaleLabel','no scale');
+
+
+            hv.Color='k';
+
+
         end
 
         function obj=addStuff(obj)

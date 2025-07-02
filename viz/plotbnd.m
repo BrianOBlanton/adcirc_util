@@ -53,6 +53,11 @@ bnd=fem_grid_struct.bnd;
 x=fem_grid_struct.x;
 y=fem_grid_struct.y;
 
+if ismap(gca)
+    mstruct=gcm;
+    [x,y] = projfwd(mstruct,y,x);
+end
+
 ns=bnd(:,1);
 ne=bnd(:,2);
 X=[x(ns) x(ne) NaN*ones(size(ns))]';
@@ -61,7 +66,8 @@ X=X(:);
 Y=Y(:);
 
 if ismap(gca) 
-    hboun=linem(Y,X,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+    hboun=line(ax,X,Y,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+    % hboun=linem(Y,X,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
 elseif strcmp(get(gca,'Type'),'mapaxes')
     hboun=line(ax,Y,X,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
 elseif strcmp(get(gca,'Type'),'geoaxes')

@@ -5,7 +5,8 @@ function ReturnThisZeta=InterpTpxoToAdcircBoundaryAP(fgs,varargin)
 
 % Constits = {'m2','s2','n2','k2','k1','o1','p1','q1','mm','mf'};
 
-TpxoModelFileUrl='http://tds.renci.org:8080/thredds/dodsC/DataLayers/Tides/TPXO/h_tpxo7.2.nc';
+%TpxoModelFileUrl='https://tdsres.apps.renci.org/thredds/dodsC/DataLayers/Tides/TPXO/h_tpxo7.2.nc';
+TpxoModelFileUrl='/System/Volumes/Data/Projects/ees/TDS/DataLayers/Tides/TPXO/h_tpxo7.2.nc';
 
 %% extract model zeta 
 % file=sprintf('%s/%s',TpxoModelPath,TpxoModelFile);
@@ -14,6 +15,7 @@ TpxoModelFileUrl='http://tds.renci.org:8080/thredds/dodsC/DataLayers/Tides/TPXO/
 % end
 
 zeta=ncgeodataset(TpxoModelFileUrl);
+
 temp=zeta{'con'};
 temp=temp(:,:);
 
@@ -73,13 +75,17 @@ end
 ReturnThisZeta=[];
 
 %% Accumulate open boundary nodes
-xb=NaN*ones(fgs.nopenboundarynodes{1},1);
-yb=xb;
+% xb=NaN*ones(sum([fgs.nopenboundarynodes{:}]),1);
+% yb=xb;
 
-for i=1:fgs.nopenboundarynodes{1}
-   xb(i)=fgs.x(fgs.ob{1}(i));
-   yb(i)=fgs.y(fgs.ob{1}(i));
-end
+iob=cell2mat(fgs.ob');
+xb=fgs.x(iob);
+yb=fgs.y(iob);
+
+% for i=1:fgs.nopenboundarynodes{1}
+%    xb(i)=fgs.x(fgs.ob{1}(i));
+%    yb(i)=fgs.y(fgs.ob{1}(i));
+% end
 % if the min x (long) in the tpxo grid is positive, assume that 
 % the grid is in the range [0 360].  So, put ADCIRC boundary nodes into
 % same range.

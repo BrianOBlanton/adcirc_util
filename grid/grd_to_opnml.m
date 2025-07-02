@@ -12,6 +12,8 @@ function fem_grid_struct=grd_to_opnml(fort14name,verbose)
 % Call:   fem_grid_struct=grd_to_opnml(fort14name);
 %         fem_grid_struct=grd_to_opnml;
 
+% BOB: 2 July 2025, fixed for new VEW element spec
+
 if ~exist('verbose','var')
    verbose=false;
 end
@@ -51,8 +53,16 @@ if verbose, fprintf('%d ... ',nn),end
 
 % Get elements
 if verbose, fprintf('\nelements = '),end 
-temp=fscanf(fid,'%d %d %d %d %d',[5 ne])';
-e=temp(:,3:5);
+
+% fix for new VEW element spec
+l=fgetl(fid);
+l=fgetl(fid);
+ncol=length(strsplit(l));
+temp=fscanf(fid,'%d',[ncol ne-1])';
+temp=temp(:,3:5);
+e=[0 0 0;temp];
+l=sscanf(l,'%d');
+e(1,:)=l(3:5)';
 if verbose, fprintf('%d ... ',ne),end
 
 if range(e(:)) > length(x)
@@ -143,7 +153,7 @@ for i=1:fem_grid_struct.nland
       n23nodes=n23nodes+fem_grid_struct.nlandnodes(i);
       fem_grid_struct.ln{i}=temp(:,1);
      
-   case {4, 24}          % Node pairs for weirs
+   case {4, 24, 64}          % Node pairs for weirs
       n24=n24+1;
       temp=fscanf(fid,'%d %d %f %f %f',[5 fem_grid_struct.nlandnodes(i)])';
       n24pairs=n24pairs+fem_grid_struct.nlandnodes(i);
