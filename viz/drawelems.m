@@ -33,6 +33,7 @@ TheseElems=[];
 MeshHeight=1.;
 SPH=true;
 ax=[];
+bcol=[.8,.9,1];
 
 % Strip off propertyname/value pairs in varargin not related to
 % "line" object properties.
@@ -53,6 +54,9 @@ while k<length(varargin)
       varargin([k k+1])=[];
     case 'axes'
       ax=varargin{k+1};
+      varargin([k k+1])=[];
+    case 'bcol'
+      bcol=varargin{k+1};
       varargin([k k+1])=[];
     otherwise
       k=k+2;
@@ -81,13 +85,15 @@ else
 end
 z=fem_grid_struct.z;
 
-% eliminate elements outside of current view; if element centroids are
+fac=4;
+
+% eliminate elements outside of current view, if element centroids are
 % attached to grid struct
 if isempty(TheseElems)
     if isfield(fem_grid_struct,'xecen')
         axx=axis(ax);
-        dx=axx(2)-axx(1);
-        dy=axx(4)-axx(3);
+        dx=(axx(2)-axx(1))/fac;
+        dy=(axx(4)-axx(3))/fac;
         ikeep=fem_grid_struct.xecen>axx(1)-dx & ...
               fem_grid_struct.xecen<axx(2)+dx & ...
               fem_grid_struct.yecen>axx(3)-dy & ...
@@ -100,29 +106,50 @@ else
     elems=elems(TheseElems,:);
 end
 
-% COPY FIRST COLUMN TO LAST TO CLOSE ELEMENTS
-edges=[elems(:,[1 2]); elems(:,[2 3]) ; elems(:,[3 1])];
-[m,~]=size(edges);
-xt=[x(edges) NaN*ones([m 1])];
-yt=[y(edges) NaN*ones([m 1])];
-zt=ones(size([z(edges) NaN*ones([m 1])]));
-
-xt=xt';
-yt=yt';
-zt=zt';
-
-xt=xt(:);
-yt=yt(:);
-zt=zt(:);
-
+% DRAW GRID
 if ismap(gca)
     mstruct=gcm;
-    [xt,yt] = projfwd(mstruct,yt,xt);
+    [xt,yt] = projfwd(mstruct,y,x);
+    hel=trimesh(elems,xt,yt,0*xt,'facecolor',bcol,'edgecolor','k');
+else
+    hel=trimesh(elems,x,y,0*x,'facecolor',bcol,'edgecolor','k');
+    % hel=line(ax,xt,yt,'Color','k',varargin{:},'Tag','elements');
 end
+hel.Tag='elements';
 
-% DRAW GRID
-%hel=line(ax,xt,yt,zt,'Color','k',varargin{:},'Tag','elements');
-hel=line(ax,xt,yt,'Color','k',varargin{:},'Tag','elements');
+view(2)
+% axis equal
+% axis tight
+%axis off
+
+return
+
+
+% % COPY FIRST COLUMN TO LAST TO CLOSE ELEMENTS
+% edges=[elems(:,[1 2]); elems(:,[2 3]) ; elems(:,[3 1])];
+% [m,~]=size(edges);
+% xt=[x(edges) NaN*ones([m 1])];
+% yt=[y(edges) NaN*ones([m 1])];
+% zt=ones(size([z(edges) NaN*ones([m 1])]));
+% 
+% 
+% xt=xt';
+% yt=yt';
+% zt=zt';
+% 
+% xt=xt(:);
+% yt=yt(:);
+% zt=zt(:);
+% 
+% % DRAW GRID
+% if ismap(gca)
+%     %mstruct=gcm;
+%     %[xt,yt] = projfwd(mstruct,yt,xt);
+%     hel=linem(yt,xt,'Tag','boundary','Color','k','LineStyle','-',varargin{:});
+% else
+%     hel=line(ax,xt,yt,'Color','k',varargin{:},'Tag','elements');
+% end
+% 
 
 
 

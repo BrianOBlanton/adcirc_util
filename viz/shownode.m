@@ -34,7 +34,7 @@ z=fem_grid_struct.z;
 if ~exist('in')
    disp('Click on node ...');
    waitforbuttonpress;
-   Pt=gcp;
+   Pt=GetCurrentPoint;
    xp=Pt(2);yp=Pt(4);
    htempmark=line(xp,yp,'LineStyle','+','Tag','Temp Node Marker');
    ie=findelem(fem_grid_struct,[xp yp]);

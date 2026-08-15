@@ -12,9 +12,8 @@ function h=numbnd(fem_grid_struct,varargin)
 %
 
 % DEFINE ERROR STRINGS
-err1=['Not enough input arguments; need atleast fem_grid_struct'];
-err2=['Too many input arguments; type "help numbnd"'];
-       
+err1='Not enough input arguments; need atleast fem_grid_struct';
+
 % check arguments
 if nargin ==0 
    error(err1);
