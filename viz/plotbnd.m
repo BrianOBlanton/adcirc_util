@@ -77,7 +77,7 @@ else
 end
 
 set(hboun,'ZData',2*ones(size(get(hboun,'XData'))))
-set(hboun,'DisplayName','Boundary')
+set(hboun,'DisplayName','Boundary','HandleVisibility','off')
 
 if nargout==1,retval=hboun;end
 %

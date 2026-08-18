@@ -23,7 +23,7 @@ if nargin~=3
 elseif nargout~=1
    error('ELE2NEI REQUIRES!!! 1 output argument.');
 end
-
+disp('Calling ele2neimex5...')
 nei=ele2neimex5(e,x,y);
 
 %

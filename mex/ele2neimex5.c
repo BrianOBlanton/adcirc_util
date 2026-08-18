@@ -3,6 +3,7 @@
 #include "mex.h"
 #define NEIMAX 20
 #include "opnml_mex5_allocs.c"
+#define printfFnc(...) { mexPrintf(__VA_ARGS__); mexEvalString("pause(.001);");}
 
 /************************************************************
 
@@ -32,31 +33,34 @@ void mexFunction(int            nlhs,
 /* ---- check I/O arguments ----------------------------------------- */
    if (nrhs != 3)  mexErrMsgTxt("ele2nei requires 3 input arguments.");
    else if (nlhs!= 1)  mexErrMsgTxt("ele2nei requires 1 output arguments.");
-
+  
 /* ---- dereference input ------------------------------------------- */
-   dele=mxGetPr(prhs[0]);
    ne=mxGetM(prhs[0]); 
+   nn=mxGetM(prhs[1]);
+   dele=mxGetPr(prhs[0]);
    x=mxGetPr(prhs[1]);
    y=mxGetPr(prhs[2]);
-   nn=mxGetM(prhs[1]);
-   fprintf(stderr,"NE = %d\n",ne);  
-   fprintf(stderr,"NN = %d\n",nn);  
-
+   printfFnc("NN = %d\n",nn);
+   printfFnc("NE = %d\n",ne);
+    
 /* ---- allocate space for int representation of dele &
         convert double element representation to int         -------- */
+   printfFnc("Allocating int ele\n");
    ele=(int **)mxImatrix(1,ne,1,3);
    for (i=1;i<=ne;i++){
       for(j=1;j<=3;j++){
          ele[i][j]=((int)dele[(i-1)+(j-1)*ne]);
       }
    }
-            
+
 /* Allocate neighbor list array with matlab alloc routines in NRC style */
+   printfFnc("Allocating int nei ...\n");
    nei=(int **)mxImatrix(1,nn,1,NEIMAX);
    numnei=(int *)mxIvector(1,nn);
      
-   fprintf(stderr,"Computing neighbor list (Max=%d)...\n",NEIMAX);  
+   printfFnc("Computing neighbor list (Max=%d)...\n",NEIMAX);  
    for(k=1;k<=nn;k++){
+      if (k % 10000 == 0) printfFnc("%d/%d\n",k,nn);
       nei[k][1]=k;
       numnei[k]=1;
       for(l=1;l<=ne;l++){
@@ -83,10 +87,10 @@ void mexFunction(int            nlhs,
    for(k=1;k<=nn;k++)
       maxnei=IMAX(maxnei,numnei[k]);
    maxnei--;
-   fprintf(stderr,"Max Number of neighbors = %d\n",maxnei);
+   printfFnc("Max Number of neighbors = %d\n",maxnei);
 
 /* sort each node's neighbors into CCW around center node; ---------- */
-   puts("Sorting neighboring node order on ANGLE");
+   printfFnc("Sorting neighboring node order on ANGLE.\n");
    itheta=(int *)mxIvector(1,NEIMAX);
    ilist=(int *)mxIvector(1,NEIMAX);
    
@@ -105,7 +109,7 @@ void mexFunction(int            nlhs,
          nei[k][j]=ilist[j-1]; 
 
    } 
-   puts("Sorting finished");
+   printfFnc("Sorting finished.\n");
    
 /* allocate and fill double neighbor vector for return */
    dnei=(double *)mxDvector(0,nn*maxnei);   
@@ -203,6 +207,3 @@ void isort2(unsigned long n, int arr[], int brr[])
 }
 #undef M
 #undef NSTACK
-
-
-

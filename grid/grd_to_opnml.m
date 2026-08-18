@@ -57,11 +57,11 @@ if verbose, fprintf('\nelements = '),end
 % fix for new VEW element spec
 l=fgetl(fid);
 l=fgetl(fid);
-ncol=length(strsplit(l));
+ncol=length(strsplit(strip(l)));
 temp=fscanf(fid,'%d',[ncol ne-1])';
 temp=temp(:,3:5);
 e=[0 0 0;temp];
-l=sscanf(l,'%d');
+l=sscanf(strip(l),'%d');
 e(1,:)=l(3:5)';
 if verbose, fprintf('%d ... ',ne),end
 

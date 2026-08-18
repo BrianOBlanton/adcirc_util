@@ -1,5 +1,5 @@
-function D=read_adcirc_nws9(filename)
-% read_adcirc_nws9 - Read an ADCIRC NWS8 fort.22 file
+function D=read_adcirc_nws8(filename)
+% read_adcirc_nws8 - Read an ADCIRC NWS8 fort.22 file
 % returns a struct with: 
 % 
 % f22 = 
@@ -15,10 +15,10 @@ function D=read_adcirc_nws9(filename)
 
 
 for i=1:length(lat)
-   D.lat(i)=str2num(lat{i}(1:3))/10;
-   D.lon(i)=-str2num(lon{i}(1:3))/10;
-   D.rmw(i)=str2num(rmw{i});
-   D.cp(i)=str2num(cp{i});
+   D.lat(i)=str2double(replace(lat{i},{'N','S'},''))/10;
+   D.lon(i)=-str2double(replace(lon{i},{'E','W'},''))/10;
+   D.rmw(i)=str2double(rmw{i});
+   D.cp(i)=str2double(cp{i});
    yyyy=str2num(yyyymmdd{i}(1:4));
    mm=str2num(yyyymmdd{i}(5:6));
    dd=str2num(yyyymmdd{i}(7:8));

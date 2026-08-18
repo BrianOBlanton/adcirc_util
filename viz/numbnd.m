@@ -11,17 +11,31 @@ function h=numbnd(fem_grid_struct,varargin)
 % Summer 1997
 %
 
-% DEFINE ERROR STRINGS
-err1=['Not enough input arguments; need atleast fem_grid_struct'];
-err2=['Too many input arguments; type "help numbnd"'];
-       
+     
 % check arguments
 if nargin ==0 
-   error(err1);
+   error('Not enough input arguments; need atleast fem_grid_struct');
 end  
 
 if ~is_valid_struct(fem_grid_struct)
    error('    Argument to NUMBND must be a valid fem_grid_struct.')
+end
+
+k=1;
+% Defaults
+fs=12;
+ax=[];
+while k<length(varargin)
+  switch lower(varargin{k})
+    case 'axes'
+      ax=varargin{k+1};
+      varargin([k k+1])=[];
+    otherwise
+      k=k+2;
+  end
+end
+if isempty(ax)
+    ax=gca;
 end
 
 % Extract grid fields from fem_grid_struct
@@ -51,17 +65,19 @@ strlist=num2str(temp,12);
 
 xx=xb(filt);
 yy=yb(filt);
-format long e
+
 % label only those nodes that lie within viewing window.
-htext=text(xx,yy,strlist,...
+htext=text(ax,xx,yy,strlist,...
            'HorizontalAlignment','center',...
            'VerticalAlignment','middle',...
            'EdgeColor','k',...
            'BackgroundColor','w',...
-           'Clipping','on',...
            'Color','k',...
+           'FontSize',fs,...
+           'Margin',1,...
            'Tag','Bnd Node #',...
            varargin{:});
+           %'Clipping','on',...
 
 if nargout==1,h=htext;end
 return
