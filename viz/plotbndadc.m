@@ -67,11 +67,12 @@ cols={
     '-' 'none' '-'   % type 17 (n/a)
     '-' 'none' '-'   % type 18 (n/a)
     '-' 'none' '-'   % type 19 (n/a)
-    'g' 'none' '.'   % type 20
+    'c' 'none' '.'   % type 20
     'b' 'none' '.'   % type 21
     'r' 'none' '.'   % type 22
     'c' 'none' '.'   % type 23
     'm' 'none' 's'   % type 24
+    'k' 'none' 's'   % type 64 VEW
     };
 
 legs={'Land (0, strong no normal, free tangential)'            % ibtype==0
@@ -99,6 +100,7 @@ legs={'Land (0, strong no normal, free tangential)'            % ibtype==0
       'River (22, weak normal, free tangential)'
       '-'
       'Weir (24)'
+      'VEW (64)'
       };
 
 nriver=0;
@@ -109,10 +111,13 @@ if isfield(fem_grid_struct,'ibtype')
     
     for i=1:length(Ibtypes)
         
-        fprintf(' Drawing ibtype=%d\n',Ibtypes(i))
-        jj=Ibtypes(i)+1;
+        % +1 bec ibtype starts at 0 and the cols and 
+        % legs cells are indexed by ibtype
+        ibtype=Ibtypes(i)+1;  
         idx=find(fem_grid_struct.ibtype==Ibtypes(i));
-        
+
+        fprintf(' Drawing ibtype=%d, %d segments\n',Ibtypes(i),length(idx))
+
         switch Ibtypes(i)
             
             case 0  % land (no normal, free tangential)
@@ -121,11 +126,15 @@ if isfield(fem_grid_struct,'ibtype')
                     j=fem_grid_struct.ln{idx(k)};
                     x=fem_grid_struct.x(j);
                     y=fem_grid_struct.y(j);
-                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',20);
-                    text(mean(x),mean(y),int2str(idx(k)),'EdgeColor',cols{jj,1},'BackgroundColor','w')
+                    h=line(x,y,'Color',cols{ibtype,1},'LineStyle','-','Marker','.'); 
+                    %line(x(1:10:end),y(1:10:end),'Color',cols{ibtype,1},'LineStyle','non','Marker',cols{ibtype,3},'MarkerSize',8);
+                    % temp=repmat(ibtype-1,[length(x) 1]);
+                    % text(x(1:10:end),y(1:10:end),string(temp(1:10:end)),'Color',cols{ibtype,1},'FontSize',10);
+
+                    % text(x(floor(length(x)/2)),y(floor(length(x)/2)),int2str(idx(k)),'EdgeColor',cols{ibtype,1},'BackgroundColor','w')
                 end
                 hleg=[hleg;h];
-                legstr={legstr{:},legs{jj}};
+                legstr={legstr{:},legs{ibtype}};
                 
             case 1  % island
                 
@@ -133,7 +142,7 @@ if isfield(fem_grid_struct,'ibtype')
                     k=fem_grid_struct.ln{idx(j)};
                     x=fem_grid_struct.x(k);
                     y=fem_grid_struct.y(k);
-                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',20);
+                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',12);
                 end
                 hleg=[hleg;h];
                 legstr={legstr{:},legs{jj}};
@@ -144,7 +153,7 @@ if isfield(fem_grid_struct,'ibtype')
                     k=fem_grid_struct.ln{idx(j)};
                     x=fem_grid_struct.x(k);
                     y=fem_grid_struct.y(k);
-                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',20);
+                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',12);
                 end
                 hleg=[hleg;h];
                 legstr={legstr{:},legs{jj}};
@@ -155,7 +164,7 @@ if isfield(fem_grid_struct,'ibtype')
                     k=fem_grid_struct.ln{idx(j)};
                     x=fem_grid_struct.x(k);
                     y=fem_grid_struct.y(k);
-                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',20);
+                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',12);
                 end
                 hleg=[hleg;h];
                 legstr={legstr{:},legs{jj}};
@@ -167,11 +176,17 @@ if isfield(fem_grid_struct,'ibtype')
                     k=fem_grid_struct.ln{idx(j)};
                     x=fem_grid_struct.x(k);
                     y=fem_grid_struct.y(k);
-                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',20);
-                    %text(mean(x),mean(y),int2str(idx(j)),'EdgeColor',cols{jj,1},'BackgroundColor','w')
+                    h=line(x,y,'Color',cols{ibtype,1},'LineStyle','-','Marker','.');                    
+                    
+                    % temp=repmat(ibtype-1,[length(x) 1]);
+                    % text(x(1:10:end),y(1:10:end),string(temp(1:10:end)),'Color',cols{ibtype,1},'FontSize',10);
+
+                    %line(x(1:10:end),y(1:10:end),'Color',cols{ibtype,1},'LineStyle','none','Marker',cols{ibtype,3},'MarkerSize',12);
+                    text(x(floor(length(x)/2)),y(floor(length(x)/2)),int2str(idx(j)),...
+                        'Color',cols{ibtype,1},'EdgeColor',cols{ibtype,1},'BackgroundColor','w')
                 end
                 hleg=[hleg;h];
-                legstr={legstr{:},legs{jj}};
+                legstr={legstr{:},legs{ibtype}};
                 
             case 21  % Island (21, weak no normal, free tangential)
                 
@@ -179,10 +194,16 @@ if isfield(fem_grid_struct,'ibtype')
                     k=fem_grid_struct.ln{idx(j)};
                     x=fem_grid_struct.x(k);
                     y=fem_grid_struct.y(k);
-                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',20);
+                    h=line(x,y,'Color',cols{ibtype,1},'LineStyle','-','Marker','.');
+%                    line(x(1:10:end),y(1:10:end),'Color',cols{ibtype,1},'LineStyle','none','Marker',cols{ibtype,3},'MarkerSize',12);
+                    % temp=repmat(ibtype-1,[length(x) 1]);
+                    % text(x(1:10:end),y(1:10:end),string(temp(1:10:end)),'Color',cols{ibtype,1},'FontSize',10);
+                    %text(mean(x),mean(y),int2str(idx(j)),'EdgeColor',cols{ibtype,1},'BackgroundColor','w')
+                    text(x(floor(length(x)/2)),y(floor(length(x)/2)),int2str(idx(j)),...
+                        'Color',cols{ibtype,1},'EdgeColor',cols{ibtype,1},'BackgroundColor','w')
                 end
                 hleg=[hleg;h];
-                legstr={legstr{:},legs{jj}};
+                legstr={legstr{:},legs{ibtype}};
                 
             case 22  % River (22, weak normal, free tangential)
                               
@@ -191,7 +212,7 @@ if isfield(fem_grid_struct,'ibtype')
                     k=fem_grid_struct.ln{idx(j)};
                     x=fem_grid_struct.x(k);
                     y=fem_grid_struct.y(k);
-                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',20);
+                    h=line(x,y,'Color',cols{jj,1},'LineStyle',cols{jj,2},'Marker',cols{jj,3},'MarkerSize',12);
                     text(mean(x),mean(y),int2str(nriver),'EdgeColor',cols{jj,1},'BackgroundColor','w')
                 end
                 hleg=[hleg;h];
@@ -227,9 +248,15 @@ end
 % color bnd types
 if isfield(fem_grid_struct,'nopenboundaries')
     if fem_grid_struct.nopenboundaries>0
+        fprintf(' Drawing elevation boundaries, %d segments\n',fem_grid_struct.nopenboundaries)
         for i=1:fem_grid_struct.nopenboundaries
             iob=fem_grid_struct.ob{i};
-            hob(i)=line(fem_grid_struct.x(iob), fem_grid_struct.y(iob),'Color','r','LineStyle','-','Marker','x','MarkerSize',10);
+            x=fem_grid_struct.x(iob);
+            y=fem_grid_struct.y(iob);
+            hob=line(x,y,'Color','r','LineStyle','-','Marker','.');
+            %line(x(1:5:end),y(1:5:end),'Color','r','LineStyle','none','Marker','x','MarkerSize',6);
+            text(x(floor(length(x)/2)),y(floor(length(x)/2)),int2str(i),...
+                'Color','r','EdgeColor','r','BackgroundColor','w')
         end
         legstr={legstr{:},'Elevation'};
         hleg=[hleg;hob(1)];

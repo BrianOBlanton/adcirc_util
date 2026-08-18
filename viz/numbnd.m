@@ -11,7 +11,6 @@ function h=numbnd(fem_grid_struct,varargin)
 % Summer 1997
 %
 
-     
 % check arguments
 if nargin ==0 
    error('Not enough input arguments; need atleast fem_grid_struct');
