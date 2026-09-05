@@ -30,7 +30,7 @@ end
 
 % Default propertyname values
 TheseElems=[];
-MeshHeight=1.;
+% MeshHeight=1.;
 SPH=true;
 ax=[];
 bcol=[.8,.9,1];
@@ -41,8 +41,8 @@ k=1;
 while k<length(varargin)
   switch lower(varargin{k})
     case 'meshheight'
-      MeshHeight=varargin{k+1};
-      varargin([k k+1])=[];
+      % MeshHeight=varargin{k+1};
+      % varargin([k k+1])=[];
     case 'sph'
       SPH=varargin{k+1};
       varargin([k k+1])=[];
@@ -110,9 +110,9 @@ end
 if ismap(gca)
     mstruct=gcm;
     [xt,yt] = projfwd(mstruct,y,x);
-    hel=trimesh(elems,xt,yt,0*xt,'facecolor',bcol,'edgecolor','k');
+    hel=trimesh(elems,xt,yt,0*xt,'facecolor',bcol,'edgecolor','k',varargin{:});
 else
-    hel=trimesh(elems,x,y,0*x,'facecolor',bcol,'edgecolor','k');
+    hel=trimesh(elems,x,y,0*x,'facecolor',bcol,'edgecolor','k',varargin{:});
     % hel=line(ax,xt,yt,'Color','k',varargin{:},'Tag','elements');
 end
 hel.Tag='elements';
@@ -152,18 +152,18 @@ return
 % 
 
 % COPY FIRST COLUMN TO LAST TO CLOSE ELEMENTS
-edges=[elems(:,[1 2]); elems(:,[2 3]) ; elems(:,[3 1])];
-[m,~]=size(edges);
-xt=[x(edges) NaN*ones([m 1])];
-yt=[y(edges) NaN*ones([m 1])];
+% edges=[elems(:,[1 2]); elems(:,[2 3]) ; elems(:,[3 1])];
+% [m,~]=size(edges);
+% xt=[x(edges) NaN*ones([m 1])];
+% yt=[y(edges) NaN*ones([m 1])];
 % zt=ones(size([z(edges) NaN*ones([m 1])]));
 
-xt=xt';
-yt=yt';
+% xt=xt';
+% yt=yt';
 %zt=zt';
-
-xt=xt(:);
-yt=yt(:);
+% 
+% xt=xt(:);
+% yt=yt(:);
 %zt=zt(:);
 
 % if ismap(gca)
@@ -173,15 +173,15 @@ yt=yt(:);
 
 % DRAW GRID
 
-if ismap(gca) 
-    hel=linem(yt,xt,'Tag','elements','Color','k','LineStyle','-',varargin{:});
-elseif strcmp(get(gca,'Type'),'mapaxes')
-    hel=line(ax,yt,xt,'Tag','elements','Color','k','LineStyle','-',varargin{:});
-elseif strcmp(get(gca,'Type'),'geoaxes')
-    hel=line(ax,yt,xt,'Tag','elements','Color','k','LineStyle','-',varargin{:});
-else
-    hel=line(ax,xt,yt,'Tag','elements','Color','k','LineStyle','-',varargin{:});
-end
+% if ismap(gca) 
+%     hel=linem(yt,xt,'Tag','elements','Color','k','LineStyle','-',varargin{:});
+% elseif strcmp(get(gca,'Type'),'mapaxes')
+%     hel=line(ax,yt,xt,'Tag','elements','Color','k','LineStyle','-',varargin{:});
+% elseif strcmp(get(gca,'Type'),'geoaxes')
+%     hel=line(ax,yt,xt,'Tag','elements','Color','k','LineStyle','-',varargin{:});
+% else
+%     hel=line(ax,xt,yt,'Tag','elements','Color','k','LineStyle','-',varargin{:});
+% end
 
 %hel=line(ax,xt,yt,zt,'Color','k',varargin{:},'Tag','elements');
 %hel=line(ax,xt,yt,'Color','k',varargin{:},'Tag','elements');

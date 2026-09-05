@@ -155,19 +155,11 @@ for i=1:fem_grid_struct.nland
        fem_grid_struct.ln{i}=temp(:,1);
      
    case {4, 24, 64}          % Node pairs for weirs
-<<<<<<< HEAD
        n24=n24+1;
        temp=fscanf(fid,'%d %d %f %f %f',[5 fem_grid_struct.nlandnodes(i)])';
        n24pairs=n24pairs+fem_grid_struct.nlandnodes(i);
        fem_grid_struct.ln{i}=temp(:,1:2);
        fem_grid_struct.weirheights{i}=temp(:,3);
-=======
-      n24=n24+1;
-      temp=fscanf(fid,'%d %d %f %f %f',[5 fem_grid_struct.nlandnodes(i)])';
-      n24pairs=n24pairs+fem_grid_struct.nlandnodes(i);
-      fem_grid_struct.ln{i}=temp(:,1:2);
-      fem_grid_struct.weirheights{i}=temp(:,3);
->>>>>>> b56dee45ba9884137f32f9a41d7673250b257f8b
       
    % case {64}
    %     fprintf('Processing "64" ...\n')

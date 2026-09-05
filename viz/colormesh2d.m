@@ -113,13 +113,14 @@ if ismap(gca)
     % Warning: 'polycon' is an alternative implementation of this projection. To use the standard version of this projection, create a map 
     % projection structure and specify 'polyconstd' instead. 
     % mstruct=gcm;
-    % [x,y] = projfwd(mstruct,y,x);
-
-    hp=patchm(y,x,Q,'faces',e,'EdgeColor','none',...
-         'FaceColor','interp','Tag','colorsurf');
+    [xm, ym] = projfwd(gcm,y, x);
+    hp=patch(ax,'XData',xm,'YData',ym,'faces',e,'CData',Q,...
+             'EdgeColor','none',...
+             'FaceColor','interp','Tag','colorsurf');
 
 else
-    hp=patch(ax,'XData',x,'YData',y,'faces',e,'CData',Q, 'EdgeColor','none',...
+    hp=patch(ax,'XData',x,'YData',y,'faces',e,'CData',Q,...
+             'EdgeColor','none',...
              'FaceColor','interp','Tag','colorsurf');
 end
 

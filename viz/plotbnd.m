@@ -54,8 +54,7 @@ x=fem_grid_struct.x;
 y=fem_grid_struct.y;
 
 if ismap(gca)
-    mstruct=gcm;
-    [x,y] = projfwd(mstruct,y,x);
+    [x,y] = projfwd(gcm,y,x);
 end
 
 ns=bnd(:,1);
@@ -77,7 +76,7 @@ else
 end
 
 set(hboun,'ZData',2*ones(size(get(hboun,'XData'))))
-set(hboun,'DisplayName','Boundary','HandleVisibility','off')
+set(hboun,'DisplayName','Boundary') %,'HandleVisibility','off')
 
 if nargout==1,retval=hboun;end
 %
