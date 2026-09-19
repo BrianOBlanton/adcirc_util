@@ -11,6 +11,8 @@ function D=read_adcirc_nws8(filename)
 %             cp:
 %           time:
 
+%BN, CY, YYYYMMDDHH, MIN,TECH, TAU,latNS, lonEW,VMAX, MSLP, TY, RAD,  WC, RAD1, RAD2, RAD3, RAD4, POUT, ROUT, RMW,GUST, EYE,  SR,MAXS,INIT, DIR, SPD,  STORMNAME
+
 [D.basin,D.stormnumber,yyyymmdd,blnk,blnk,hr,lat,lon,rmw,cp]=textread(filename,'%s%d%s%s%s%d%s%s%s%s%*[^\n]','delimiter',',');
 
 

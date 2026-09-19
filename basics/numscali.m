@@ -20,11 +20,9 @@ function h=numscali(x,y,Q,varargin)
 %
 
 % DEFINE ERROR STRINGS
-err1=['Not enough input arguments; need atleast x,y'];
-err2=['Lengths of x,y must be the same'];
-err3=['Size of Q must be the same as x,y'];
-warn1=str2mat('The current axes is too dense for the  ',...
-       'scalar values to be readable.  CONTINUE?'); 
+err1='Not enough input arguments; need atleast x,y';
+err2='Lengths of x,y must be the same';
+err3='Size of Q must be the same as x,y';
        
 % check arguments
 if nargin==0
@@ -54,29 +52,29 @@ filt=find(x>=X(1)&x<=X(2)&y>=Y(1)&y<=Y(2));
 
 % determine if viewing window is zoomed-in
 % enough for node numbers to be meaningful
-oldunits=get(gca,'Units'); 
-set(gca,'Units','Points'); 
-rect=get(gca,'Position');        % get viewing window width in 
-set(gca,'Units',oldunits);       % point units (1/72 inches)
-xr=rect(3)-rect(1);
-yr=rect(4)-rect(2);
-xden=xr/sqrt(length(filt));
-yden=yr/sqrt(length(filt));
-den=sqrt(xden*xden+yden*yden);
+% oldunits=get(gca,'Units'); 
+% set(gca,'Units','Points'); 
+% rect=get(gca,'Position');        % get viewing window width in 
+% set(gca,'Units',oldunits);       % point units (1/72 inches)
+% xr=rect(3)-rect(1);
+% yr=rect(4)-rect(2);
+% xden=xr/sqrt(length(filt));
+% yden=yr/sqrt(length(filt));
+% den=sqrt(xden*xden+yden*yden);
 %if den < 5*ps
 %   click=questdlg(warn1,'yes','no');
 %   if strcmp(click,'no'),return,end
 %end
 
-
 % label only those nodes that lie within viewing window.
-   h1=text(x(filt)+off,y(filt)+off,int2str(Q(filt)),...
-       'HorizontalAlignment','center',...
-       'VerticalAlignment','middle',...
-       'Tag','Node Scalar Value',...
-       'Background','w','EdgeColor','k',varargin{:});
-        
-if nargout>0,h=h1;,end
+h1=text(x(filt)+off,y(filt)+off,int2str(Q(filt)),...
+    'HorizontalAlignment','center',...
+    'VerticalAlignment','middle',...
+    'Tag','Node Scalar Value',...
+    varargin{:});
+
+% 'Background','w','EdgeColor','k'        
+if nargout>0,h=h1;end
 
 
 %LabSig  Brian O. Blanton
